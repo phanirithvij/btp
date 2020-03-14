@@ -10,7 +10,7 @@ const port = process.env.PORT || 3000
 const route = require('./routes')
 
 app.use(cors())
-app.use((req, res, next) => {
+app.use((req, _res, next) => {
     req.io = io
     next()
 })
