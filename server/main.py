@@ -1,5 +1,6 @@
 import os
-from flask import Flask, render_template, request, jsonify
+
+from flask import Flask, jsonify, render_template, request, send_from_directory, send_file
 from flask_socketio import SocketIO, emit
 from werkzeug.utils import secure_filename
 
@@ -41,23 +42,56 @@ def test_disconnect():
 
 
 def run_app(*args, **kwargs):
+    # init app here so outer configs get registered (??)
     socketio.init_app(app)
     socketio.run(*args, **kwargs)
 
 
 # file upload
-ALLOWED_EXTENSIONS = set(['wav', 'mp3', 'ogg'])
+ALLOWED_EXTENSIONS = set(['wav', 'mp3', 'ogg', 'webm'])
 
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+@app.route('/files')
+def all_files():
+    items = []
+    for i in os.listdir(app.config['UPLOAD_FOLDER']):
+        path = os.path.join(app.config['UPLOAD_FOLDER'], i)
+        items.append(
+            {'date': i.split('.')[0][4:], 'size': os.stat(path).st_size, 'id': i})
+    return render_template("files.html", items=items)  # , as_attachment=True)
+
+# TODO
+# https://stackoverflow.com/a/51013358/8608146
+
+
+@app.route('/files/<path:filename>', methods=['GET', 'DELETE', 'PUT'])
+def download_file(filename):
+    if request.method == 'GET':
+        return send_from_directory(app.config['UPLOAD_FOLDER'],
+                                   filename)  # , as_attachment=True)
+    elif request.method == 'DELETE':
+        # TODO
+        # check if client has the ownership
+        print("Delete", filename)
+        try:
+            os.remove(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        except FileNotFoundError as e:
+            return jsonify({'status': 'failed', 'msg': str(e)})
+        return jsonify({'status': 'ok'})
+    elif request.method == 'PUT':
+        # https://pythonise.com/series/learning-flask/flask-http-methods
+        return jsonify({'status': 'ok'})
+
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if request.method == 'POST':
         # check if the post request has the file part
-        print(request)
+        # print(request)
         if 'file' not in request.files:
             # flash('No file part')
             # return redirect(request.url)
@@ -75,7 +109,7 @@ def upload_file():
             # return redirect('/')
             return jsonify({
                 'status': 'ok',
-                'msg': None, 'path': filename, size: size
+                'msg': None, 'path': filename, 'size': size
             })
         else:
             # flash('Allowed file types are txt, pdf, png, jpg, jpeg, gif')

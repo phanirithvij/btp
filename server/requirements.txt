@@ -3,3 +3,5 @@ Flask-SocketIO==4.2.1
 # eventlet==0.25.1
 gevent
 gevent-websocket
+# requires ffmpeg
+pydub
