@@ -8,10 +8,12 @@
 </head>
 
 <body>
-    <a href="/files">Files</a>
-    <p></p>
-    {% block content %} {% endblock %}
     <div id="content"></div>
+    <div style="position: fixed;">
+        <a href="/files">Files</a>
+        <p></p>
+        {% block content %} {% endblock %}
+    </div>
     <script type="text/javascript" src="{{ url_for('static', filename='MediaStreamRecorder.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='socket.io.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='main.js') }}"></script>
