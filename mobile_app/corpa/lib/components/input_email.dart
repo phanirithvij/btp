@@ -1,4 +1,6 @@
+import 'package:corpora/provider/authentication.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class InputEmail extends StatelessWidget {
   @override
@@ -9,6 +11,7 @@ class InputEmail extends StatelessWidget {
         height: 60,
         width: MediaQuery.of(context).size.width,
         child: TextField(
+          controller: Provider.of<AuthStore>(context).emailController,
           style: TextStyle(
             color: Colors.white,
           ),

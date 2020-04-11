@@ -2,8 +2,8 @@ import 'package:corpora/screens/login.dart';
 import 'package:corpora/screens/register.dart';
 import 'package:flutter/material.dart';
 
-class ChangeScreenButton extends StatelessWidget {
-  const ChangeScreenButton({Key key, this.login = true}) : super(key: key);
+class SwitchScreenButton extends StatelessWidget {
+  const SwitchScreenButton({Key key, this.login = true}) : super(key: key);
 
   final login;
 

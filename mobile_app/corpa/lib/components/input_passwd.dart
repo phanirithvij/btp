@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'package:corpora/provider/authentication.dart';
 
 class PasswordField extends StatelessWidget {
   const PasswordField({Key key}) : super(key: key);
@@ -11,6 +14,7 @@ class PasswordField extends StatelessWidget {
         height: 60,
         width: MediaQuery.of(context).size.width,
         child: TextField(
+          controller: Provider.of<AuthStore>(context).passwordController,
           style: TextStyle(
             color: Colors.black,
           ),

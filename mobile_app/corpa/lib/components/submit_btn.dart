@@ -1,13 +1,19 @@
+import 'package:corpora/provider/authentication.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class ButtonLogin extends StatefulWidget {
+class SubmitButton extends StatefulWidget {
+  const SubmitButton(this.type, {Key key}) : super(key: key);
+
+  final String type;
+
   @override
-  _ButtonLoginState createState() => _ButtonLoginState();
+  _SubmitButtonState createState() => _SubmitButtonState();
 }
 
 enum ButtonState { Loading, Error, Success, Start }
 
-class _ButtonLoginState extends State<ButtonLogin> {
+class _SubmitButtonState extends State<SubmitButton> {
   ButtonState _loading = ButtonState.Start;
 
   @override
@@ -22,8 +28,7 @@ class _ButtonLoginState extends State<ButtonLogin> {
   /// This function should be in top level
   /// Provider or bloc it
   void tryAuth(BuildContext context) {
-    // Validate input fields
-
+    Provider.of<AuthStore>(context, listen: false).tryAuth(widget.type);
     // http req server for login
     setState(() {
       _loading = ButtonState.Loading;
