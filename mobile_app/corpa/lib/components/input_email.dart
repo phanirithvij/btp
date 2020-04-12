@@ -9,7 +9,10 @@ class InputEmail extends StatelessWidget {
       padding: const EdgeInsets.only(top: 50, left: 50, right: 50),
       child: Container(
         height: 60,
-        width: MediaQuery.of(context).size.width,
+        // Same width in both orientations
+        width: MediaQuery.of(context).orientation == Orientation.portrait
+            ? MediaQuery.of(context).size.width
+            : MediaQuery.of(context).size.height,
         child: TextField(
           controller: Provider.of<AuthStore>(context).emailController,
           style: TextStyle(

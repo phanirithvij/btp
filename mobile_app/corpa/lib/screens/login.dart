@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
@@ -29,6 +30,7 @@ class _LoginPageState extends State<LoginPage> {
           child: Container(
             decoration: kGradientBackgroundLogin,
             child: ListView(
+              padding: EdgeInsets.zero,
               children: <Widget>[
                 Column(
                   children: <Widget>[
@@ -42,24 +44,12 @@ class _LoginPageState extends State<LoginPage> {
                       style:
                           TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                     )),
-                    Consumer<AuthStore>(
-                      builder: (_, __, ___) => InputEmail(),
-                    ),
-                    Consumer<AuthStore>(
-                      builder: (_, __, ___) => PasswordField(),
-                    ),
+                    _FormFields(),
                     // Less space when not in portrait mode
                     (MediaQuery.of(context).orientation == Orientation.portrait)
                         ? Padding(padding: EdgeInsets.only(top: 50))
                         : Padding(padding: EdgeInsets.only(top: 20)),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        SwitchScreenButton(login: true),
-                        SubmitButton("login"),
-                      ],
-                    ),
+                    _Buttons(),
                     Padding(padding: EdgeInsets.only(top: 50)),
                   ],
                 ),
@@ -67,6 +57,56 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _Buttons extends StatelessWidget {
+  _Buttons({Key key}) : super(key: key);
+
+  final _children = <Widget>[
+    SwitchScreenButton(login: true),
+    SubmitButton("login"),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 110,
+      child: (MediaQuery.of(context).orientation == Orientation.portrait)
+          ? Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: _children,
+            )
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: _children,
+            ),
+    );
+  }
+}
+
+class _FormFields extends StatelessWidget {
+  const _FormFields({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO should be global
+    if (MediaQuery.of(context).orientation == Orientation.portrait) {
+      SystemChrome.setEnabledSystemUIOverlays(
+          [SystemUiOverlay.bottom, SystemUiOverlay.top]);
+    } else {
+      SystemChrome.setEnabledSystemUIOverlays([]);
+    }
+
+    return Container(
+      child: Column(
+        children: <Widget>[
+          Consumer<AuthStore>(builder: (_, __, ___) => InputEmail()),
+          Consumer<AuthStore>(builder: (_, __, ___) => PasswordField()),
+        ],
       ),
     );
   }

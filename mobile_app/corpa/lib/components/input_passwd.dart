@@ -12,7 +12,9 @@ class PasswordField extends StatelessWidget {
       padding: const EdgeInsets.only(top: 20, left: 50, right: 50),
       child: Container(
         height: 60,
-        width: MediaQuery.of(context).size.width,
+        width: (MediaQuery.of(context).orientation == Orientation.portrait
+            ? MediaQuery.of(context).size.width
+            : MediaQuery.of(context).size.height),
         child: TextField(
           controller: Provider.of<AuthStore>(context).passwordController,
           style: TextStyle(

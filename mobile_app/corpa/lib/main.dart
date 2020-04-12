@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 
 import 'package:corpora/themes/utils.dart';
 import 'package:corpora/screens/login.dart';
+import 'package:flutter/services.dart';
 
-void main() => runApp(corporaApp());
+void main() => runApp(CorporaApp());
 
-class corporaApp extends StatelessWidget {
+class CorporaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -26,6 +27,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
+    // Hide bars when on landscape orientation
+    if (MediaQuery.of(context).orientation == Orientation.portrait) {
+      SystemChrome.setEnabledSystemUIOverlays(
+          [SystemUiOverlay.bottom, SystemUiOverlay.top]);
+    } else {
+      SystemChrome.setEnabledSystemUIOverlays([]);
+    }
     return Scaffold(
       body: Container(
         decoration: kGradientBackground,
