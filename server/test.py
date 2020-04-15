@@ -11,4 +11,4 @@ s.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
 while True:
     sleep(2)
     print('sendto')
-    s.sendto(b'this is testing', ('255.255.255.255', 9000))
+    s.sendto(b'this is testing', ('255.255.255.255', 8020))

@@ -1,4 +1,5 @@
 import 'package:corpora/provider/authentication.dart';
+import 'package:corpora/utils/date.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -168,15 +169,10 @@ class _DatePickerState extends State<DatePicker> {
   }
 
   List<String> get _getDateandAge {
-    final date = Provider.of<AuthStore>(context, listen: false)
-        .selectedDate
-        .toLocal()
-        .toString()
-        .split(' ')[0];
-    final dur = DateTime.now().difference(
-        Provider.of<AuthStore>(context, listen: false).selectedDate);
-    int age = (dur.inDays / 365).floor();
-
-    return [date, "$age"];
+    final selectedDate =
+        Provider.of<AuthStore>(context, listen: false).selectedDate;
+    final date = DateUtils.getDate(selectedDate);
+    final ageStr = DateUtils.getAge(selectedDate);
+    return [date, ageStr];
   }
 }

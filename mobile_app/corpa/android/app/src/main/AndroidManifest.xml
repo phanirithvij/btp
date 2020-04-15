@@ -1,6 +1,25 @@
 <manifest
         xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         package="com.example.corpora">
+
+    <!-- IMPORTANT MIGHT CRASH THE APP on older devices -->
+    <!-- Nevermind this is only needed if using full version of flutter_ffmpeg -->
+    <!-- flutter_sound needs only `audio-lts` of flutter_ffmpeg -->
+    <!-- https://github.com/dooboolab/flutter_sound/issues/265 -->
+
+    <!-- <uses-sdk tools:overrideLibrary="com.arthenica.flutter.ffmpeg, com.arthenica.mobileffmpeg" /> -->
+    <!-- https://stackoverflow.com/a/27310430/8608146 -->
+
+    <!-- FLutter-Sound permissions -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+
+
+    <!-- I need it to find subnet ip -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
     <!-- io.flutter.app.FlutterApplication is an android.app.Application that
          calls FlutterMain.startInitialization(this); in its onCreate method.
          In most cases you can leave this as-is, but you if you want to provide
@@ -9,7 +28,10 @@
     <application
             android:name="io.flutter.app.FlutterApplication"
             android:label="corpora"
-            android:icon="@mipmap/ic_launcher">
+            android:icon="@mipmap/ic_launcher"
+        tools:ignore="GoogleAppIndexingWarning"
+        android:allowBackup="false"
+        android:fullBackupContent="false">
         <activity
                 android:name=".MainActivity"
                 android:launchMode="singleTop"

@@ -39,4 +39,5 @@ if not os.access(args.dir, os.R_OK):
 # print(args)
 
 app.config['UPLOAD_FOLDER'] = dirname
-run_app(app, 'localhost', args.port, debug=True)
+app.debug = True
+run_app(app, host='0.0.0.0', port=3000, debug=True)

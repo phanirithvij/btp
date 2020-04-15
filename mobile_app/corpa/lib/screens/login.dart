@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:corpora/provider/authentication.dart';
 import 'package:corpora/themes/utils.dart';
 
-import 'package:corpora/components/input_email.dart';
+import 'package:corpora/components/input_username.dart';
 import 'package:corpora/components/input_passwd.dart';
 import 'package:corpora/components/submit_btn.dart';
 import 'package:corpora/components/switch_screen_button.dart';
@@ -104,7 +104,7 @@ class _FormFields extends StatelessWidget {
     return Container(
       child: Column(
         children: <Widget>[
-          Consumer<AuthStore>(builder: (_, __, ___) => InputEmail()),
+          Consumer<AuthStore>(builder: (_, __, ___) => InputUsername()),
           Consumer<AuthStore>(builder: (_, __, ___) => PasswordField()),
         ],
       ),

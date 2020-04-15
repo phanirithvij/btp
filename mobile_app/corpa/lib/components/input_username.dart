@@ -2,7 +2,7 @@ import 'package:corpora/provider/authentication.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class InputEmail extends StatelessWidget {
+class InputUsername extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -14,7 +14,7 @@ class InputEmail extends StatelessWidget {
             ? MediaQuery.of(context).size.width
             : MediaQuery.of(context).size.height,
         child: TextField(
-          controller: Provider.of<AuthStore>(context).emailController,
+          controller: Provider.of<AuthStore>(context).usernameController,
           style: TextStyle(
             color: Colors.white,
           ),

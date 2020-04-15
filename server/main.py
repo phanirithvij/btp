@@ -4,6 +4,8 @@ from flask import Flask, jsonify, render_template, request, send_from_directory,
 from flask_socketio import SocketIO, emit
 from werkzeug.utils import secure_filename
 
+import random
+
 # current directory is server/
 # Set static folder to be ../web_app/src
 up_one = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -68,6 +70,43 @@ def all_files():
 # https://stackoverflow.com/a/51013358/8608146
 
 
+@app.route('/auth/login')
+def login():
+    # TODO login
+    # print("fuckk")
+    return jsonify({
+        'status': 'ok',
+        'error': '',
+        'userId': 'test',
+        'name': 'Rithvij'
+    })
+
+
+@app.route('/auth/new', methods=['GET', 'POST'])
+def new_user():
+    # TODO register
+    if request.method == 'POST':
+        # print(dir(request))
+        print(request.values)
+        print("New user added")
+
+        # TODO check if such user already exists
+        # If so request the user their email address
+        # or ask them to choose a different username
+
+        # TODO add new user to DB
+
+        return jsonify({
+            'status': 'ok',
+            'error': '',
+            'userId': 'test',
+            'name': 'User-' + str(random.randint(0, 100))
+        })
+    else:
+        # Register page from web app
+        return "Not Implemented"
+
+
 @app.route('/files/<path:filename>', methods=['GET', 'DELETE', 'PUT'])
 def download_file(filename):
     if request.method == 'GET':
@@ -120,4 +159,5 @@ def upload_file():
 
 if __name__ == '__main__':
     app.config['UPLOAD_FOLDER'] = os.path.join(up_one, 'data')
-    run_app(app, 'localhost', 3000, debug=True)
+    app.debug = True
+    run_app(app, host='0.0.0.0', port=3000, debug=True)

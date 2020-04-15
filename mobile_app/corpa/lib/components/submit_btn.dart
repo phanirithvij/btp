@@ -1,4 +1,5 @@
 import 'package:corpora/provider/authentication.dart';
+import 'package:corpora/screens/record.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -15,6 +16,8 @@ enum ButtonState { Loading, Error, Success, Start }
 
 class _SubmitButtonState extends State<SubmitButton> {
   ButtonState _loading = ButtonState.Start;
+  bool _started = false;
+  bool _errorsDissmissed = false;
 
   @override
   void initState() {
@@ -27,12 +30,48 @@ class _SubmitButtonState extends State<SubmitButton> {
   /// Tries logging in
   /// This function should be in top level
   /// Provider or bloc it
-  void tryAuth(BuildContext context) {
-    Provider.of<AuthStore>(context, listen: false).tryAuth(widget.type);
-    // http req server for login
+  ///
+  void _startAuth() {
     setState(() {
+      // new button press implies retry => new errors
+      _errorsDissmissed = false;
+      // Set state to loading
       _loading = ButtonState.Loading;
+      // when started it starts the futureBuilder
+      _started = true;
     });
+  }
+
+  void _showErrors(AuthInfo info) {
+    // TODO bugfix these are shown multiple times for evey build
+
+    // If error was dissmissed don't show it again
+    if (_errorsDissmissed) return;
+
+    final snackBar = SnackBar(
+      duration: Duration(seconds: 2, milliseconds: 500),
+      backgroundColor: Colors.black,
+      content: Text(
+        info.errors.join(', '),
+        style: TextStyle(color: Colors.white),
+      ),
+      action: SnackBarAction(
+          textColor: Colors.red,
+          label: "Dismiss",
+          onPressed: () {
+            _errorsDissmissed = true;
+            Scaffold.of(context).removeCurrentSnackBar();
+          }),
+    );
+    Scaffold.of(context).showSnackBar(snackBar);
+  }
+
+  Future<AuthInfo> _tryAuth(BuildContext context) async {
+    print("Start login");
+    AuthInfo info = await Provider.of<AuthStore>(context, listen: false)
+        .tryAuth(widget.type);
+
+    return info;
   }
 
   Widget get button {
@@ -72,8 +111,40 @@ class _SubmitButtonState extends State<SubmitButton> {
       ),
       child: Center(
         child: FlatButton(
-          onPressed: () => tryAuth(context),
-          child: button,
+          onPressed: _startAuth,
+          child: !_started
+              ? button
+              : FutureBuilder<AuthInfo>(
+                  future: _tryAuth(context),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      final info = snapshot.data;
+
+                      if (info.hasErrors) {
+                        _loading = ButtonState.Error;
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          _showErrors(info);
+                        });
+                      } else {
+                        // Login or signup success save the info to disk
+                        snapshot.data.persistLoginonDisk().whenComplete(() {
+                          // https://stackoverflow.com/a/59478165/8608146
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (context) => RecordPage(snapshot.data),
+                              ),
+                            );
+                          });
+                        });
+                      }
+                    } else if (snapshot.hasError) {
+                      _loading = ButtonState.Error;
+                      print(snapshot.error);
+                    }
+                    return button;
+                  },
+                ),
         ),
       ),
     );
