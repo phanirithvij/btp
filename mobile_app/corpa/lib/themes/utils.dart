@@ -67,7 +67,7 @@ ThemeData _buildAmoledTheme() {
     accentColor: Colors.white,
     // backgroundColor: Colors.black,
     // foregroundColor: Colors.greenAccent,
-    canvasColor: Colors.transparent,
+    canvasColor: Colors.black,
     primaryIconTheme: IconThemeData(color: Colors.black),
     scaffoldBackgroundColor: Colors.black,
   );
@@ -91,3 +91,11 @@ final kGradientBackgroundLogin = BoxDecoration(
     colors: [Colors.greenAccent, Colors.black],
   ),
 );
+
+/// RecordPage bg gradient
+final kGradientBackgroundRecord = BoxDecoration(
+    gradient: RadialGradient(
+  radius: 2.5,
+  center: Alignment.centerRight,
+  colors: [Colors.blueGrey, Colors.black],
+));

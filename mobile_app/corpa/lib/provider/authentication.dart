@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:corpora/provider/serveinfo.dart';
+import 'package:corpora/provider/server.dart';
 import 'package:corpora/utils/date.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -23,6 +23,8 @@ enum AuthStatus {
   Invalid
 }
 
+enum AuthType { Login, Register }
+
 /// Convert status string to enum
 AuthStatus _getStatus(String status) {
   switch (status) {
@@ -43,6 +45,7 @@ class AuthInfo {
   var errors = [];
   String userId;
   String name;
+  String gender;
 
   AuthInfo();
 
@@ -50,6 +53,7 @@ class AuthInfo {
     return AuthInfo()
       ..userId = json['userId']
       ..name = json['name']
+      ..gender = json['gender']
       ..errors.add(json['error'])
       ..status = _getStatus(json['status'] as String);
   }
@@ -62,7 +66,7 @@ class AuthInfo {
 
   @override
   String toString() {
-    return "Status $status UserId $userId Name $name Errors $errors";
+    return "Status $status UserId $userId Name $name Gender $gender Errors $errors";
   }
 
   Future<void> persistLoginonDisk() async {
@@ -80,6 +84,12 @@ class AuthStore extends ChangeNotifier {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   DateTime selectedDate = DateTime.now();
+  String _gender = "m";
+  String get selectedGender => _gender;
+  set selectedGender(String gender) {
+    _gender = gender;
+    notifyListeners();
+  }
 
   SharedPreferences _prefs;
 
@@ -89,28 +99,30 @@ class AuthStore extends ChangeNotifier {
     print("DatePicker $date");
   }
 
-  Future<AuthInfo> tryAuth(String type) async {
+  Future<AuthInfo> tryAuth({AuthType type = AuthType.Login}) async {
     final username = usernameController.text;
     // TODO encrypt password
     final password = passwordController.text;
 
     print("username is $username");
     print("Passwd is $password");
+    print("Gender is $_gender");
+    print("D.O.B is $selectedDate");
 
     AuthInfo info = AuthInfo();
-    if (_validate()) {
+    if (_validate(type)) {
       var reqUrl = ServerDetails.authUrl;
       print("Sent request to ${ServerDetails.authUrl}");
 
       http.Response _response;
-      if (type == "login") {
+      if (type == AuthType.Login) {
         reqUrl = ServerDetails.loginUrl;
-        _response = await http.get(
-          reqUrl,
-          headers: {
-            HttpHeaders.authorizationHeader: "Basic your_api_token_here"
-          },
-        );
+        _response = await http.post(reqUrl, headers: {
+          HttpHeaders.authorizationHeader: "Basic your_api_token_here"
+        }, body: {
+          "username": username,
+          "password": password,
+        });
       } else {
         // date of birth
         reqUrl = ServerDetails.registerUrl;
@@ -118,7 +130,8 @@ class AuthStore extends ChangeNotifier {
         _response = await http.post(reqUrl, body: {
           "username": username,
           "password": password,
-          "age": DateUtils.getAge(selectedDate)
+          "age": DateUtils.getAge(selectedDate).toString(),
+          "gender": _gender,
         });
       }
 
@@ -128,6 +141,7 @@ class AuthStore extends ChangeNotifier {
       }
       // print(_response.statusCode);
       else if (_response.statusCode == 200) {
+        print(_response.headers);
         final _responseJson = json.decode(_response.body);
         info = AuthInfo.fromJson(_responseJson);
         print(info.errors);
@@ -146,14 +160,27 @@ class AuthStore extends ChangeNotifier {
           ..status = AuthStatus.Invalid
           ..errors.add("Invalid Password entered");
       }
+      if (!_validAge(selectedDate)) {
+        info = info
+          ..status = AuthStatus.Invalid
+          ..errors.add("Age is < 6 please re-check");
+      }
       return info;
     }
   }
 
-  bool _validate() {
-    var username = usernameController.text;
-    var password = passwordController.text;
-    return _validUsername(username) && _validPass(password);
+  bool _validate(AuthType loginType) {
+    final _username = usernameController.text;
+    final _password = passwordController.text;
+    var _valid = false;
+    if (loginType == AuthType.Register) {
+      _valid = _validUsername(_username) &&
+          _validPass(_password) &&
+          _validAge(selectedDate);
+    } else {
+      _valid = _validUsername(_username) && _validPass(_password);
+    }
+    return _valid;
   }
 
   bool _validUsername(String username) {
@@ -167,6 +194,13 @@ class AuthStore extends ChangeNotifier {
   bool _validPass(String pass) {
     // TODO
     if (pass == "") {
+      return false;
+    }
+    return true;
+  }
+
+  bool _validAge(DateTime date) {
+    if (DateUtils.getAge(date) < 6) {
       return false;
     }
     return true;

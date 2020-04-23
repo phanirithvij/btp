@@ -47,24 +47,6 @@ class _DatePickerState extends State<DatePicker> {
                 children: <Widget>[
                   // TODO replace all this with a simple underline
                   // This is just to show the underline
-                  TextField(
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                    decoration: InputDecoration(
-                      // hintText: "Select Date",
-                      // helperText: "Input",
-                      enabled: false,
-                      disabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white54),
-                      ),
-                      fillColor: Colors.lightBlueAccent,
-                      // labelText: 'Date',
-                      labelStyle: TextStyle(
-                        color: Colors.white70,
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -86,7 +68,7 @@ class _DatePickerState extends State<DatePicker> {
                     text: TextSpan(
                       text: (_selectedOnce
                               ? _getDateandAge[0]
-                              : "date of birth") +
+                              : "year of birth") +
                           " " * 4,
                       style: DefaultTextStyle.of(context).style,
                       children: <TextSpan>[
@@ -173,6 +155,6 @@ class _DatePickerState extends State<DatePicker> {
         Provider.of<AuthStore>(context, listen: false).selectedDate;
     final date = DateUtils.getDate(selectedDate);
     final ageStr = DateUtils.getAge(selectedDate);
-    return [date, ageStr];
+    return [date, "$ageStr"];
   }
 }

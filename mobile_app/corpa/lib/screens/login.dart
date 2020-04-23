@@ -67,7 +67,7 @@ class _Buttons extends StatelessWidget {
 
   final _children = <Widget>[
     SwitchScreenButton(login: true),
-    SubmitButton("login"),
+    SubmitButton(AuthType.Login),
   ];
 
   @override
@@ -82,7 +82,7 @@ class _Buttons extends StatelessWidget {
             )
           : Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: _children,
+              children: _children.reversed.toList(),
             ),
     );
   }

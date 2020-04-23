@@ -1,19 +1,27 @@
 import os
+import random
+import time
 
-from flask import Flask, jsonify, render_template, request, send_from_directory, send_file
+from flask import (Flask, jsonify, render_template, request, send_file,
+                   send_from_directory)
+from flask_jwt import JWT, current_identity, jwt_required
 from flask_socketio import SocketIO, emit
 from werkzeug.utils import secure_filename
 
-import random
+from .user import *
 
 # current directory is server/
 # Set static folder to be ../web_app/src
 up_one = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 folder = os.path.abspath(os.path.join(up_one, 'web_app', 'src'))
 
+
+DB = Database("data/data.db")
 app = Flask(__name__, static_folder=folder)
-app.config['SECRET_KEY'] = 'secret!'
-# print(app.static_folder)
+# random key
+app.config['SECRET_KEY'] = 'FTYFUH@E^@%R%^#!V#HUFEDGVQGV'
+
+jwt = JWT(app, auth_handler, identity)
 
 socketio = SocketIO()
 
@@ -50,7 +58,7 @@ def run_app(*args, **kwargs):
 
 
 # file upload
-ALLOWED_EXTENSIONS = set(['wav', 'mp3', 'ogg', 'webm'])
+ALLOWED_EXTENSIONS = set(['wav', 'mp3', 'ogg', 'webm', 'aac'])
 
 
 def allowed_file(filename):
@@ -58,6 +66,7 @@ def allowed_file(filename):
 
 
 @app.route('/files')
+@jwt_required()
 def all_files():
     items = []
     for i in os.listdir(app.config['UPLOAD_FOLDER']):
@@ -70,15 +79,31 @@ def all_files():
 # https://stackoverflow.com/a/51013358/8608146
 
 
-@app.route('/auth/login')
+@app.route('/auth/login', methods=['POST'])
 def login():
-    # TODO login
-    # print("fuckk")
+
+    user = User(request.form.get('username'))
+    user.attach_DB(DB)
+
+    error = ''
+    status = ''
+    try:
+        user.populate()
+    except Exception:
+        error = 'No such user'
+        status = 'error'
+
+    error = 'Password is incorrect'
+    status = 'error'
+    if user.verify_password(request.form.get('password')):
+        status = 'ok'
+        error = ''
+
     return jsonify({
-        'status': 'ok',
-        'error': '',
+        'status': status,
+        'error': error,
         'userId': 'test',
-        'name': 'Rithvij'
+        'name': user.username
     })
 
 
@@ -86,21 +111,28 @@ def login():
 def new_user():
     # TODO register
     if request.method == 'POST':
-        # print(dir(request))
-        print(request.values)
-        print("New user added")
 
-        # TODO check if such user already exists
-        # If so request the user their email address
-        # or ask them to choose a different username
+        _username: str = request.form.get('username')
+        _password: str = request.form.get('password')
+        _age: int = request.form.get('age')
+        _gender: str = request.form.get('gender')
+        _gender = MALE if _gender == 'm' else FEMALE
+        user = User(_username, _age, _gender, _password)
+        user.attach_DB(DB)
+        success, rowId = user.save_to_db()
 
-        # TODO add new user to DB
+        status = 'error'
+        err = f'A user named {_username} exists'
+        if success:
+            print("New user added", _username)
+            status = 'ok'
+            err = ''
 
         return jsonify({
-            'status': 'ok',
-            'error': '',
-            'userId': 'test',
-            'name': 'User-' + str(random.randint(0, 100))
+            'status': status,
+            'error': err,
+            'userId': f"{_username}-{rowId}",
+            'name': _username
         })
     else:
         # Register page from web app
@@ -108,8 +140,11 @@ def new_user():
 
 
 @app.route('/files/<path:filename>', methods=['GET', 'DELETE', 'PUT'])
+@jwt_required()
 def download_file(filename):
     if request.method == 'GET':
+        print("accessing file: " + filename, time.asctime())
+        print((request.headers))
         return send_from_directory(app.config['UPLOAD_FOLDER'],
                                    filename)  # , as_attachment=True)
     elif request.method == 'DELETE':
@@ -127,6 +162,7 @@ def download_file(filename):
 
 
 @app.route('/upload', methods=['POST'])
+@jwt_required()
 def upload_file():
     if request.method == 'POST':
         # check if the post request has the file part

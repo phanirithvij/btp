@@ -2,28 +2,26 @@ import 'package:corpora/provider/authentication.dart';
 import 'package:corpora/screens/record.dart';
 import 'package:flutter/material.dart';
 
-import 'dart:io';
-
 import 'package:corpora/themes/utils.dart';
 import 'package:corpora/screens/login.dart';
 import 'package:flutter/services.dart';
 
 void main() {
-  RawDatagramSocket.bind(InternetAddress.anyIPv4, 8020)
-      .then((RawDatagramSocket udpSocket) {
-    // udpSocket.broadcastEnabled = true;
-    udpSocket.listen((e) {
-      Datagram dg = udpSocket.receive();
-      if (dg != null) {
-        // print("received");
-        print(String.fromCharCodes(dg.data));
-      } else {
-        print(dg);
-      }
-    });
-  }).catchError((e) {
-    print(e);
-  });
+  // RawDatagramSocket.bind(InternetAddress.anyIPv4, 8020)
+  //     .then((RawDatagramSocket udpSocket) {
+  //   // udpSocket.broadcastEnabled = true;
+  //   udpSocket.listen((e) {
+  //     Datagram dg = udpSocket.receive();
+  //     if (dg != null) {
+  //       // print("received");
+  //       print(String.fromCharCodes(dg.data));
+  //     } else {
+  //       print(dg);
+  //     }
+  //   });
+  // }).catchError((e) {
+  //   print(e);
+  // });
 
   runApp(CorporaApp());
 }
@@ -33,7 +31,7 @@ class CorporaApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: "corpora Collector",
+      title: "Corpora Collector",
       theme: kAmoledTheme,
       home: HomePage(),
     );

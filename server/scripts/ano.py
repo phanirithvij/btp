@@ -13,21 +13,32 @@ from zeroconf import (ServiceBrowser, ServiceInfo, ServiceListener, Zeroconf,
 
 from netifaces import interfaces, ifaddresses
 
-import signal
-import sys
+# import signal
+# import sys
+
+from flask import Flask, request
+
+app = Flask(__name__)
 
 
-def signal_handler(sig, frame):
-    print('KEYboard InterruptedError')
-    cleanup()
-    sys.exit(0)
+@app.route('/', methods=['POST', 'GET'])
+def home():
+    if request.method == 'POST':
+        print('post req', request.json)
+        return 'posted'
+    return "flask."
+
+# def signal_handler(sig, frame):
+#     print('KEYboard InterruptedError')
+#     cleanup()
+#     sys.exit(0)
 
 
 def cleanup():
     zeroconf.close()
 
 
-signal.signal(signal.SIGINT, signal_handler)
+# signal.signal(signal.SIGINT, signal_handler)
 
 
 for ifaceName in interfaces():
@@ -48,28 +59,24 @@ class MyListener:
         # https://stackoverflow.com/a/51596612/8608146
         print("Address", inet_ntoa(info.address), info.port)
 
-        # Thread(target=client_handler, args=(info,)).start()
+        Thread(target=client_handler, args=(info,)).start()
 
 
 # datax = []
 
 
-# def client_handler(info: ServiceInfo):
-#     with closing(socket(AF_INET, SOCK_DGRAM)) as s:
-#         s = socket(AF_INET, SOCK_DGRAM)
-#         print(info.address, info.port)
-#         s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-#         # s.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
-#         # d, x = s.accept()
-#         # print(d, x)
-#         s.bind((inet_ntoa(info.address), info.port))
-#         # datax.append(s)
-#         # get_level_one_info(info)
-#         # pass
-#         while True:
-#             # print("Waiting..")
-#             m = s.recvfrom(1024)
-#             print(m)
+def client_handler(info: ServiceInfo):
+    with closing(socket(AF_INET, SOCK_DGRAM)) as s:
+        # s = socket(AF_INET, SOCK_DGRAM)
+        print(info.address, info.port)
+        s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+        # s.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
+        s.sendto(b'dedew', (inet_ntoa(info.address), info.port))
+        # d, x = s.accept()
+        # print(d, x)
+        # s.bind(('', 3000))
+        # s.connect((inet_ntoa(info.address), info.port))
+        # s.sendall(b"lil nigga", 1)
 
     # https://stackoverflow.com/a/45690594/8608146
 
@@ -134,15 +141,15 @@ local_ip = get_local_ip()
 
 # register a service
 zeroconf.register_service(ServiceInfo(
-    "_coolapp._udp.local.",
-    "{}._coolapp._udp.local.".format(f"pc-{random.randint(0, 255)}"),
+    "_coolapp._tcp.local.",
+    "{}._coolapp._tcp.local.".format(f"pc-{random.randint(0, 255)}"),
     inet_aton(local_ip), send_port, 0, 0,
     # this is the txt record
     properties={"data": "device"}
 ))
 
 listener = MyListener()
-browser = ServiceBrowser(zeroconf, "_coolapp._udp.local.", listener)
+browser = ServiceBrowser(zeroconf, "_coolapp._tcp.local.", listener)
 
 
 def do_shot():
@@ -152,39 +159,47 @@ def do_shot():
 
     s.bind(('', send_port))
     print(s.getsockname())
-    # s.listen(1)
-    # d, x = s.accept()
-    # print(d, x)
     while True:
-        try:
-            m = s.recv(1024)
-            print(m)
-        except KeyboardInterrupt:
-            cleanup()
-            exit(1)
+        data, addr = s.recvfrom(1024)
+        if data == b'q':
+            exit(-1)
+        if data:
+            print(data)
+        else:
+            break
 
 
 z = Thread(target=do_shot, args=())
 z.start()
 
+
+def flask_start():
+    try:
+        x = 'c'
+        s = socket(AF_INET, SOCK_DGRAM)
+        s.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
+        while x != 'q':
+            x = input("Press q to exit...\n\n")
+            # print(x)
+            s.sendto(x.encode('utf8'), ('255.255.255.255', send_port))
+
+    finally:
+        zeroconf.close()
+
+
+f = Thread(target=flask_start, args=())
+f.start()
+
+app.run(host='0.0.0.0', port=3000)
+
+
 # do_shot()
 # print("S")
 
-try:
-    x = 'c'
-    s = socket(AF_INET, SOCK_DGRAM)
-    s.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
-    while x != 'q':
-        x = input("Press q to exit...\n\n")
-        # print(x)
-        s.sendto(x.encode('utf8'), ('255.255.255.255', send_port))
-
-finally:
-    zeroconf.close()
-    # z._delete()
-    # for x in datax:
-    #     print(x)
-    #     x.close()
+# z._delete()
+# for x in datax:
+#     print(x)
+#     x.close()
 
 # command arp -a gives some stuff
 # https://stackoverflow.com/a/47620499/8608146

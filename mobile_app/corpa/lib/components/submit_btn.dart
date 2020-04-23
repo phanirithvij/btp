@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:corpora/provider/authentication.dart';
 import 'package:corpora/screens/record.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +8,7 @@ import 'package:provider/provider.dart';
 class SubmitButton extends StatefulWidget {
   const SubmitButton(this.type, {Key key}) : super(key: key);
 
-  final String type;
+  final AuthType type;
 
   @override
   _SubmitButtonState createState() => _SubmitButtonState();
@@ -18,6 +20,7 @@ class _SubmitButtonState extends State<SubmitButton> {
   ButtonState _loading = ButtonState.Start;
   bool _started = false;
   bool _errorsDissmissed = false;
+  Future<AuthInfo> _future;
 
   @override
   void initState() {
@@ -32,6 +35,9 @@ class _SubmitButtonState extends State<SubmitButton> {
   /// Provider or bloc it
   ///
   void _startAuth() {
+    if (_future == null) {
+      _future = _tryAuth(context);
+    }
     setState(() {
       // new button press implies retry => new errors
       _errorsDissmissed = false;
@@ -69,7 +75,7 @@ class _SubmitButtonState extends State<SubmitButton> {
   Future<AuthInfo> _tryAuth(BuildContext context) async {
     print("Start login");
     AuthInfo info = await Provider.of<AuthStore>(context, listen: false)
-        .tryAuth(widget.type);
+        .tryAuth(type: widget.type);
 
     return info;
   }
@@ -96,8 +102,6 @@ class _SubmitButtonState extends State<SubmitButton> {
     }
   }
 
-  // padding: EdgeInsets.only(
-  //     top: 40, right: 50, left: MediaQuery.of(context).size.width / 2),
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -115,21 +119,33 @@ class _SubmitButtonState extends State<SubmitButton> {
           child: !_started
               ? button
               : FutureBuilder<AuthInfo>(
-                  future: _tryAuth(context),
+                  // https://stackoverflow.com/a/55626839/8608146
+                  future: _future,
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       final info = snapshot.data;
 
                       if (info.hasErrors) {
-                        _loading = ButtonState.Error;
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                        WidgetsBinding.instance.scheduleFrameCallback((_) {
                           _showErrors(info);
+                          setState(() {
+                            _loading = ButtonState.Error;
+                            // reset stuff on error
+                            _started = false;
+                            _future = null;
+                            // hide error icon after some time
+                            Timer(Duration(milliseconds: 400), () {
+                              setState(() {
+                                _loading = ButtonState.Start;
+                              });
+                            });
+                          });
                         });
                       } else {
                         // Login or signup success save the info to disk
                         snapshot.data.persistLoginonDisk().whenComplete(() {
                           // https://stackoverflow.com/a/59478165/8608146
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                          WidgetsBinding.instance.scheduleFrameCallback((_) {
                             Navigator.of(context).pushReplacement(
                               MaterialPageRoute(
                                 builder: (context) => RecordPage(snapshot.data),
@@ -140,7 +156,15 @@ class _SubmitButtonState extends State<SubmitButton> {
                       }
                     } else if (snapshot.hasError) {
                       _loading = ButtonState.Error;
+                      // reset stuff
+                      _started = false;
+                      _future = null;
                       print(snapshot.error);
+                      Timer(Duration(milliseconds: 400), () {
+                        setState(() {
+                          _loading = ButtonState.Start;
+                        });
+                      });
                     }
                     return button;
                   },

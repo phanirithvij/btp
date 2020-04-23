@@ -1,3 +1,4 @@
+import 'package:corpora/components/input_gender.dart';
 import 'package:flutter/material.dart';
 
 import 'package:corpora/themes/utils.dart';
@@ -93,7 +94,7 @@ class _Buttons extends StatelessWidget {
 
   final _children = <Widget>[
     SwitchScreenButton(login: false),
-    SubmitButton("signup"),
+    SubmitButton(AuthType.Register),
   ];
 
   @override
@@ -119,14 +120,13 @@ class _FormFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        children: <Widget>[
-          Consumer<AuthStore>(builder: (_, __, ___) => InputUsername()),
-          Consumer<AuthStore>(builder: (_, __, ___) => DatePicker()),
-          Consumer<AuthStore>(builder: (_, __, ___) => PasswordField()),
-        ],
-      ),
+    return Column(
+      children: <Widget>[
+        Consumer<AuthStore>(builder: (_, __, ___) => InputUsername()),
+        Consumer<AuthStore>(builder: (_, __, ___) => PasswordField()),
+        Consumer<AuthStore>(builder: (_, __, ___) => DatePicker()),
+        Consumer<AuthStore>(builder: (_, __, ___) => InputGender()),
+      ],
     );
   }
 }

@@ -1,5 +1,6 @@
 Flask==1.1.2
 Flask-SocketIO==4.2.1
+flask-jwt
 # eventlet==0.25.1
 gevent
 gevent-websocket
