@@ -1,10 +1,10 @@
+import 'package:corpora/components/global.dart';
 import 'package:corpora/provider/authentication.dart';
 import 'package:corpora/screens/record.dart';
 import 'package:flutter/material.dart';
 
 import 'package:corpora/themes/utils.dart';
 import 'package:corpora/screens/login.dart';
-import 'package:flutter/services.dart';
 
 void main() {
   // RawDatagramSocket.bind(InternetAddress.anyIPv4, 8020)
@@ -33,7 +33,7 @@ class CorporaApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: "Corpora Collector",
       theme: kAmoledTheme,
-      home: HomePage(),
+      home: GlobalOrientationHandler(child: HomePage()),
     );
   }
 }
@@ -60,6 +60,7 @@ class _HomePageState extends State<HomePage> {
 
   void _fetchAuthInfo() async {
     info = await store.getUserInfoFromDisk();
+    print(info);
     var loggedin = await store.isLoggedin;
     setState(() {
       print("Loggedin $loggedin");
@@ -70,14 +71,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // Hide bars when on landscape orientation
-    if (MediaQuery.of(context).orientation == Orientation.portrait) {
-      SystemChrome.setEnabledSystemUIOverlays(
-          [SystemUiOverlay.bottom, SystemUiOverlay.top]);
-    } else {
-      SystemChrome.setEnabledSystemUIOverlays([]);
-    }
-
     // If we have not fetched the auth info yet show a trying to login screen
     if (!_fecthed) return PlaceHolderRedirectScreen();
 
@@ -86,7 +79,7 @@ class _HomePageState extends State<HomePage> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => RecordPage(info),
+            builder: (context) => RecordPageProviderWrapper(info: info),
           ),
         );
       });
@@ -119,8 +112,9 @@ class WelcomePage extends StatelessWidget {
           // TODO handle _notFirstTime logic
           // push replacement so pop will not go to welcome screen again
           // If not loggedin when pressing back should come back here
-          Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => LoginPage()));
+          Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (context) => LoginPage(),
+          ));
         },
         tooltip: 'Start',
         backgroundColor: Colors.black87,

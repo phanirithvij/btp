@@ -19,6 +19,10 @@ enum AuthStatus {
   Unknown,
   Failed,
 
+  /// Successful authentication but new user,
+  /// Useful when a tutorial needs to be shown
+  NewUser,
+
   /// When invalid username or passworld is submitted
   Invalid
 }
@@ -30,6 +34,8 @@ AuthStatus _getStatus(String status) {
   switch (status) {
     case 'ok':
       return AuthStatus.Success;
+    case 'new':
+      return AuthStatus.NewUser;
     case 'forbidden':
       return AuthStatus.Forbidden;
     case 'unauthorized':
@@ -46,6 +52,9 @@ class AuthInfo {
   String userId;
   String name;
   String gender;
+  String apiToken;
+  String refreshToken;
+  String cookies;
 
   AuthInfo();
 
@@ -54,6 +63,8 @@ class AuthInfo {
       ..userId = json['userId']
       ..name = json['name']
       ..gender = json['gender']
+      ..apiToken = json['access_token']
+      ..refreshToken = json['refresh_token']
       ..errors.add(json['error'])
       ..status = _getStatus(json['status'] as String);
   }
@@ -64,9 +75,22 @@ class AuthInfo {
     return errors.length > 0;
   }
 
+  bool get isNewUser => status == AuthStatus.NewUser;
+
   @override
   String toString() {
-    return "Status $status UserId $userId Name $name Gender $gender Errors $errors";
+    return """
+    Status $status
+    UserId $userId
+    Name $name
+    Gender $gender
+    Errors $errors
+    Cookies $cookies
+    APIToken $apiToken
+    """
+        .split('\n')
+        .map((f) => f.trim())
+        .join('\n');
   }
 
   Future<void> persistLoginonDisk() async {
@@ -74,8 +98,12 @@ class AuthInfo {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     // String name = (prefs.getString('name') ?? "");
     await prefs.setBool('loggedin', true);
-    if (name != "") await prefs.setString('name', name);
-    if (userId != "") await prefs.setString('userId', userId);
+    if (name != null) await prefs.setString('name', name);
+    if (userId != null) await prefs.setString('userId', userId);
+    if (apiToken != null) await prefs.setString('apiToken', apiToken);
+    if (refreshToken != null)
+      await prefs.setString('refreshToken', refreshToken);
+    if (cookies != null) await prefs.setString('cookies', cookies);
   }
 }
 
@@ -92,6 +120,11 @@ class AuthStore extends ChangeNotifier {
   }
 
   SharedPreferences _prefs;
+
+  /// fecth from shared_preferences
+  String get apiToken {
+    return _prefs.getString('apiToken');
+  }
 
   void storeDate(DateTime date) {
     selectedDate = date;
@@ -116,17 +149,19 @@ class AuthStore extends ChangeNotifier {
 
       http.Response _response;
       if (type == AuthType.Login) {
+        // https://stackoverflow.com/a/55000232/8608146
         reqUrl = ServerDetails.loginUrl;
-        _response = await http.post(reqUrl, headers: {
-          HttpHeaders.authorizationHeader: "Basic your_api_token_here"
-        }, body: {
-          "username": username,
-          "password": password,
-        });
+        _response = await http.post(
+          reqUrl,
+          headers: {HttpHeaders.contentTypeHeader: "application/json"},
+          body: json.encode({
+            "username": username,
+            "password": password,
+          }),
+        );
       } else {
         // date of birth
         reqUrl = ServerDetails.registerUrl;
-        // TODO register
         _response = await http.post(reqUrl, body: {
           "username": username,
           "password": password,
@@ -140,10 +175,11 @@ class AuthStore extends ChangeNotifier {
         info.errors.add("Internal server error 500");
       }
       // print(_response.statusCode);
-      else if (_response.statusCode == 200) {
-        print(_response.headers);
+      else {
+        // print(_response.body);
         final _responseJson = json.decode(_response.body);
         info = AuthInfo.fromJson(_responseJson);
+        info.cookies = _response.headers[HttpHeaders.setCookieHeader];
         print(info.errors);
       }
       return info;
@@ -220,6 +256,11 @@ class AuthStore extends ChangeNotifier {
     return loggedin;
   }
 
+  void saveState(int pointer) async {
+    SharedPreferences prefs = await _getPrefs;
+    prefs.setInt('pointer', pointer);
+  }
+
   Future<AuthInfo> getUserInfoFromDisk({bool loggedin = false}) async {
     final info = AuthInfo();
     if (loggedin || await isLoggedin) {
@@ -227,9 +268,15 @@ class AuthStore extends ChangeNotifier {
       // String name = (prefs.getString('name') ?? "");
       String name = prefs.getString('name');
       String userId = prefs.getString('userId');
+      String apiToken = prefs.getString('apiToken');
+      String refreshToken = prefs.getString('refreshToken');
+      String cookies = prefs.getString('cookies');
       return info
         ..name = name
-        ..userId = userId;
+        ..userId = userId
+        ..cookies = cookies
+        ..apiToken = apiToken
+        ..refreshToken = refreshToken;
     } else {
       return info..errors.add("User not Logged in");
     }

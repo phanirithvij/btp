@@ -3,7 +3,7 @@ data/
 others/
 temp/
 corpora/
-__pycache__/
+flask_session/
 
 # File created using '.gitignore Generator' for Visual Studio Code: https://bit.ly/vscode-gig
 

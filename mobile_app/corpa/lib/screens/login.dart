@@ -1,4 +1,4 @@
-import 'package:flutter/services.dart';
+import 'package:corpora/components/global.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
@@ -18,42 +18,46 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AuthStore(),
-      child: Scaffold(
-        body: GestureDetector(
-          onTap: () {
-            // https://stackoverflow.com/a/51669474/8608146
-            // call this method here to hide soft keyboard
-            FocusScope.of(context).requestFocus(FocusNode());
-          },
-          child: Container(
-            decoration: kGradientBackgroundLogin,
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: <Widget>[
-                Column(
-                  children: <Widget>[
-                    // Some space only when in portrait mode
-                    (MediaQuery.of(context).orientation == Orientation.portrait)
-                        ? Padding(padding: EdgeInsets.only(top: 70))
-                        : Container(),
-                    Center(
-                        child: Text(
-                      "Login",
-                      style:
-                          TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-                    )),
-                    _FormFields(),
-                    // Less space when not in portrait mode
-                    (MediaQuery.of(context).orientation == Orientation.portrait)
-                        ? Padding(padding: EdgeInsets.only(top: 50))
-                        : Padding(padding: EdgeInsets.only(top: 20)),
-                    _Buttons(),
-                    Padding(padding: EdgeInsets.only(top: 50)),
-                  ],
-                ),
-              ],
+    return GlobalOrientationHandler(
+      child: ChangeNotifierProvider(
+        create: (_) => AuthStore(),
+        child: Scaffold(
+          body: GestureDetector(
+            onTap: () {
+              // https://stackoverflow.com/a/51669474/8608146
+              // call this method here to hide soft keyboard
+              FocusScope.of(context).requestFocus(FocusNode());
+            },
+            child: Container(
+              decoration: kGradientBackgroundLogin,
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: <Widget>[
+                  Column(
+                    children: <Widget>[
+                      // Some space only when in portrait mode
+                      (MediaQuery.of(context).orientation ==
+                              Orientation.portrait)
+                          ? Padding(padding: EdgeInsets.only(top: 70))
+                          : Container(),
+                      Center(
+                          child: Text(
+                        "Login",
+                        style: TextStyle(
+                            fontSize: 30, fontWeight: FontWeight.bold),
+                      )),
+                      _FormFields(),
+                      // Less space when not in portrait mode
+                      (MediaQuery.of(context).orientation ==
+                              Orientation.portrait)
+                          ? Padding(padding: EdgeInsets.only(top: 50))
+                          : Padding(padding: EdgeInsets.only(top: 20)),
+                      _Buttons(),
+                      Padding(padding: EdgeInsets.only(top: 50)),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -93,14 +97,6 @@ class _FormFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO should be global
-    if (MediaQuery.of(context).orientation == Orientation.portrait) {
-      SystemChrome.setEnabledSystemUIOverlays(
-          [SystemUiOverlay.bottom, SystemUiOverlay.top]);
-    } else {
-      SystemChrome.setEnabledSystemUIOverlays([]);
-    }
-
     return Container(
       child: Column(
         children: <Widget>[

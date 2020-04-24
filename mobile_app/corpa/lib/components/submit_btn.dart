@@ -29,11 +29,7 @@ class _SubmitButtonState extends State<SubmitButton> {
     _loading = ButtonState.Start;
   }
 
-  // TODO
   /// Tries logging in
-  /// This function should be in top level
-  /// Provider or bloc it
-  ///
   void _startAuth() {
     if (_future == null) {
       _future = _tryAuth(context);
@@ -148,7 +144,8 @@ class _SubmitButtonState extends State<SubmitButton> {
                           WidgetsBinding.instance.scheduleFrameCallback((_) {
                             Navigator.of(context).pushReplacement(
                               MaterialPageRoute(
-                                builder: (context) => RecordPage(snapshot.data),
+                                builder: (context) => RecordPageProviderWrapper(
+                                    info: snapshot.data),
                               ),
                             );
                           });

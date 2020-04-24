@@ -1,3 +1,4 @@
+import 'package:corpora/components/global.dart';
 import 'package:corpora/components/input_gender.dart';
 import 'package:flutter/material.dart';
 
@@ -49,38 +50,40 @@ class _SignupPageState extends State<SignupPage> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AuthStore(),
-      child: Scaffold(
-        body: GestureDetector(
-          onTap: () {
-            // https://stackoverflow.com/a/51669474/8608146
-            // call this method here to hide soft keyboard
-            FocusScope.of(context).requestFocus(FocusNode());
-          },
-          child: Container(
-            decoration: kGradientBackgroundLogin,
-            child: ListView(
-              // It adds padding to keep it in safearea
-              // https://github.com/flutter/flutter/issues/14842#issuecomment-371344881
-              padding: EdgeInsets.zero,
-              children: <Widget>[
-                LayoutBuilder(builder: (context, constraints) {
-                  if (constraints.maxWidth < 600)
-                    return Column(children: _columnChildren);
-                  else
-                    return Container(
-                      height: MediaQuery.of(context).size.height,
-                      child: Center(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: _rowChildren,
+    return GlobalOrientationHandler(
+      child: ChangeNotifierProvider(
+        create: (_) => AuthStore(),
+        child: Scaffold(
+          body: GestureDetector(
+            onTap: () {
+              // https://stackoverflow.com/a/51669474/8608146
+              // call this method here to hide soft keyboard
+              FocusScope.of(context).requestFocus(FocusNode());
+            },
+            child: Container(
+              decoration: kGradientBackgroundLogin,
+              child: ListView(
+                // It adds padding to keep it in safearea
+                // https://github.com/flutter/flutter/issues/14842#issuecomment-371344881
+                padding: EdgeInsets.zero,
+                children: <Widget>[
+                  LayoutBuilder(builder: (context, constraints) {
+                    if (constraints.maxWidth < 600)
+                      return Column(children: _columnChildren);
+                    else
+                      return Container(
+                        height: MediaQuery.of(context).size.height,
+                        child: Center(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: _rowChildren,
+                          ),
                         ),
-                      ),
-                    );
-                }),
-              ],
+                      );
+                  }),
+                ],
+              ),
             ),
           ),
         ),

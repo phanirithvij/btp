@@ -20,13 +20,18 @@ class UserFileSystem(object):
 
 
 def auth_handler(username, password):
+    print(username, password)
     user = User(username)
     try:
         user.populate()
-    except Exception:
+        if user.verify_password(password):
+            return user, None
+        else:
+            return None, "Password is incorrect"
+    except Exception as e:
+        print(e)
         print("No user named", username)
-    if user.verify_password(password):
-        return user
+        return None, "No user named {}".format(username)
 
 
 def identity(payload):
@@ -90,6 +95,7 @@ class User:
         # TODO delete user files
 
     def verify_password(self, password: str) -> bool:
+        print("Verifying password", self.pwhash, password)
         return check_password_hash(self.pwhash, password)
 
     def save_to_db(self) -> tuple:
@@ -115,6 +121,7 @@ class User:
         """Populates the user based on the username"""
         self._ensure_db_exists()
         users = self.DB.execute(GET_USER, (self.username,))
+        print(users)
         if len(users) == 0:
             raise Exception
         self.username = users[0]["username"]
@@ -122,7 +129,11 @@ class User:
         self.gender = users[0]["gender"]
         self.pwhash = users[0]["password"]
         self.id = self.username
+        print(self.pwhash)
         return self
+
+    def pickle_instance(self):
+        return (self.username, self.age, self.gender)
 
     def attach_DB(self, DB: Database) -> None:
         """Attaches the given DB to this user"""
@@ -132,7 +143,7 @@ class User:
     def _ensure_db_exists(self) -> None:
         """This ensures DB is initialized"""
         if self.DB is None:
-            self.DB = Database()
+            self.DB = Database("data/data.db")
         return self
 
     def _fecth_id(self) -> int:
