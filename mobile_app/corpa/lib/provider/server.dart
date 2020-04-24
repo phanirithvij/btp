@@ -6,6 +6,7 @@ import 'package:path/path.dart';
 import 'package:async/async.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:flutter_uploader/flutter_uploader.dart';
 
 // TODO
 // Not for this project but useful for me when building the plex like app
@@ -26,7 +27,7 @@ class ServerDetails {
 
 class ServerUtils {
   // https://stackoverflow.com/a/49645074/8608146
-  static uploadFile(File file, String apiToken) async {
+  static uploadFile(File file, AuthInfo authInfo) async {
     print("Started upload");
     var stream = http.ByteStream(DelegatingStream.typed(file.openRead()));
     var length = await file.length();
@@ -41,7 +42,9 @@ class ServerUtils {
     //contentType:  MediaType('image', 'png'));
 
     request.files.add(multipartFile);
-    request.headers[HttpHeaders.authorizationHeader] = "Bearer $apiToken";
+    request.headers[HttpHeaders.authorizationHeader] =
+        "Bearer ${authInfo.apiToken}";
+    request.headers[HttpHeaders.cookieHeader] = authInfo.cookies;
     var response = await request.send();
     print(response.statusCode);
     response.stream.transform(utf8.decoder).listen((value) {
@@ -65,7 +68,7 @@ class ServerUtils {
   }
 
   static Future<List<String>> getSentences(
-      AuthInfo info, String pointer) async {
+      AuthInfo info, String pointer, bool refresh) async {
     print('start cahce data');
     final _response = await CustomCacheManager().getSingleFile(
       ServerDetails.corporaUrl,
@@ -75,17 +78,42 @@ class ServerUtils {
       },
     );
 
-    int _pointer = int.parse(pointer);
+    int _pointer = 0;
     final _data = _response.readAsStringSync().split('\n');
+    print("Not null? $pointer");
+    if (pointer != null) {
+      _pointer = int.parse(pointer);
+      if (refresh) {
+        // increment by one so the previous utterence wouldn't be included
+        _pointer++;
+        pointer = "$_pointer";
+      }
+      var _found = _data.where((x) => x.startsWith(pointer)).toList();
+      if (_found.length == 0) {
+        // cache file expired so new file was fecthed
+        // or wrong pointer was provided
+        // it was not found in the cache file
+        // set it to the first one
+        _found = _data.sublist(0, 1);
+      }
+      _pointer = _data.indexOf(_found[0]);
+      print("Pointer now is $_pointer");
+    }
+    // else
+    // _pointer = 0 => read from beginning of the cached file
 
     // should not shuffle because pointer logic will become complex
     return _data.sublist(
       _pointer,
-      (_pointer + 100 >= _data.length) ? _data.length : _pointer + 100,
+      (_pointer + 30 >= _data.length) ? _data.length : _pointer + 30,
     );
   }
 
   static Future<void> skipScentences(AuthInfo info, List<String> ids) async {
+    // TODO store a skipbuffer in shared prefs
+    // And clear it on Success let it stay on failure
+    // And when the app is loaded call this method
+
     final _response = await http.post(
       ServerDetails.skipUrl,
       headers: {

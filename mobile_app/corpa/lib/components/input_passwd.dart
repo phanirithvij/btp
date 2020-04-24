@@ -1,10 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:corpora/provider/authentication.dart';
 
-class PasswordField extends StatelessWidget {
+class PasswordField extends StatefulWidget {
   const PasswordField({Key key}) : super(key: key);
+
+  @override
+  _PasswordFieldState createState() => _PasswordFieldState();
+}
+
+class _PasswordFieldState extends State<PasswordField> {
+  bool _obscure = true;
 
   @override
   Widget build(BuildContext context) {
@@ -20,12 +29,26 @@ class PasswordField extends StatelessWidget {
           style: TextStyle(
             color: Colors.black,
           ),
-          obscureText: true,
+          obscureText: _obscure,
           decoration: InputDecoration(
             // border: InputBorder.none,
             labelText: 'password',
             labelStyle: TextStyle(
               color: Colors.white70,
+            ),
+            suffixIcon: IconButton(
+              icon: Icon(
+                _obscure ? Icons.remove_red_eye : Icons.panorama_fish_eye,
+              ),
+              onPressed: () {
+                setState(() {
+                  _obscure = !_obscure;
+                  Timer(Duration(milliseconds: 1200), () {
+                    _obscure = true;
+                    setState(() {});
+                  });
+                });
+              },
             ),
           ),
         ),

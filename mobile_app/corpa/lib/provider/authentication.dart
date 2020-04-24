@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:corpora/cache/manager.dart';
 import 'package:corpora/provider/server.dart';
 import 'package:corpora/utils/date.dart';
 import 'package:flutter/material.dart';
@@ -256,11 +257,6 @@ class AuthStore extends ChangeNotifier {
     return loggedin;
   }
 
-  void saveState(int pointer) async {
-    SharedPreferences prefs = await _getPrefs;
-    prefs.setInt('pointer', pointer);
-  }
-
   Future<AuthInfo> getUserInfoFromDisk({bool loggedin = false}) async {
     final info = AuthInfo();
     if (loggedin || await isLoggedin) {
@@ -290,8 +286,10 @@ class AuthStore extends ChangeNotifier {
       // If I save a bool _notFirstTime = true after opening the app once
       // I need to not clear it here
       // Don't show the onboarding screen to the user again
-
       await prefs.clear();
+      // clearing cache so a different file will be downloaded most likely.
+      // because if we don't the user will see the same utterence that they skipped
+      await CustomCacheManager().emptyCache();
       print("Logging out");
       // prefs.setBool('loggedin', false);
     } else {

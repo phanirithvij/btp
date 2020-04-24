@@ -1,6 +1,7 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.corpora">
+<manifest
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        package="com.example.corpora">
 
     <!-- IMPORTANT MIGHT CRASH THE APP on older devices -->
     <!-- Nevermind this is only needed if using full version of flutter_ffmpeg -->
@@ -28,31 +29,49 @@
          additional functionality it is fine to subclass or reimplement
          FlutterApplication and put your custom class here. -->
     <application
-        android:name="io.flutter.app.FlutterApplication"
-        android:allowBackup="false"
-        android:fullBackupContent="false"
-        android:icon="@mipmap/ic_launcher"
-        android:label="corpora"
-        tools:ignore="GoogleAppIndexingWarning">
+            android:usesCleartextTraffic="false"
+            android:name="io.flutter.app.FlutterApplication"
+            android:allowBackup="false"
+            android:fullBackupContent="false"
+            android:icon="@mipmap/ic_launcher"
+            android:label="corpora"
+            tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name=".MainActivity"
-            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
-            android:hardwareAccelerated="true"
-            android:launchMode="singleTop"
-            android:theme="@style/LaunchTheme"
-            android:windowSoftInputMode="adjustResize">
+                android:name=".MainActivity"
+                android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+                android:hardwareAccelerated="true"
+                android:launchMode="singleTop"
+                android:theme="@style/LaunchTheme"
+                android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-<!--        <activity-->
-<!--            android:name=".AudioRecordTest"-->
-<!--            android:theme="@style/Theme.AppCompat" />-->
+        <provider
+                android:name="androidx.work.impl.WorkManagerInitializer"
+                android:authorities="${applicationId}.workmanager-init"
+                android:enabled="false"
+                android:exported="false" />
+
+        <provider
+                android:name="com.bluechilli.flutteruploader.FlutterUploaderInitializer"
+                android:authorities="${applicationId}.flutter-upload-init"
+                android:exported="false">
+            <!-- changes this number to configure the maximum number of concurrent tasks -->
+            <meta-data
+                    android:name="com.bluechilli.flutterupload.MAX_CONCURRENT_TASKS"
+                    android:value="3" />
+
+            <!-- changes this number to configure connection timeout for the upload http request -->
+            <meta-data
+                    android:name="com.bluechilli.flutteruploader.UPLOAD_CONNECTION_TIMEOUT_IN_SECONDS"
+                    android:value="3600" />
+        </provider>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
-            android:name="flutterEmbedding"
-            android:value="2" />
+                android:name="flutterEmbedding"
+                android:value="2" />
     </application>
 </manifest>

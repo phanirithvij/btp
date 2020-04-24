@@ -28,8 +28,22 @@ class RecorderStore with ChangeNotifier {
 
   void openRec() async => await platform.invokeMethod("startRec");
 
+  void handleRecording() {
+    switch (state) {
+      case RecordingState.Started:
+        stopRecording();
+        break;
+      case RecordingState.Ended:
+        startRecording();
+        break;
+      default:
+        startRecording();
+    }
+  }
+
   void startRecording() async {
     state = RecordingState.Started;
+    notifyListeners();
 
     final _temp = await getTemporaryDirectory();
     saveFile = File("${_temp.path}/${userInfo.userId}_$pointer.wav");
@@ -43,25 +57,34 @@ class RecorderStore with ChangeNotifier {
 
   void stopRecording() async {
     state = RecordingState.Ended;
-
     await platform.invokeMethod('stopRec');
+    notifyListeners();
   }
 
   /// Uploads the recording to the server
   void uploadRecording() async {
-    ServerUtils.uploadFile(saveFile, userInfo.apiToken);
+    ServerUtils.uploadFile(saveFile, userInfo);
+  }
+
+  void saveState(String pointer) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('pointer', pointer);
   }
 
   /// The global pointer is fecthed from shared_preferences
   Future<void> fetchGlobalPointer() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    pointer = prefs.getString('pointer') ?? 0;
+    // this will be null initially
+    pointer = prefs.getString('pointer');
   }
 
   /// The next sentence is displayed
-  void next() {
+  void next() async {
     current++;
+    // reached the end repopulate the sentences
+    if (current == sentences.length) await populateSentences(refresh: true);
     pointer = sentences[current].split("||")[0];
+    saveState(pointer);
     uploadRecording();
     state = RecordingState.Unknown;
     notifyListeners();
@@ -71,13 +94,18 @@ class RecorderStore with ChangeNotifier {
     return (sentences.length != 0) ? sentences[current].split('||')[1] : null;
   }
 
-  void populateSentences() async {
+  Future populateSentences({bool refresh = false}) async {
     // pointer would be fecthed by now from the shared preferences
-    sentences = await ServerUtils.getSentences(userInfo, pointer);
+    sentences = await ServerUtils.getSentences(userInfo, pointer, refresh);
+    current = 0;
     // init the pointer
-    assert(pointer == sentences[current].split("||")[0]);
+    pointer = sentences[current].split("||")[0];
     notifyListeners();
   }
+
+  // TODO
+  // K = decide later
+  final K = 5;
 
   void sendSkippedData() {
     ServerUtils.skipScentences(userInfo, _skipped).whenComplete(() {
@@ -86,11 +114,21 @@ class RecorderStore with ChangeNotifier {
   }
 
   /// add to the skipped List the current sentence
-  void skipScentence() {
+  void skipScentence() async {
     _skipped.add(pointer);
+    // call this method for evey K skips
+    if (_skipped.length >= K) sendSkippedData();
+
     current++;
+    // reached the end repopulate the sentences
+    if (current == sentences.length) await populateSentences(refresh: true);
+
     // update the pointer
     pointer = sentences[current].split("||")[0];
+    saveState(pointer);
+    print("Sentences length ${sentences.length}");
+    print("Current $current");
+
     notifyListeners();
   }
 }

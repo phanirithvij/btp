@@ -1,7 +1,9 @@
+import 'dart:async';
+
+import 'package:corpora/components/animated_menu.dart';
 import 'package:corpora/components/global.dart';
 import 'package:corpora/components/player.dart';
 import 'package:corpora/provider/recorder.dart';
-import 'package:corpora/screens/login.dart';
 import 'package:corpora/themes/utils.dart';
 import 'package:flutter/material.dart';
 
@@ -44,11 +46,11 @@ class _RecordPageState extends State<RecordPage> {
   void initState() {
     super.initState();
 
+    _asyncInitState();
     print(widget.authInfo);
   }
 
-  @override
-  void didChangeDependencies() {
+  Future<void> _asyncInitState() async {
     Provider.of<RecorderStore>(context, listen: false).userInfo =
         widget.authInfo;
     // This order is important
@@ -57,24 +59,11 @@ class _RecordPageState extends State<RecordPage> {
         .whenComplete(() {
       Provider.of<RecorderStore>(context, listen: false).populateSentences();
     });
-
-    super.didChangeDependencies();
   }
 
-  void _handleRecording() {
-    switch (Provider.of<RecorderStore>(context, listen: false).state) {
-      case RecordingState.Started:
-        Provider.of<RecorderStore>(context, listen: false).stopRecording();
-        rebuild();
-        break;
-      case RecordingState.Ended:
-        Provider.of<RecorderStore>(context, listen: false).startRecording();
-        rebuild();
-        break;
-      default:
-        Provider.of<RecorderStore>(context, listen: false).startRecording();
-        rebuild();
-    }
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
   }
 
   Widget get _controls {
@@ -113,16 +102,17 @@ class _RecordPageState extends State<RecordPage> {
       ),
       floatingActionButton: Consumer<RecorderStore>(
         builder: (_, __, ___) => FloatingActionButton(
-          onPressed: _handleRecording,
+          onPressed: Provider.of<RecorderStore>(context, listen: false)
+              .handleRecording,
           child: Icon(
-            Provider.of<RecorderStore>(context, listen: false).state ==
-                    RecordingState.Started
+            (Provider.of<RecorderStore>(context).state ==
+                    RecordingState.Started)
                 ? Icons.stop
                 : Icons.fiber_manual_record,
             size: 27,
           ),
-          tooltip: Provider.of<RecorderStore>(context, listen: false).state ==
-                  RecordingState.Started
+          tooltip: (Provider.of<RecorderStore>(context).state ==
+                  RecordingState.Started)
               ? 'Stop Recording'
               : 'Start Recording',
           backgroundColor: Colors.black87,
@@ -217,29 +207,7 @@ class CustomAppBar extends StatelessWidget {
       right: 0,
       // camera covers it in portrait mode without this
       top: MediaQuery.of(context).orientation == Orientation.portrait ? 31 : 0,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(20), bottomLeft: Radius.circular(20)),
-          color: Colors.blueGrey.withOpacity(0.6),
-        ),
-        child: Row(
-          children: <Widget>[
-            IconButton(icon: Icon(Icons.chevron_right), onPressed: () {}),
-            IconButton(
-                icon: Icon(Icons.power_settings_new),
-                onPressed: () {
-                  store.logout();
-                  // redirect to login screen
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (_) => LoginPage()),
-                  );
-                }),
-            IconButton(icon: Icon(Icons.settings), onPressed: () {}),
-            IconButton(icon: Icon(Icons.account_circle), onPressed: () {}),
-          ],
-        ),
-      ),
+      child: AnimatedMenu(store: store),
     );
   }
 }

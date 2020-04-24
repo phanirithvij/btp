@@ -13,6 +13,7 @@ from flask_jwt_extended import (JWTManager, create_access_token,
 from werkzeug.utils import secure_filename
 
 from .user import *
+from .queries import MALE, FEMALE
 
 # current directory is server/
 # Set static folder to be ../web_app/src
