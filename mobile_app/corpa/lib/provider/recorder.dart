@@ -16,6 +16,7 @@ class RecorderStore with ChangeNotifier {
   String pointer;
   RecordingState _state = RecordingState.Unknown;
   List<String> _skipped = [];
+  int _count = 0;
   set state(RecordingState _states) {
     _state = _states;
     notifyListeners();
@@ -26,7 +27,11 @@ class RecorderStore with ChangeNotifier {
   AuthInfo userInfo;
   List<String> sentences = [];
 
-  void openRec() async => await platform.invokeMethod("startRec");
+  void openRec() async {
+    final _temp = Directory.systemTemp;
+    final res = await platform.invokeMethod('openFolder', {"path": _temp.path});
+    print(res);
+  }
 
   void handleRecording() {
     switch (state) {
@@ -63,6 +68,8 @@ class RecorderStore with ChangeNotifier {
 
   /// Uploads the recording to the server
   void uploadRecording() async {
+    _count++;
+    notifyListeners();
     ServerUtils.uploadFile(saveFile, userInfo);
   }
 
@@ -88,6 +95,22 @@ class RecorderStore with ChangeNotifier {
     uploadRecording();
     state = RecordingState.Unknown;
     notifyListeners();
+  }
+
+  Widget get promptsSentence {
+    String _text = "";
+    if (_count != 0) _text = "Prompts read: $_count";
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 30.0),
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        // bottom: 0,
+        child: Container(
+          child: Text(_text),
+          decoration: _text != "" ? BoxDecoration(border: Border.all()) : null,
+        ),
+      ),
+    );
   }
 
   String get currentSentence {

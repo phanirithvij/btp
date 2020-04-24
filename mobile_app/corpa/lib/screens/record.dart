@@ -88,17 +88,18 @@ class _RecordPageState extends State<RecordPage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: Container(
         color: Colors.blueGrey,
+        height: 50,
         padding: EdgeInsets.all(8),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            IconButton(
-              icon: Icon(Icons.folder_open),
-              onPressed:
-                  Provider.of<RecorderStore>(context, listen: false).openRec,
-            ),
-          ],
-        ),
+        // child: Row(
+        //   crossAxisAlignment: CrossAxisAlignment.center,
+        //   children: <Widget>[
+        //     IconButton(
+        //       icon: Icon(Icons.folder_open),
+        //       onPressed:
+        //           Provider.of<RecorderStore>(context, listen: false).openRec,
+        //     ),
+        //   ],
+        // ),
       ),
       floatingActionButton: Consumer<RecorderStore>(
         builder: (_, __, ___) => FloatingActionButton(
@@ -137,6 +138,7 @@ class _RecordPageState extends State<RecordPage> {
             ),
           ),
           CustomAppBar(),
+          Provider.of<RecorderStore>(context).promptsSentence
         ],
       ),
     );
