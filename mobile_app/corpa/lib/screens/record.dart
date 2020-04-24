@@ -187,10 +187,36 @@ class WelcomeWidget extends StatelessWidget {
   }
 }
 
-class RecordDetails extends StatelessWidget {
+class RecordDetails extends StatefulWidget {
+  @override
+  _RecordDetailsState createState() => _RecordDetailsState();
+}
+
+class _RecordDetailsState extends State<RecordDetails> {
+  String _text = "0:00";
+  Timer _timer;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _timer = Timer.periodic(Duration(milliseconds: 100), (timer) {
+      final _secs = (timer.tick / 10).floor();
+      final _millis = (timer.tick % 10);
+      _text = "$_secs:$_millis";
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(child: Text("Duration : 0:00"));
+    return Container(child: Text("Duration : $_text"));
   }
 }
 
