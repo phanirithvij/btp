@@ -7,6 +7,7 @@ import 'package:async/async.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter_uploader/flutter_uploader.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // TODO
 // Not for this project but useful for me when building the plex like app
@@ -52,6 +53,7 @@ class ServerUtils {
     });
   }
 
+  // TODO refreshtoken method
   static Future<String> refreshToken(AuthInfo info) async {
     final _response = await http.get(
       ServerDetails.refreshTokenUrl,
@@ -113,6 +115,10 @@ class ServerUtils {
     // TODO store a skipbuffer in shared prefs
     // And clear it on Success let it stay on failure
     // And when the app is loaded call this method
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final _success = await prefs.setStringList('tempbuffer', ids);
+    if (!_success) print("Failed to set tempbuffer in saved preferences");
 
     final _response = await http.post(
       ServerDetails.skipUrl,

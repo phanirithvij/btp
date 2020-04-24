@@ -126,8 +126,8 @@ class RecorderStore with ChangeNotifier {
     notifyListeners();
   }
 
-  // TODO
   // K = decide later
+  // for every k skips it is sent to sever
   final K = 5;
 
   void sendSkippedData() {

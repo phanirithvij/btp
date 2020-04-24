@@ -135,7 +135,6 @@ class AuthStore extends ChangeNotifier {
 
   Future<AuthInfo> tryAuth({AuthType type = AuthType.Login}) async {
     final username = usernameController.text;
-    // TODO encrypt password
     final password = passwordController.text;
 
     print("username is $username");
