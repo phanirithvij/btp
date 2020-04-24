@@ -285,6 +285,10 @@ class AuthStore extends ChangeNotifier {
       // If I save a bool _notFirstTime = true after opening the app once
       // I need to not clear it here
       // Don't show the onboarding screen to the user again
+
+      // TODO
+      // send the tempbuffer to /skipped before clearing these
+
       await prefs.clear();
       // clearing cache so a different file will be downloaded most likely.
       // because if we don't the user will see the same utterence that they skipped

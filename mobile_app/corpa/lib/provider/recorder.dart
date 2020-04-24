@@ -51,6 +51,7 @@ class RecorderStore with ChangeNotifier {
     notifyListeners();
 
     final _temp = await getTemporaryDirectory();
+    assert(userInfo.userId != null);
     saveFile = File("${_temp.path}/${userInfo.userId}_$pointer.wav");
 
     await platform.invokeMethod('startRec', {'name': saveFile.path});

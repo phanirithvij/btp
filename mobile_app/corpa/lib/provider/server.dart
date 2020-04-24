@@ -53,6 +53,11 @@ class ServerUtils {
     });
   }
 
+  // TODO take name and autogen a username
+  // from werkzeug.utils import secure_filename
+  // secure_filename("K Phani Rithvij")
+  // Good start
+
   // TODO refreshtoken method
   static Future<String> refreshToken(AuthInfo info) async {
     final _response = await http.get(

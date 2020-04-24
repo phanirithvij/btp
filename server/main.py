@@ -143,6 +143,7 @@ def new_user():
             status = 'new'
             err = ''
             session['user'] = user.pickle_instance()
+            user_id = _username
             access_token = create_access_token(user_id)
             refresh_token = create_refresh_token(user_id)
 
