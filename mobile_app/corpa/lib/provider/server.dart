@@ -6,7 +6,10 @@ import 'package:path/path.dart';
 import 'package:async/async.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:flutter_uploader/flutter_uploader.dart';
+
+// TODO the file sizes are 500KB + so must use this to show progress
+// import 'package:flutter_uploader/flutter_uploader.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 // TODO
