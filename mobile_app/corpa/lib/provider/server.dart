@@ -142,6 +142,10 @@ class ServerUtils {
       refreshToken(info);
     }
 
+    if (_response.statusCode == 200) {
+      await prefs.remove('tempbuffer');
+    }
+
     print(_response.body);
   }
 }

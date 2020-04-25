@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:corpora/components/animated_menu.dart';
 import 'package:corpora/components/global.dart';
-import 'package:corpora/components/player.dart';
+import 'package:corpora/components/playerctrls.dart';
 import 'package:corpora/provider/recorder.dart';
 import 'package:corpora/themes/utils.dart';
 import 'package:flutter/material.dart';
@@ -138,7 +138,7 @@ class _RecordPageState extends State<RecordPage> {
             ),
           ),
           CustomAppBar(),
-          Provider.of<RecorderStore>(context).promptsSentence
+          Provider.of<RecorderStore>(context).promptsSentence(context)
         ],
       ),
     );

@@ -4,7 +4,7 @@ description: A new Flutter project.
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.2.2 <3.0.0"
 
 dependencies:
   provider: ^4.0.5
@@ -14,6 +14,8 @@ dependencies:
   flutter_uploader: ^1.2.0
   path_provider: ^1.6.7
   permission_handler: ^5.0.0+hotfix.4
+  device_preview:
+  audioplayer: ^0.8.1
   flutter:
     sdk: flutter
 

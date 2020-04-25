@@ -25,20 +25,6 @@ class MainActivity : FlutterActivity() {
     private var playing = false
     //    private var recorder: MediaRecorder? = null
 
-    override fun onRequestPermissionsResult(
-            requestCode: Int,
-            permissions: Array<String>,
-            grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        permissionToRecordAccepted = if (requestCode == REQUEST_RECORD_AUDIO_PERMISSION) {
-            grantResults[0] == PackageManager.PERMISSION_GRANTED
-        } else {
-            false
-        }
-        if (!permissionToRecordAccepted) finish()
-    }
-
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         GeneratedPluginRegistrant.registerWith(flutterEngine)
 
@@ -46,7 +32,6 @@ class MainActivity : FlutterActivity() {
             when (call.method) {
                 "startRec" -> {
                     Log.d("HELP", call.arguments.toString())
-                    ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION)
                     recorder.run {
                         fileName = call.argument<String>("name")!!
                         onRecord(!recording)

@@ -27,10 +27,12 @@ class RecorderStore with ChangeNotifier {
   AuthInfo userInfo;
   List<String> sentences = [];
 
-  void openRec() async {
-    final _temp = Directory.systemTemp;
-    final res = await platform.invokeMethod('openFolder', {"path": _temp.path});
-    print(res);
+  void playAudio() async {
+    await platform.invokeMethod('startPlay');
+  }
+
+  void stopAudio() async {
+    await platform.invokeMethod('stopPlay');
   }
 
   void handleRecording() {
@@ -98,13 +100,15 @@ class RecorderStore with ChangeNotifier {
     notifyListeners();
   }
 
-  Widget get promptsSentence {
+  Widget promptsSentence(BuildContext context) {
     String _text = "";
     if (_count != 0) _text = "Prompts read: $_count";
     return Padding(
-      padding: const EdgeInsets.only(bottom: 30.0),
+      padding: const EdgeInsets.only(bottom: 30.0, right: 10, left: 10),
       child: Align(
-        alignment: Alignment.bottomCenter,
+        alignment: MediaQuery.of(context).orientation == Orientation.portrait
+            ? Alignment.bottomCenter
+            : Alignment.bottomRight,
         // bottom: 0,
         child: Container(
           child: Text(_text),
