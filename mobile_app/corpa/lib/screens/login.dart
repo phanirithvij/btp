@@ -1,4 +1,6 @@
 import 'package:corpora/components/global.dart';
+import 'package:corpora/screens/register.dart';
+import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
@@ -53,6 +55,7 @@ class _LoginPageState extends State<LoginPage> {
                           ? Padding(padding: EdgeInsets.only(top: 50))
                           : Padding(padding: EdgeInsets.only(top: 20)),
                       _Buttons(),
+                      buildRichText(context),
                       Padding(padding: EdgeInsets.only(top: 50)),
                     ],
                   ),
@@ -63,6 +66,33 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  Widget buildRichText(BuildContext context) {
+    return MediaQuery.of(context).orientation == Orientation.portrait
+        ? RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: 'Create new account ? ',
+                  style: TextStyle(color: Colors.black),
+                ),
+                TextSpan(
+                  text: 'Signup',
+                  style: TextStyle(color: Colors.blue),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => SignupPage(),
+                        ),
+                      );
+                    },
+                ),
+              ],
+            ),
+          )
+        : Container();
   }
 }
 

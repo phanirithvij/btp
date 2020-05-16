@@ -1,4 +1,5 @@
 import 'package:corpora/screens/login.dart';
+import 'package:corpora/screens/register.dart';
 import 'package:corpora/themes/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -65,27 +66,87 @@ class _WelcomePageState extends State<WelcomePage> {
                   ),
                 ),
               ),
+              Padding(padding: EdgeInsets.only(top: 50)),
+              buildButtonBar(context),
             ],
           ),
         ),
       ),
-      floatingActionButton: _permissionsGranted
-          ? FloatingActionButton(
-              onPressed: () {
-                // TODO handle _notFirstTime logic
-                // push replacement so pop will not go to welcome screen again
-                // If not loggedin when pressing back should come back here
-                Navigator.of(context).pushReplacement(MaterialPageRoute(
-                  builder: (context) => LoginPage(),
-                ));
-              },
-              tooltip: 'Start',
-              backgroundColor: Colors.black87,
-              foregroundColor: Colors.greenAccent,
-              child: Icon(Icons.play_arrow, size: 27),
-            )
-          : Container(),
+
+      // floatingActionButton: _permissionsGranted
+      //     ? FloatingActionButton(
+      //         onPressed: () {
+      //           // TODO handle _notFirstTime logic
+      //           // push replacement so pop will not go to welcome screen again
+      //           // If not loggedin when pressing back should come back here
+      //           Navigator.of(context).pushReplacement(MaterialPageRoute(
+      //             builder: (context) => LoginPage(),
+      //           ));
+      //         },
+      //         tooltip: 'Start',
+      //         backgroundColor: Colors.black87,
+      //         foregroundColor: Colors.greenAccent,
+      //         child: Icon(Icons.play_arrow, size: 27),
+      //       )
+      //     : Container(),
     );
+  }
+
+  Widget buildButtonBar(BuildContext context) {
+    return _permissionsGranted
+        ? ButtonBar(
+            buttonPadding: const EdgeInsets.only(),
+            alignment: MainAxisAlignment.center,
+            children: <Widget>[
+              ButtonTheme(
+                minWidth: 100.0,
+                height: 50.0,
+                child: RaisedButton(
+                  onPressed: () {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) => LoginPage(),
+                      ),
+                    );
+                  },
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(200),
+                        bottomLeft: Radius.circular(200)),
+                  ),
+                  color: Colors.blueGrey.shade600,
+                  child: Text(
+                    "Login",
+                    style: TextStyle(fontSize: 20),
+                  ),
+                ),
+              ),
+              ButtonTheme(
+                minWidth: 100.0,
+                height: 50.0,
+                child: RaisedButton(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(200),
+                        bottomRight: Radius.circular(200)),
+                  ),
+                  color: Colors.green.shade700,
+                  onPressed: () {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) => SignupPage(),
+                      ),
+                    );
+                  },
+                  child: Text(
+                    "Signup",
+                    style: TextStyle(fontSize: 20),
+                  ),
+                ),
+              ),
+            ],
+          )
+        : Container();
   }
 
   void _requestPermissions() async {
