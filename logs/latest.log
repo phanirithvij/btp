@@ -1,8 +1,35 @@
-[2020-05-19 22:28:42,229: INFO/MainProcess] Connected to redis://localhost:6379/0
-[2020-05-19 22:28:42,238: INFO/MainProcess] mingle: searching for neighbors
-[2020-05-19 22:28:43,260: WARNING/MainProcess] /media/rithvij/Storage/Projects/BTP/venv/lib/python3.8/site-packages/celery/app/control.py:52: DuplicateNodenameWarning: Received multiple replies from node name: celery@rithvij-deepin.
+[2020-05-19 23:19:57,557: INFO/MainProcess] Connected to redis://localhost:6379/0
+[2020-05-19 23:19:57,566: INFO/MainProcess] mingle: searching for neighbors
+[2020-05-19 23:19:58,584: WARNING/MainProcess] /media/rithvij/Storage/Projects/BTP/venv/lib/python3.8/site-packages/celery/app/control.py:52: DuplicateNodenameWarning: Received multiple replies from node name: celery@rithvij-deepin.
 Please make sure you give each node a unique nodename using
 the celery worker `-n` option.
   warnings.warn(DuplicateNodenameWarning(
-[2020-05-19 22:28:43,260: INFO/MainProcess] mingle: all alone
-[2020-05-19 22:28:43,272: INFO/MainProcess] celery@rithvij-deepin ready.
+[2020-05-19 23:19:58,584: INFO/MainProcess] mingle: all alone
+[2020-05-19 23:19:58,597: INFO/MainProcess] celery@rithvij-deepin ready.
+[2020-05-19 23:20:00,947: INFO/MainProcess] Received task: server.tasks.batch.tasks.zip_files[18d441ec-f184-470e-9312-4e12f4c10b5b]  
+[2020-05-19 23:20:00,951: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[18d441ec-f184-470e-9312-4e12f4c10b5b]: Started Zipping
+[2020-05-19 23:20:01,217: ERROR/ForkPoolWorker-7] Task server.tasks.batch.tasks.zip_files[18d441ec-f184-470e-9312-4e12f4c10b5b] raised unexpected: MissingSchema("Invalid URL '/': No schema supplied. Perhaps you meant http:///?")
+Traceback (most recent call last):
+  File "/media/rithvij/Storage/Projects/BTP/venv/lib/python3.8/site-packages/celery/app/trace.py", line 385, in trace_task
+    R = retval = fun(*args, **kwargs)
+  File "/media/rithvij/Storage/Projects/BTP/venv/lib/python3.8/site-packages/celery/app/trace.py", line 650, in __protected_call__
+    return self.run(*args, **kwargs)
+  File "/media/rithvij/Storage/Projects/BTP/server/tasks/batch/tasks.py", line 19, in zip_files
+    self.progress = progress
+  File "/media/rithvij/Storage/Projects/BTP/server/tasks/__init__.py", line 46, in progress
+    self.update()
+  File "/media/rithvij/Storage/Projects/BTP/server/tasks/__init__.py", line 53, in update
+    r = requests.post(self.update_url, json=self._progress)
+  File "/media/rithvij/Storage/Projects/BTP/venv/lib/python3.8/site-packages/requests/api.py", line 119, in post
+    return request('post', url, data=data, json=json, **kwargs)
+  File "/media/rithvij/Storage/Projects/BTP/venv/lib/python3.8/site-packages/requests/api.py", line 61, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "/media/rithvij/Storage/Projects/BTP/venv/lib/python3.8/site-packages/requests/sessions.py", line 516, in request
+    prep = self.prepare_request(req)
+  File "/media/rithvij/Storage/Projects/BTP/venv/lib/python3.8/site-packages/requests/sessions.py", line 449, in prepare_request
+    p.prepare(
+  File "/media/rithvij/Storage/Projects/BTP/venv/lib/python3.8/site-packages/requests/models.py", line 314, in prepare
+    self.prepare_url(url, params)
+  File "/media/rithvij/Storage/Projects/BTP/venv/lib/python3.8/site-packages/requests/models.py", line 388, in prepare_url
+    raise MissingSchema(error)
+requests.exceptions.MissingSchema: Invalid URL '/': No schema supplied. Perhaps you meant http:///?

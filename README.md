@@ -86,6 +86,6 @@ Then install that apk in the android device.
     - [ ] Manage Admins page
       - [ ] Modify permissions
   - [ ] Batch functions
-    - [ ] Delete user
+    - [ ] Delete user and user's files
     - [ ] Download files by a user
     - [ ] Files Multi select download and delete

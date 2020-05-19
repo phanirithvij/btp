@@ -4,19 +4,21 @@ import random
 import time
 from pathlib import Path
 
+from celery import Celery
 from flask import (Flask, jsonify, render_template, request, send_file,
                    send_from_directory, session)
-from celery import Celery
-
 from flask_jwt_extended import (JWTManager, create_access_token,
                                 create_refresh_token, get_current_user,
                                 get_jwt_identity, jwt_refresh_token_required,
                                 jwt_required)
 from werkzeug.utils import secure_filename
 
+
 from server.config import Config
 from server.db.schema.queries import FEMALE, MALE
 from server.db.user import *
+import server.tasks.batch as batch
+from server.tasks import celery
 
 # current directory is server/
 # Set static folder to be ../web_app/src
@@ -25,9 +27,6 @@ folder = up_one / 'web_app' / 'src'
 
 
 DB = Database("data/data.db")
-
-celery = Celery(__name__, broker=Config.CELERY_BROKER_URL,
-                backend=Config.CELERY_RESULT_BACKEND)
 jwt = JWTManager()
 
 
@@ -247,35 +246,34 @@ def download_file(filename):
 @jwt_required
 def upload_file():
 
-    print(session['user'])
+    print(session['user']) # tuple (username, age, gender)
 
     if request.method == 'POST':
         # check if the post request has the file part
         # print(request)
         if 'file' not in request.files:
-            # flash('No file part')
             # return redirect(request.url)
             return jsonify({'status': 'failed', 'msg': 'No file uploaded try again'})
         file = request.files['file']
         if file.filename == '':
-            # flash('No file selected for uploading')
             return jsonify({'status': 'failed', 'msg': 'No file selected for uploading'})
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            filepath = Path(app.config['UPLOAD_FOLDER']
+                            ) / session['user'][0] / filename
+            try:
+                os.makedirs(filepath.parents[0])
+            except Exception as e:
+                print(e)
+
             file.save(filepath)
             size = os.stat(filepath).st_size
-            # flash('File successfully uploaded')
-            # return redirect('/')
             return jsonify({
                 'status': 'ok',
                 'msg': None, 'path': filename, 'size': size
             })
         else:
-            # flash('Allowed file types are txt, pdf, png, jpg, jpeg, gif')
-            # print('my response',)
             return jsonify({'status': 'failed', 'msg': f'invalid file type {file.filename}'})
-            # return redirect(request.url)
 
 
 @app.route('/data')
@@ -283,7 +281,7 @@ def upload_file():
 def random_corpa():
     print("Data bros")
     print(session['user'])
-    data_dir: Path = up_one / '..' / 'corpora' / 'split'
+    data_dir: Path = up_one / 'corpora' / 'split'
     x = 0
     for filename in data_dir.iterdir():
         if filename.is_file():
@@ -293,6 +291,15 @@ def random_corpa():
         "out{}.txt".format(random.randint(1, x))
     )
 
+
+@app.route('/download')
+def download_zip():
+    print(request.args)
+    print(request.form)
+    print(request.json)
+    # print(username)
+    task = batch.zip_files.delay("test", str((up_one / 'data' / 'taskmaster').resolve()), '/')
+    return jsonify({'taskid': task.id})
 
 @app.route('/skipped', methods=['POST'])
 @jwt_required
