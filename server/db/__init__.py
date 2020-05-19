@@ -1,11 +1,11 @@
 import sqlite3
 import time
-
-from werkzeug.security import check_password_hash, generate_password_hash
 from typing import Union
 
-from server.db.schema.queries import *
+from werkzeug.security import check_password_hash, generate_password_hash
+
 from server.db.schema.adminq import CREATE_ADMIN_TABLE, CREATE_ROLES_TABLE
+from server.db.schema.queries import *
 
 
 # https://stackoverflow.com/a/3300514/8608146

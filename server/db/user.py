@@ -5,8 +5,7 @@ from typing import Union
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from server.db import Database
-from server.db.schema.adminq import (CREATE_ADMIN_TABLE,
-                                     CREATE_ROLES_TABLE)
+from server.db.schema.adminq import CREATE_ADMIN_TABLE, CREATE_ROLES_TABLE
 from server.db.schema.queries import *
 
 
@@ -67,6 +66,8 @@ class User:
             self.gender is not None and self.age is not None)
         if not valid:
             return False, 'No gender or age specified'
+
+        ret = True, None
         try:
             self.DB.execute(
                 INSERT_USER, (
@@ -77,9 +78,14 @@ class User:
                 )
             )
         except sqlite3.IntegrityError:
-            return False, 'User already exists with same fields, try login'
+            ret = False, 'User already exists with same fields, try login'
+
+        if self.is_admin:
+            err = self.make_user_admin()
+            ret = err is not None, err
+
         self.DB.commit()
-        return True, None
+        return ret
 
     def populate(self):
         """Populates the user based on the username"""
@@ -121,6 +127,28 @@ class User:
         self._ensure_db_exists()
         self.DB.cursor.close()
         self.DB.close()
+
+    def make_user_admin(self) -> Exception:
+        """
+        Makes a given user admin
+        TODO add roles to db and also this call
+        """
+        user = self
+        user.is_admin = True
+        print(f"Making {user} an admin")
+        try:
+            user.DB.execute(
+                INSERT_ADMIN_USER, (
+                    user.username,
+                )
+            )
+        except Exception as e:
+            return e
+        user.DB.commit()
+        return None
+
+    def __repr__(self):
+        return f"User {self.username}"
 
 
 if __name__ == "__main__":

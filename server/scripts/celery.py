@@ -23,8 +23,12 @@ with open(logfile, 'w'):
 
 
 # command_args = ['./celery.sh', logfile]
+# celery -E -A server.tasks worker --loglevel=info -f logfile
+
+# https://stackoverflow.com/a/26021940/8608146
+# need to point to the celery object
 command_args = [
-    'celery', '-E', '-A', 'server.tasks', 'worker', '--loglevel=info', '-f', logfile
+    'celery', '-E', '-A', 'server.tasks.celery', 'worker', '--loglevel=info', '-f', logfile
 ]
 proc = subprocess.Popen(command_args, shell=False)
 

@@ -4,7 +4,7 @@
 # virtualenv venv
 source venv/bin/activate
 pwd
-# pip install -r server/requirements.txt
+pip install -r server/requirements.txt
 
 if ! [ -x "$(command -v redis-server)" ]; then
     echo 'Warning: redis is not installed or is not in the $PATH.' >&2

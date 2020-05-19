@@ -6,12 +6,15 @@ from pathlib import Path
 
 from flask import (Flask, jsonify, render_template, request, send_file,
                    send_from_directory, session)
+from celery import Celery
+
 from flask_jwt_extended import (JWTManager, create_access_token,
                                 create_refresh_token, get_current_user,
                                 get_jwt_identity, jwt_refresh_token_required,
                                 jwt_required)
 from werkzeug.utils import secure_filename
 
+from server.config import Config
 from server.db.schema.queries import FEMALE, MALE
 from server.db.user import *
 
@@ -22,7 +25,21 @@ folder = up_one / 'web_app' / 'src'
 
 
 DB = Database("data/data.db")
-app = Flask(__name__, static_folder=str(folder), static_url_path='/static')
+
+celery = Celery(__name__, broker=Config.CELERY_BROKER_URL,
+                backend=Config.CELERY_RESULT_BACKEND)
+jwt = JWTManager()
+
+
+def create_app():
+    app = Flask(__name__, static_folder=str(folder), static_url_path='/static')
+    app.config.from_object(Config)
+    jwt.init_app(app)
+    celery.conf.update(app.config)
+    return app
+
+
+app: Flask = create_app()
 
 # https://stackoverflow.com/a/53152394/8608146
 # app.config.from_object(__name__)
@@ -32,8 +49,6 @@ app.secret_key = r'<çDÒ\x88\r/Ò\x9dµ\x90k!a|RÈ\x96#ÇÔ^1à'
 
 # app.config['SESSION_TYPE'] = 'filesystem'
 # Session(app)
-
-jwt = JWTManager()
 
 
 @app.route('/')
@@ -138,7 +153,7 @@ def new_user():
         _password: str = request.form.get('password')
 
         if _username is None:
-            return jsonify({'error': 'Username was empty'}), 403 
+            return jsonify({'error': 'Username was empty'}), 403
 
         _age: int = request.form.get('age')
         _gender: str = request.form.get('gender')
@@ -278,10 +293,8 @@ def handle_skip():
 
 def run_app(*args, **kwargs):
     app = kwargs['app']
-    jwt.init_app(app)
     del kwargs['app']
     app.run(*args, **kwargs)
-
 
 
 if __name__ == '__main__':

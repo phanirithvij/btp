@@ -1,0 +1,11 @@
+You are now an admin to this project.
+
+Please go to this url to recieve a master password:
+
+{{ url_for('adminpass', token=token, _external=True) }}
+
+Sincerely,
+
+The (Unnamed) Team
+
+Note: replies to this email address are not monitored.

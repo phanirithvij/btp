@@ -156,3 +156,4 @@ corpora/
 flask_session/
 venv/
 logs/
+.env
