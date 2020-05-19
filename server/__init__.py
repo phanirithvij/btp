@@ -76,55 +76,59 @@ def customized_error_handler(error):
 # Routes
 
 
-# @app.route('/js/<path:path>')
-# def serve_js(path):
-#     print(path)
-#     # dirz = send_from_directory(app.static_folder, path)
-#     filename = Path(app.static_folder) / path
-#     print(filename)
-#     print("-"*30)
-
-#     return send_file(filename)
-
-
-@app.route('/auth/login', methods=['POST'])
+@app.route('/auth/login', methods=['POST', 'GET'])
 def login():
 
-    error = ''
-    status = 'error'
-    user, error = auth_handler(
-        request.json['username'],
-        request.json['password']
-    )
-    print('user', user)
-    if error is None:
+    if request.method == 'POST':
+        username: str = None
+        password: str = None
+
+        try:
+            # TODO this needs to be removed soon
+            # write js fecth call to request instead of form POST
+            username = request.json['username']
+            password = request.json['password']
+        except:
+            username = request.form['username']
+            password = request.form['password']
+
         error = ''
-        status = 'ok'
-        session['user'] = user.pickle_instance()
-        print(session['user'])
+        status = 'error'
+        user, error = auth_handler(
+            username,
+            password
+        )
+        print('user', user)
+        if error is None:
+            error = ''
+            status = 'ok'
+            session['user'] = user.pickle_instance()
+            print(session['user'])
 
-    access_token = None
-    refresh_token = None
-    user_id = None
-    username = None
-    # https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
-    code = 401
-    if user is not None:
-        expires = datetime.timedelta(hours=3)
-        user_id = user.id
-        username = user.username
-        access_token = create_access_token(user_id, expires_delta=expires)
-        refresh_token = create_refresh_token(user_id)
-        code = 200
+        access_token = None
+        refresh_token = None
+        user_id = None
+        username = None
+        # https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+        code = 401
+        if user is not None:
+            expires = datetime.timedelta(hours=3)
+            user_id = user.id
+            username = user.username
+            access_token = create_access_token(user_id, expires_delta=expires)
+            refresh_token = create_refresh_token(user_id)
+            code = 200
 
-    return jsonify({
-        'access_token': access_token,
-        'refresh_token': refresh_token,
-        'status': status,
-        'error': error,
-        'userId': user_id,
-        'name': username,
-    }), code
+        return jsonify({
+            'access_token': access_token,
+            'refresh_token': refresh_token,
+            'status': status,
+            'error': error,
+            'userId': user_id,
+            'name': username,
+        }), code
+    elif request.method == 'GET':
+        return render_template('auth/login.html')
 
 
 # TODO

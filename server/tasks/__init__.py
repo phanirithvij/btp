@@ -14,6 +14,12 @@ logger = get_task_logger(__name__)
 
 load_dotenv(find_dotenv(), verbose=True)
 
+
+#
+# https://github.com/celery/celery/issues/2570
+# celery tasks in different files is pain
+#
+
 celery.autodiscover_tasks(['server.tasks.batch', 'server.tasks.email'])
 
 
