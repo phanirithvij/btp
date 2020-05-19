@@ -1,5 +1,6 @@
 argh==0.26.2
 astroid==2.4.1
+autopep8==1.5.2
 cachelib==0.1
 click==7.1.2
 Flask==1.1.2
@@ -16,6 +17,7 @@ lazy-object-proxy==1.4.3
 MarkupSafe==1.1.1
 mccabe==0.6.1
 pathtools==0.1.2
+pycodestyle==2.6.0
 PyJWT==1.7.1
 pylint==2.5.2
 python-engineio==3.12.1

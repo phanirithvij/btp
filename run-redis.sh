@@ -8,5 +8,13 @@ if ! [ -x "$(command -v redis-server)" ]; then
     make -j8
     src/redis-server
 else
-    redis-server
+    # check if redis is running
+    pong=$(redis-cli ping)
+    if [[ "$pong" == "PONG" ]]; then
+        # exit
+        exit 1
+        # echo $pong
+    else
+        redis-server
+    fi
 fi

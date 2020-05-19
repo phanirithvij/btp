@@ -22,7 +22,10 @@ with open(logfile, 'w'):
     pass
 
 
-command_args = ['./celery.sh', logfile]
+# command_args = ['./celery.sh', logfile]
+command_args = [
+    'celery', '-E', '-A', 'server.tasks', 'worker', '--loglevel=info', '-f', logfile
+]
 proc = subprocess.Popen(command_args, shell=False)
 
 try:

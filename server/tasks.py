@@ -43,7 +43,7 @@ class CustomTask(Task):
 
 
 @celery.task(bind=True, base=CustomTask)
-def process_image(
+def zip_files(
         self,
         filename: str,
         file: str,

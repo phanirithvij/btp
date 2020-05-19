@@ -155,3 +155,4 @@ temp/
 corpora/
 flask_session/
 venv/
+logs/
