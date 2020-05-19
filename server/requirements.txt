@@ -1,6 +1,7 @@
-Flask==1.1.2
-Flask-SocketIO==4.2.1
-flask-jwt
+Flask
+Flask-SocketIO
+# Flask-jwt was not letting celery run so removed it
+# issue might be becasue pyjwt <> something
 flask-jwt-extended
 Flask-Session
 # eventlet==0.25.1
@@ -8,3 +9,9 @@ gevent
 gevent-websocket
 # requires ffmpeg
 # pydub
+# watchdog is for celery hot reload
+# https://stackoverflow.com/a/43929298/8608146
+watchdog
+# these two are for watchmedo
+argh
+pyyaml

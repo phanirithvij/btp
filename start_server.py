@@ -1,7 +1,7 @@
 import argparse
 import os
 
-from server.main import run_app, app
+from server import run_app, app
 
 parser = argparse.ArgumentParser(description='SPKID and LID demo')
 parser.add_argument(
