@@ -5,7 +5,7 @@ from typing import Union
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from server.db import Database
-from server.db.schema.adminq import CREATE_ADMIN_TABLE, CREATE_ROLES_TABLE
+from server.db.schema.adminq import *
 from server.db.schema.queries import *
 
 
@@ -67,6 +67,10 @@ class User:
         if not valid:
             return False, 'No gender or age specified'
 
+        if self.is_admin:
+            if self.age is None:
+                self.age = 100
+
         ret = True, None
         try:
             self.DB.execute(
@@ -77,12 +81,20 @@ class User:
                     self.pwhash
                 )
             )
+            # print(self.DB.get_users())
+            # self.DB.commit()
         except sqlite3.IntegrityError:
             ret = False, 'User already exists with same fields, try login'
+        except Exception as e:
+            ret = False, str(e)
 
+        # TODO remove this
+        # no user can be an admin when registering
+
+        # if user is admin when they are registering
         if self.is_admin:
             err = self.make_user_admin()
-            ret = err is not None, err
+            ret = err is None, err
 
         self.DB.commit()
         return ret
@@ -143,7 +155,7 @@ class User:
                 )
             )
         except Exception as e:
-            return e
+            return str(e)
         user.DB.commit()
         return None
 

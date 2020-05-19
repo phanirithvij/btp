@@ -1,0 +1,8 @@
+[2020-05-19 22:20:55,261: INFO/MainProcess] Connected to redis://localhost:6379/0
+[2020-05-19 22:20:55,269: INFO/MainProcess] mingle: searching for neighbors
+[2020-05-19 22:20:56,284: WARNING/MainProcess] /media/rithvij/Storage/Projects/BTP/venv/lib/python3.8/site-packages/celery/app/control.py:52: DuplicateNodenameWarning: Received multiple replies from node name: celery@rithvij-deepin.
+Please make sure you give each node a unique nodename using
+the celery worker `-n` option.
+  warnings.warn(DuplicateNodenameWarning(
+[2020-05-19 22:20:56,284: INFO/MainProcess] mingle: all alone
+[2020-05-19 22:20:56,291: INFO/MainProcess] celery@rithvij-deepin ready.

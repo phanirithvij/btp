@@ -9,6 +9,10 @@ class Admin(User):
     def __init__(self, *args, **kwargs):
         super.__init__(*args, **kwargs)
         self.is_admin = True
+        if self.gender == None:
+            self.gender = MALE
+        if self.age == None:
+            self.age = 100
 
 
 def initial_admin():

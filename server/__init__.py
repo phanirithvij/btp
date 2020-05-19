@@ -156,6 +156,12 @@ def new_user():
         _username: str = request.form.get('username')
         _password: str = request.form.get('password')
 
+        # TODO remove this field from the form after we done with forntend
+        # Or make this only feild only valid when accessed via email.
+        # After master gives access to the user's account
+        # So this feild will not exist in register form
+        _admin: bool = request.form.get('admin') == 'yes'
+
         if _username is None:
             return jsonify({'error': 'Username was empty'}), 403
 
@@ -163,10 +169,12 @@ def new_user():
         _gender: str = request.form.get('gender')
         _gender = MALE if _gender == 'm' else FEMALE
         user = User(_username, _age, _gender, _password)
+
+        user.is_admin = _admin
         user.attach_DB(DB)
         success, err = user.save_to_db()
 
-        # print(success, err)
+        print(success, err)
 
         status = 'error'
         # err = f'A user named {_username} exists'
