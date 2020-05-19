@@ -1,8 +1,8 @@
-[2020-05-19 16:59:24,898: INFO/MainProcess] Connected to redis://localhost:6379/0
-[2020-05-19 16:59:24,904: INFO/MainProcess] mingle: searching for neighbors
-[2020-05-19 16:59:25,918: WARNING/MainProcess] /home/rithvij/.local/lib/python3.8/site-packages/celery/app/control.py:52: DuplicateNodenameWarning: Received multiple replies from node name: celery@rithvij-deepin.
+[2020-05-19 17:41:27,842: INFO/MainProcess] Connected to redis://localhost:6379/0
+[2020-05-19 17:41:27,848: INFO/MainProcess] mingle: searching for neighbors
+[2020-05-19 17:41:28,868: WARNING/MainProcess] /home/rithvij/.local/lib/python3.8/site-packages/celery/app/control.py:52: DuplicateNodenameWarning: Received multiple replies from node name: celery@rithvij-deepin.
 Please make sure you give each node a unique nodename using
 the celery worker `-n` option.
   warnings.warn(DuplicateNodenameWarning(
-[2020-05-19 16:59:25,918: INFO/MainProcess] mingle: all alone
-[2020-05-19 16:59:25,924: INFO/MainProcess] celery@rithvij-deepin ready.
+[2020-05-19 17:41:28,868: INFO/MainProcess] mingle: all alone
+[2020-05-19 17:41:28,874: INFO/MainProcess] celery@rithvij-deepin ready.

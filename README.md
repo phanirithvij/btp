@@ -75,6 +75,16 @@ Then install that apk in the android device.
 - [ ] Deploy on heroku
 - [ ] Admin console
   - [ ] Admin account
+    - [ ] One admin account
+      - [ ] Admin credentials are stored in code
+      - [ ] Only those with the access to the code can view the admin password.
+    - [ ] Multipe admin accounts by requesting the main admin (via email)
+      - [ ] Different levels of permissions
+        - [ ] View
+        - [ ] Edit
+        - [ ] Delete
+    - [ ] Manage Admins page
+      - [ ] Modify permissions
   - [ ] Batch functions
     - [ ] Delete user
     - [ ] Download files by a user
