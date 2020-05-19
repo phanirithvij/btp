@@ -1,6 +1,10 @@
 {% extends "common.html" %}
 {% block content %}
-<button id='start'>Start</button>
-<button id='stop'>Stop</button>
-<button id='save'>Save</button>
+
+<form method="POST">
+    <input type="text" name="username" />
+    <input type="password" name="password" />
+    <button type="submit">Submit</button>
+</form>
+
 {% endblock %}

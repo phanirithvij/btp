@@ -4,7 +4,7 @@ import time
 from werkzeug.security import check_password_hash, generate_password_hash
 from typing import Union
 
-from .queries import *
+from server.queries import *
 
 
 # https://stackoverflow.com/a/3300514/8608146
@@ -111,7 +111,7 @@ class User:
         self._ensure_db_exists()
         valid = (self.gender is not None and self.age is not None)
         if not valid:
-            return False, None
+            return False, 'No gender or age specified'
         try:
             self.DB.execute(
                 INSERT_USER, (
@@ -122,9 +122,9 @@ class User:
                 )
             )
         except sqlite3.IntegrityError:
-            return False, None
+            return False, 'Already exists'
         self.DB.commit()
-        return True, self._fecth_id()
+        return True, None
 
     def populate(self):
         """Populates the user based on the username"""
@@ -153,6 +153,7 @@ class User:
         """This ensures DB is initialized"""
         if self.DB is None:
             self.DB = Database("data/data.db")
+        print(self.DB)
         return self
 
     def _fecth_id(self) -> int:

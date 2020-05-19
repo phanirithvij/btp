@@ -13,16 +13,16 @@ from flask_jwt_extended import (JWTManager, create_access_token,
 from werkzeug.utils import secure_filename
 
 from server.queries import FEMALE, MALE
-from server.user import *
+from server.models.user import *
 
 # current directory is server/
 # Set static folder to be ../web_app/src
-up_one = Path(__file__).parent
+up_one = Path(__file__).parents[1]
 folder = up_one / 'web_app' / 'src'
 
 
 DB = Database("data/data.db")
-app = Flask(__name__, static_folder=str(folder))
+app = Flask(__name__, static_folder=str(folder), static_url_path='/static')
 
 # https://stackoverflow.com/a/53152394/8608146
 # app.config.from_object(__name__)
@@ -59,6 +59,17 @@ def customized_error_handler(error):
     }), error.status_code
 
 # Routes
+
+
+# @app.route('/js/<path:path>')
+# def serve_js(path):
+#     print(path)
+#     # dirz = send_from_directory(app.static_folder, path)
+#     filename = Path(app.static_folder) / path
+#     print(filename)
+#     print("-"*30)
+
+#     return send_file(filename)
 
 
 @app.route('/auth/login', methods=['POST'])
@@ -125,15 +136,21 @@ def new_user():
 
         _username: str = request.form.get('username')
         _password: str = request.form.get('password')
+
+        if _username is None:
+            return jsonify({'error': 'Username was empty'}), 403 
+
         _age: int = request.form.get('age')
         _gender: str = request.form.get('gender')
         _gender = MALE if _gender == 'm' else FEMALE
         user = User(_username, _age, _gender, _password)
         user.attach_DB(DB)
-        success, rowId = user.save_to_db()
+        success, err = user.save_to_db()
+
+        # print(success, err)
 
         status = 'error'
-        err = f'A user named {_username} exists'
+        # err = f'A user named {_username} exists'
         access_token = None
         refresh_token = None
         user_id = None
