@@ -148,6 +148,11 @@ def all_files():
     return render_template("files.html", items=items)  # , as_attachment=True)
 
 
+@app.route('/dashboard')
+def dashboard_home():
+    return render_template('dashboard.html')
+
+
 @app.route('/auth/new', methods=['GET', 'POST'])
 def new_user():
     # TODO register
