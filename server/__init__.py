@@ -6,7 +6,7 @@ from pathlib import Path
 
 from celery import Celery
 from flask import (Flask, jsonify, render_template, request, send_file,
-                   send_from_directory, session)
+                   send_from_directory, session, url_for)
 from flask_jwt_extended import (JWTManager, create_access_token,
                                 create_refresh_token, get_current_user,
                                 get_jwt_identity, jwt_refresh_token_required,
@@ -246,7 +246,7 @@ def download_file(filename):
 @jwt_required
 def upload_file():
 
-    print(session['user']) # tuple (username, age, gender)
+    print(session['user'])  # tuple (username, age, gender)
 
     if request.method == 'POST':
         # check if the post request has the file part
@@ -297,9 +297,23 @@ def download_zip():
     print(request.args)
     print(request.form)
     print(request.json)
+    print(
+        url_for('progress')
+    )
     # print(username)
-    task = batch.zip_files.delay("test", str((up_one / 'data' / 'taskmaster').resolve()), '/')
+    task = batch.zip_files.delay(
+        "test",
+        str((up_one / 'data' / 'taskmaster').resolve()),
+        url_for('progress', _external=True)
+    )
     return jsonify({'taskid': task.id})
+
+
+@app.route('/progress', methods=['POST'])
+def progress():
+    print(request.data)
+    return 'ok'
+
 
 @app.route('/skipped', methods=['POST'])
 @jwt_required
