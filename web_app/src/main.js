@@ -100,14 +100,42 @@
 
 window.userId = null;
 
-(()=>{
+(() => {
+    function update_progress(data) {
+        let percent = (data.current * 100 / data.total);
+        var elementid = pairs[data.taskid];
+        // TODO here error means a running task progress is recieved by this client
+        // create new nanobar
+        nanobars[elementid].go(percent);
+        // console.log(data, 'updateprogess');
+        if (data.status == "done") {
+            const filename = data.filename;
+            const el = document.getElementById(elementid);
+            const par = el.parentElement;
+            const a = document.createElement('a');
+            a.href = `/export/${filename}`;
+            a.text = "Download file";
+            par.appendChild(a);
+            fetch(`/info/${filename}`)
+                .then(x => x.json())
+                .then(f => {
+                    var span = document.createElement('span');
+                    span.innerText = JSON.stringify(f);
+                    console.log(f)
+                    par.appendChild(span);
+                });
+        }
+    }
+
     var namespace = '/events'; // change to an empty string to use the global namespace
 
     // the socket.io documentation recommends sending an explicit package upon connection
     // this is specially important when using the global namespace
-    var socket = io.connect('http://' + document.domain + ':' + location.port + namespace, {transports: ['websocket']});
+    var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
     socket.on('connect', function () {
-        socket.emit('status', { status: "I'm connected!" });
+        socket.emit('status', {
+            status: "I'm connected!"
+        });
     });
 
     // event handler for userid.  On initial connection, the server
@@ -118,9 +146,7 @@ window.userId = null;
 
     // event handler for server sent celery status
     // the data is displayed in the "Received" section of the page
-    socket.on('celerystatus', (update_progress)=>{
-        console.log(update_progress);
-    });
+    socket.on('celerystatus', update_progress);
 
     // event handler for server sent general status
     // the data is displayed in the "Received" section of the page

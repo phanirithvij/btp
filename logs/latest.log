@@ -1,16 +1,61 @@
-[2020-05-22 19:33:15,680: INFO/MainProcess] Connected to redis://localhost:6379/0
-[2020-05-22 19:33:15,685: INFO/MainProcess] mingle: searching for neighbors
-[2020-05-22 19:33:16,696: INFO/MainProcess] mingle: all alone
-[2020-05-22 19:33:16,703: INFO/MainProcess] celery@rithvij-deepin ready.
-[2020-05-22 19:33:33,272: INFO/MainProcess] Received task: server.tasks.batch.tasks.zip_files[0ed73378-4cd8-49f5-ab2e-9664cb999ca5]  
-[2020-05-22 19:33:33,275: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[0ed73378-4cd8-49f5-ab2e-9664cb999ca5]: Started Zipping
-[2020-05-22 19:33:33,280: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[0ed73378-4cd8-49f5-ab2e-9664cb999ca5]: Sending updates for task 0ed73378-4cd8-49f5-ab2e-9664cb999ca5
-[2020-05-22 19:33:33,855: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[0ed73378-4cd8-49f5-ab2e-9664cb999ca5]: b''
-[2020-05-22 19:33:33,859: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[0ed73378-4cd8-49f5-ab2e-9664cb999ca5]: Sending updates for task 0ed73378-4cd8-49f5-ab2e-9664cb999ca5
-[2020-05-22 19:33:33,861: INFO/ForkPoolWorker-7] Task server.tasks.batch.tasks.zip_files[0ed73378-4cd8-49f5-ab2e-9664cb999ca5] succeeded in 0.5866767410007014s: None
-[2020-05-22 19:33:55,336: INFO/MainProcess] Received task: server.tasks.batch.tasks.zip_files[0ce383a6-b6d0-4ad0-b9e5-c52eee948306]  
-[2020-05-22 19:33:55,339: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[0ce383a6-b6d0-4ad0-b9e5-c52eee948306]: Started Zipping
-[2020-05-22 19:33:55,345: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[0ce383a6-b6d0-4ad0-b9e5-c52eee948306]: Sending updates for task 0ce383a6-b6d0-4ad0-b9e5-c52eee948306
-[2020-05-22 19:33:55,368: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[0ce383a6-b6d0-4ad0-b9e5-c52eee948306]: b''
-[2020-05-22 19:33:55,374: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[0ce383a6-b6d0-4ad0-b9e5-c52eee948306]: Sending updates for task 0ce383a6-b6d0-4ad0-b9e5-c52eee948306
-[2020-05-22 19:33:55,376: INFO/ForkPoolWorker-7] Task server.tasks.batch.tasks.zip_files[0ce383a6-b6d0-4ad0-b9e5-c52eee948306] succeeded in 0.03707226299957256s: None
+[2020-05-22 21:08:20,747: INFO/MainProcess] Connected to redis://localhost:6379/0
+[2020-05-22 21:08:20,829: INFO/MainProcess] mingle: searching for neighbors
+[2020-05-22 21:08:21,881: INFO/MainProcess] mingle: all alone
+[2020-05-22 21:08:21,979: INFO/MainProcess] celery@rithvij-deepin ready.
+[2020-05-22 21:08:26,548: INFO/MainProcess] Received task: server.tasks.batch.tasks.zip_files[b4531816-edb4-45e7-b0aa-006b87720ebc]  
+[2020-05-22 21:09:08,970: INFO/MainProcess] Received task: server.tasks.batch.tasks.zip_files[1d2deab0-460d-4a72-8972-08dc0815d148]  
+[2020-05-22 21:09:13,504: INFO/MainProcess] Received task: server.tasks.batch.tasks.zip_files[30ae6441-67ff-4c04-8e52-1abd0e90946e]  
+[2020-05-22 21:09:14,078: INFO/MainProcess] Received task: server.tasks.batch.tasks.zip_files[b1ed8135-fca4-46d7-8946-5291d5ac5a05]  
+[2020-05-22 21:09:14,621: INFO/MainProcess] Received task: server.tasks.batch.tasks.zip_files[924f0583-d365-4930-9f97-00dd11ddfba3]  
+[2020-05-22 21:09:14,706: INFO/MainProcess] Received task: server.tasks.batch.tasks.zip_files[f0d358ba-331c-454a-b691-82f5194aa74f]  
+[2020-05-22 21:09:14,768: INFO/MainProcess] Received task: server.tasks.batch.tasks.zip_files[683c9761-0997-4ea4-b688-48a0173d5054]  
+[2020-05-22 21:09:26,980: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[b4531816-edb4-45e7-b0aa-006b87720ebc]: took 60.429381224999815 secs to compute folder hash
+[2020-05-22 21:09:26,985: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[b4531816-edb4-45e7-b0aa-006b87720ebc]: ae29b8873f87b95c729a9e4eee343fdd
+[2020-05-22 21:09:26,987: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[b4531816-edb4-45e7-b0aa-006b87720ebc]: Started Zipping
+[2020-05-22 21:09:27,326: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[b4531816-edb4-45e7-b0aa-006b87720ebc]: Sending updates for task b4531816-edb4-45e7-b0aa-006b87720ebc
+[2020-05-22 21:10:17,270: INFO/ForkPoolWorker-3] server.tasks.batch.tasks.zip_files[924f0583-d365-4930-9f97-00dd11ddfba3]: took 62.50543032299902 secs to compute folder hash
+[2020-05-22 21:10:17,270: INFO/ForkPoolWorker-1] server.tasks.batch.tasks.zip_files[30ae6441-67ff-4c04-8e52-1abd0e90946e]: took 63.72259696499896 secs to compute folder hash
+[2020-05-22 21:10:17,270: INFO/ForkPoolWorker-8] server.tasks.batch.tasks.zip_files[1d2deab0-460d-4a72-8972-08dc0815d148]: took 68.25991263499964 secs to compute folder hash
+[2020-05-22 21:10:17,270: INFO/ForkPoolWorker-5] server.tasks.batch.tasks.zip_files[683c9761-0997-4ea4-b688-48a0173d5054]: took 62.48432961399885 secs to compute folder hash
+[2020-05-22 21:10:17,332: INFO/ForkPoolWorker-3] server.tasks.batch.tasks.zip_files[924f0583-d365-4930-9f97-00dd11ddfba3]: ae29b8873f87b95c729a9e4eee343fdd
+[2020-05-22 21:10:17,270: INFO/ForkPoolWorker-4] server.tasks.batch.tasks.zip_files[f0d358ba-331c-454a-b691-82f5194aa74f]: took 62.505268527002045 secs to compute folder hash
+[2020-05-22 21:10:17,270: INFO/ForkPoolWorker-2] server.tasks.batch.tasks.zip_files[b1ed8135-fca4-46d7-8946-5291d5ac5a05]: took 63.156447574001504 secs to compute folder hash
+[2020-05-22 21:10:17,332: INFO/ForkPoolWorker-1] server.tasks.batch.tasks.zip_files[30ae6441-67ff-4c04-8e52-1abd0e90946e]: ae29b8873f87b95c729a9e4eee343fdd
+[2020-05-22 21:10:17,356: INFO/ForkPoolWorker-8] server.tasks.batch.tasks.zip_files[1d2deab0-460d-4a72-8972-08dc0815d148]: ae29b8873f87b95c729a9e4eee343fdd
+[2020-05-22 21:10:17,356: INFO/ForkPoolWorker-5] server.tasks.batch.tasks.zip_files[683c9761-0997-4ea4-b688-48a0173d5054]: ae29b8873f87b95c729a9e4eee343fdd
+[2020-05-22 21:10:17,360: INFO/ForkPoolWorker-2] server.tasks.batch.tasks.zip_files[b1ed8135-fca4-46d7-8946-5291d5ac5a05]: ae29b8873f87b95c729a9e4eee343fdd
+[2020-05-22 21:10:17,359: INFO/ForkPoolWorker-4] server.tasks.batch.tasks.zip_files[f0d358ba-331c-454a-b691-82f5194aa74f]: ae29b8873f87b95c729a9e4eee343fdd
+[2020-05-22 21:10:17,360: INFO/ForkPoolWorker-3] server.tasks.batch.tasks.zip_files[924f0583-d365-4930-9f97-00dd11ddfba3]: Started Zipping
+[2020-05-22 21:10:17,393: INFO/ForkPoolWorker-5] server.tasks.batch.tasks.zip_files[683c9761-0997-4ea4-b688-48a0173d5054]: Started Zipping
+[2020-05-22 21:10:17,379: INFO/ForkPoolWorker-8] server.tasks.batch.tasks.zip_files[1d2deab0-460d-4a72-8972-08dc0815d148]: Started Zipping
+[2020-05-22 21:10:17,378: INFO/ForkPoolWorker-1] server.tasks.batch.tasks.zip_files[30ae6441-67ff-4c04-8e52-1abd0e90946e]: Started Zipping
+[2020-05-22 21:10:17,393: INFO/ForkPoolWorker-4] server.tasks.batch.tasks.zip_files[f0d358ba-331c-454a-b691-82f5194aa74f]: Started Zipping
+[2020-05-22 21:10:17,393: INFO/ForkPoolWorker-2] server.tasks.batch.tasks.zip_files[b1ed8135-fca4-46d7-8946-5291d5ac5a05]: Started Zipping
+[2020-05-22 21:10:17,586: INFO/ForkPoolWorker-8] server.tasks.batch.tasks.zip_files[1d2deab0-460d-4a72-8972-08dc0815d148]: Sending updates for task 1d2deab0-460d-4a72-8972-08dc0815d148
+[2020-05-22 21:10:17,593: INFO/ForkPoolWorker-4] server.tasks.batch.tasks.zip_files[f0d358ba-331c-454a-b691-82f5194aa74f]: Sending updates for task f0d358ba-331c-454a-b691-82f5194aa74f
+[2020-05-22 21:10:17,590: INFO/ForkPoolWorker-1] server.tasks.batch.tasks.zip_files[30ae6441-67ff-4c04-8e52-1abd0e90946e]: Sending updates for task 30ae6441-67ff-4c04-8e52-1abd0e90946e
+[2020-05-22 21:10:17,610: INFO/ForkPoolWorker-8] server.tasks.batch.tasks.zip_files[1d2deab0-460d-4a72-8972-08dc0815d148]: Sending updates for task 1d2deab0-460d-4a72-8972-08dc0815d148
+[2020-05-22 21:10:17,599: INFO/ForkPoolWorker-5] server.tasks.batch.tasks.zip_files[683c9761-0997-4ea4-b688-48a0173d5054]: Sending updates for task 683c9761-0997-4ea4-b688-48a0173d5054
+[2020-05-22 21:10:17,633: INFO/ForkPoolWorker-1] server.tasks.batch.tasks.zip_files[30ae6441-67ff-4c04-8e52-1abd0e90946e]: Sending updates for task 30ae6441-67ff-4c04-8e52-1abd0e90946e
+[2020-05-22 21:10:17,630: INFO/ForkPoolWorker-8] Task server.tasks.batch.tasks.zip_files[1d2deab0-460d-4a72-8972-08dc0815d148] succeeded in 68.62058134499966s: None
+[2020-05-22 21:10:17,583: INFO/ForkPoolWorker-3] server.tasks.batch.tasks.zip_files[924f0583-d365-4930-9f97-00dd11ddfba3]: Sending updates for task 924f0583-d365-4930-9f97-00dd11ddfba3
+[2020-05-22 21:10:17,596: INFO/ForkPoolWorker-2] server.tasks.batch.tasks.zip_files[b1ed8135-fca4-46d7-8946-5291d5ac5a05]: Sending updates for task b1ed8135-fca4-46d7-8946-5291d5ac5a05
+[2020-05-22 21:10:17,656: INFO/ForkPoolWorker-1] Task server.tasks.batch.tasks.zip_files[30ae6441-67ff-4c04-8e52-1abd0e90946e] succeeded in 64.10830206199898s: None
+[2020-05-22 21:10:17,642: INFO/ForkPoolWorker-4] server.tasks.batch.tasks.zip_files[f0d358ba-331c-454a-b691-82f5194aa74f]: Sending updates for task f0d358ba-331c-454a-b691-82f5194aa74f
+[2020-05-22 21:10:17,660: INFO/ForkPoolWorker-5] server.tasks.batch.tasks.zip_files[683c9761-0997-4ea4-b688-48a0173d5054]: Sending updates for task 683c9761-0997-4ea4-b688-48a0173d5054
+[2020-05-22 21:10:17,663: INFO/ForkPoolWorker-3] server.tasks.batch.tasks.zip_files[924f0583-d365-4930-9f97-00dd11ddfba3]: Sending updates for task 924f0583-d365-4930-9f97-00dd11ddfba3
+[2020-05-22 21:10:17,685: INFO/ForkPoolWorker-2] server.tasks.batch.tasks.zip_files[b1ed8135-fca4-46d7-8946-5291d5ac5a05]: Sending updates for task b1ed8135-fca4-46d7-8946-5291d5ac5a05
+[2020-05-22 21:10:17,716: INFO/ForkPoolWorker-4] Task server.tasks.batch.tasks.zip_files[f0d358ba-331c-454a-b691-82f5194aa74f] succeeded in 62.95184123099898s: None
+[2020-05-22 21:10:17,716: INFO/ForkPoolWorker-5] Task server.tasks.batch.tasks.zip_files[683c9761-0997-4ea4-b688-48a0173d5054] succeeded in 62.93040443300197s: None
+[2020-05-22 21:10:17,755: INFO/ForkPoolWorker-3] Task server.tasks.batch.tasks.zip_files[924f0583-d365-4930-9f97-00dd11ddfba3] succeeded in 62.99108808299934s: None
+[2020-05-22 21:10:18,009: INFO/ForkPoolWorker-2] Task server.tasks.batch.tasks.zip_files[b1ed8135-fca4-46d7-8946-5291d5ac5a05] succeeded in 63.89555389100133s: None
+[2020-05-22 21:10:38,192: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[b4531816-edb4-45e7-b0aa-006b87720ebc]: b''
+[2020-05-22 21:10:38,199: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[b4531816-edb4-45e7-b0aa-006b87720ebc]: Sending updates for task b4531816-edb4-45e7-b0aa-006b87720ebc
+[2020-05-22 21:10:38,201: INFO/ForkPoolWorker-7] Task server.tasks.batch.tasks.zip_files[b4531816-edb4-45e7-b0aa-006b87720ebc] succeeded in 131.65025169900036s: None
+[2020-05-22 21:11:43,889: INFO/MainProcess] Received task: server.tasks.batch.tasks.zip_files[8963113c-6426-4654-823a-223120b0510d]  
+[2020-05-22 21:11:58,322: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[8963113c-6426-4654-823a-223120b0510d]: took 14.413546776999283 secs to compute folder hash
+[2020-05-22 21:11:58,322: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[8963113c-6426-4654-823a-223120b0510d]: ae29b8873f87b95c729a9e4eee343fdd
+[2020-05-22 21:11:58,322: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[8963113c-6426-4654-823a-223120b0510d]: Started Zipping
+[2020-05-22 21:11:58,326: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[8963113c-6426-4654-823a-223120b0510d]: Sending updates for task 8963113c-6426-4654-823a-223120b0510d
+[2020-05-22 21:11:58,335: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[8963113c-6426-4654-823a-223120b0510d]: Sending updates for task 8963113c-6426-4654-823a-223120b0510d
+[2020-05-22 21:11:58,336: INFO/ForkPoolWorker-7] Task server.tasks.batch.tasks.zip_files[8963113c-6426-4654-823a-223120b0510d] succeeded in 14.427954326998588s: None

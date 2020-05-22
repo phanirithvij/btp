@@ -26,6 +26,7 @@ from server.tasks import celery
 up_one = Path(__file__).parents[1]
 folder = up_one / 'web_app' / 'src'
 
+TEMP_DIR = '/tmp/storage'
 
 DB = Database("data/data.db")
 jwt = JWTManager()
@@ -335,17 +336,17 @@ def download_zip():
         # print(request.args)
         # print(request.form)
         user_id = request.json['userid']
-        # print(request.data)
+        print(request.json)
         # print(url_for('progress', _external=True))
         # Using this on linux so /tmp is the best
         # place to store files
         try:
-            os.makedirs('/tmp/storage')
+            os.makedirs(TEMP_DIR)
         except Exception as e:
             print(str(e))
 
         task = batch.zip_files.delay(
-            '/tmp/storage',
+            TEMP_DIR,
             str((up_one / 'data' / 'taskmaster').resolve()),
             # str((up_one / 'data' / 'taskmaster').resolve()),
             user_id,
@@ -372,6 +373,19 @@ def progress():
                   room=room, namespace='/events')
     print(request.data)
     return 'ok'
+
+@app.route('/export/<string:filename>')
+def download_zipfile(filename: str):
+    return send_from_directory(TEMP_DIR, filename)
+
+@app.route('/info/<string:filename>')
+def info_zipfile(filename: str):
+    filepath = Path(TEMP_DIR) / filename
+    err = "No such file {} found".format(filename)
+    if filepath.is_file():
+        err = None
+    size = os.stat(filepath).st_size
+    return jsonify({"error": err, "size": size})
 
 
 @app.route('/skipped', methods=['POST'])
