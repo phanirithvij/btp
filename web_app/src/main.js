@@ -97,3 +97,41 @@
 //         uploadBlobToServer(blobdata);
 //     }
 // })();
+
+window.userId = null;
+
+(()=>{
+    var namespace = '/events'; // change to an empty string to use the global namespace
+
+    // the socket.io documentation recommends sending an explicit package upon connection
+    // this is specially important when using the global namespace
+    var socket = io.connect('http://' + document.domain + ':' + location.port + namespace, {transports: ['websocket']});
+    socket.on('connect', function () {
+        socket.emit('status', { status: "I'm connected!" });
+    });
+
+    // event handler for userid.  On initial connection, the server
+    // sends back a unique userid
+    socket.on('userid', function (msg) {
+        window.userId = msg.userid;
+    });
+
+    // event handler for server sent celery status
+    // the data is displayed in the "Received" section of the page
+    socket.on('celerystatus', (update_progress)=>{
+        console.log(update_progress);
+    });
+
+    // event handler for server sent general status
+    // the data is displayed in the "Received" section of the page
+    socket.on('status', function (msg) {
+        // $('#status').text(msg.status);
+        console.log(msg, 'status')
+    });
+
+    socket.on('disconnect', function (da) {
+        // $('#status').text('Lost server connection')
+        console.log(da, 'dead server')
+    });
+
+})()

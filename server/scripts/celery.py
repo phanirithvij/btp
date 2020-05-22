@@ -18,6 +18,8 @@ print('[scripts/celery.py] Restarted Celery')
 print(f'[scripts/celery.py] Logging to {logfile}')
 # print('[scripts/celery.py] disk_usage', disk_usage(Path('logs/')))
 
+# TODO remove empty logs
+
 filelist = os.listdir('logs')
 # print(filelist)
 if len(filelist) > LOG_FILES_LIMIT:

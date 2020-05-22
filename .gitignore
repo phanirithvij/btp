@@ -157,3 +157,5 @@ flask_session/
 venv/
 logs/
 .env
+ziptool
+*.zip

@@ -2,22 +2,23 @@ import datetime
 import os
 import random
 import time
+import uuid
 from pathlib import Path
 
 from celery import Celery
 from flask import (Flask, jsonify, render_template, request, send_file,
-                   send_from_directory, session, url_for)
+                   send_from_directory, session, url_for, current_app)
 from flask_jwt_extended import (JWTManager, create_access_token,
                                 create_refresh_token, get_current_user,
                                 get_jwt_identity, jwt_refresh_token_required,
                                 jwt_required)
+from flask_socketio import SocketIO, disconnect, emit, join_room, leave_room
 from werkzeug.utils import secure_filename
 
-
+import server.tasks.batch as batch
 from server.config import Config
 from server.db.schema.queries import FEMALE, MALE
 from server.db.user import *
-import server.tasks.batch as batch
 from server.tasks import celery
 
 # current directory is server/
@@ -28,17 +29,20 @@ folder = up_one / 'web_app' / 'src'
 
 DB = Database("data/data.db")
 jwt = JWTManager()
+socketio = SocketIO()
 
 
 def create_app():
     app = Flask(__name__, static_folder=str(folder), static_url_path='/static')
     app.config.from_object(Config)
     jwt.init_app(app)
+    socketio.init_app(app)
     celery.conf.update(app.config)
     return app
 
 
 app: Flask = create_app()
+app.clients = {}
 
 # https://stackoverflow.com/a/53152394/8608146
 # app.config.from_object(__name__)
@@ -48,12 +52,6 @@ app.secret_key = r'<çDÒ\x88\r/Ò\x9dµ\x90k!a|RÈ\x96#ÇÔ^1à'
 
 # app.config['SESSION_TYPE'] = 'filesystem'
 # Session(app)
-
-
-@app.route('/')
-def index():
-    return render_template('index.html')
-
 
 # file upload
 ALLOWED_EXTENSIONS = set(['wav', 'mp3', 'ogg', 'webm', 'aac'])
@@ -72,7 +70,44 @@ def customized_error_handler(error):
         'code': error.status_code
     }), error.status_code
 
+
+# Socket io
+@socketio.on('status', namespace='/events')
+def events_message(message):
+    emit('status', {'status': message['status']})
+
+
+@socketio.on('disconnect request', namespace='/events')
+def disconnect_request():
+    emit('status', {'status': 'Disconnected!'})
+    disconnect()
+
+
+@socketio.on('connect', namespace='/events')
+def events_connect():
+    print(request.namespace)
+    userid = str(uuid.uuid4())
+    session['userid'] = userid
+    # https://stackoverflow.com/questions/39423646/flask-socketio-emit-to-specific-user
+    current_app.clients[userid] = request.sid
+    join_room(request.sid, namespace='/events')
+    emit('userid', {'userid': userid})
+    emit('status', {'status': 'Connected user', 'userid': userid})
+
+
+@socketio.on('disconnect', namespace='/events')
+def events_disconnect():
+    leave_room(current_app.clients[session['userid']], namespace='/events')
+    del current_app.clients[session['userid']]
+    print('Client %s disconnected' % session['userid'])
+
+
 # Routes
+
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 
 @app.route('/auth/login', methods=['POST', 'GET'])
@@ -292,25 +327,49 @@ def random_corpa():
     )
 
 
-@app.route('/download')
+@app.route('/download', methods=['GET', 'POST'])
 def download_zip():
-    print(request.args)
-    print(request.form)
-    print(request.json)
-    print(
-        url_for('progress')
-    )
-    # print(username)
-    task = batch.zip_files.delay(
-        "test",
-        str((up_one / 'data' / 'taskmaster').resolve()),
-        url_for('progress', _external=True)
-    )
-    return jsonify({'taskid': task.id})
+    if request.method == 'GET':
+        return render_template('download.html')
+    else:
+        # print(request.args)
+        # print(request.form)
+        user_id = request.json['userid']
+        # print(request.data)
+        # print(url_for('progress', _external=True))
+        # Using this on linux so /tmp is the best
+        # place to store files
+        try:
+            os.makedirs('/tmp/storage')
+        except Exception as e:
+            print(str(e))
+
+        task = batch.zip_files.delay(
+            '/tmp/storage',
+            str((up_one / 'data' / 'taskmaster').resolve()),
+            # str((up_one / 'data' / 'taskmaster').resolve()),
+            user_id,
+            url_for('progress', _external=True),
+        )
+        return jsonify({'taskid': task.id})
 
 
+# INTERNAL route
 @app.route('/progress', methods=['POST'])
 def progress():
+    # for now progress gets update progress of all celery tasks
+    # TODO need to forward this to any connected clients
+    data = request.json
+    print(data)
+    userid = data['userid']
+    # print(data)
+    room = app.clients.get(userid)
+    # print('room', room)
+    # if ns and data:
+    # must specify both namespace and room
+    # room is for this single user
+    socketio.emit('celerystatus', data,
+                  room=room, namespace='/events')
     print(request.data)
     return 'ok'
 
@@ -332,7 +391,8 @@ def handle_skip():
 def run_app(*args, **kwargs):
     app = kwargs['app']
     del kwargs['app']
-    app.run(*args, **kwargs)
+    # app.run(*args, **kwargs)
+    socketio.run(app, *args, **kwargs)
 
 
 if __name__ == '__main__':

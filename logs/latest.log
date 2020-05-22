@@ -1,4 +1,16 @@
-[2020-05-22 12:59:36,123: INFO/MainProcess] Connected to redis://localhost:6379/0
-[2020-05-22 12:59:36,132: INFO/MainProcess] mingle: searching for neighbors
-[2020-05-22 12:59:37,146: INFO/MainProcess] mingle: all alone
-[2020-05-22 12:59:37,155: INFO/MainProcess] celery@rithvij-deepin ready.
+[2020-05-22 19:33:15,680: INFO/MainProcess] Connected to redis://localhost:6379/0
+[2020-05-22 19:33:15,685: INFO/MainProcess] mingle: searching for neighbors
+[2020-05-22 19:33:16,696: INFO/MainProcess] mingle: all alone
+[2020-05-22 19:33:16,703: INFO/MainProcess] celery@rithvij-deepin ready.
+[2020-05-22 19:33:33,272: INFO/MainProcess] Received task: server.tasks.batch.tasks.zip_files[0ed73378-4cd8-49f5-ab2e-9664cb999ca5]  
+[2020-05-22 19:33:33,275: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[0ed73378-4cd8-49f5-ab2e-9664cb999ca5]: Started Zipping
+[2020-05-22 19:33:33,280: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[0ed73378-4cd8-49f5-ab2e-9664cb999ca5]: Sending updates for task 0ed73378-4cd8-49f5-ab2e-9664cb999ca5
+[2020-05-22 19:33:33,855: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[0ed73378-4cd8-49f5-ab2e-9664cb999ca5]: b''
+[2020-05-22 19:33:33,859: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[0ed73378-4cd8-49f5-ab2e-9664cb999ca5]: Sending updates for task 0ed73378-4cd8-49f5-ab2e-9664cb999ca5
+[2020-05-22 19:33:33,861: INFO/ForkPoolWorker-7] Task server.tasks.batch.tasks.zip_files[0ed73378-4cd8-49f5-ab2e-9664cb999ca5] succeeded in 0.5866767410007014s: None
+[2020-05-22 19:33:55,336: INFO/MainProcess] Received task: server.tasks.batch.tasks.zip_files[0ce383a6-b6d0-4ad0-b9e5-c52eee948306]  
+[2020-05-22 19:33:55,339: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[0ce383a6-b6d0-4ad0-b9e5-c52eee948306]: Started Zipping
+[2020-05-22 19:33:55,345: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[0ce383a6-b6d0-4ad0-b9e5-c52eee948306]: Sending updates for task 0ce383a6-b6d0-4ad0-b9e5-c52eee948306
+[2020-05-22 19:33:55,368: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[0ce383a6-b6d0-4ad0-b9e5-c52eee948306]: b''
+[2020-05-22 19:33:55,374: INFO/ForkPoolWorker-7] server.tasks.batch.tasks.zip_files[0ce383a6-b6d0-4ad0-b9e5-c52eee948306]: Sending updates for task 0ce383a6-b6d0-4ad0-b9e5-c52eee948306
+[2020-05-22 19:33:55,376: INFO/ForkPoolWorker-7] Task server.tasks.batch.tasks.zip_files[0ce383a6-b6d0-4ad0-b9e5-c52eee948306] succeeded in 0.03707226299957256s: None

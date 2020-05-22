@@ -1,0 +1,9 @@
+{% extends "common.html" %}
+{% block content %}
+<a href="/dashboard">Go to dashboard</a>
+<a id='start' href="/auth/login">Login</a>
+<a id='stop' href="/auth/new">Register</a>
+<button> Download stuff </button>
+
+<script type="text/javascript" src="{{ url_for('static', filename='download.js') }}"></script>
+{% endblock %}
