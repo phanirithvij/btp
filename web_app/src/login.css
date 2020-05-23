@@ -185,12 +185,23 @@
     font-weight: 700;
     text-transform: uppercase;
   }
+
+  .login input[type='submit']:disabled{
+    background-color: #131112;
+  }
+
   
   .login input[type='submit']:focus,
   .login input[type='submit']:hover {
     background-color: #d44179;
   }
   
+
+  .login input[type='submit']:focus:disabled,
+  .login input[type='submit']:hover:disabled {
+    background-color: #1f1116;
+  }
+
   /* modules/text.css */
   
   p {
