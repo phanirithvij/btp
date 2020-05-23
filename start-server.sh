@@ -15,20 +15,20 @@ if ! [ -x "$(command -v redis-server)" ]; then
     make -j8
 fi
 
-# download go if not exists
-if ! [ -x "$(command -v go)" ]; then
-    wget -q -O - https://raw.githubusercontent.com/canha/golang-tools-install-script/master/goinstall.sh | bash
-    source ~/.bashrc
-    if ! [ -x "$(command -v go)" ]; then
-        echo "Go installation failed please install go and try again"
-        exit 1
-    fi
-fi
+# # download go if not exists
+# if ! [ -x "$(command -v go)" ]; then
+#     wget -q -O - https://raw.githubusercontent.com/canha/golang-tools-install-script/master/goinstall.sh | bash
+#     source ~/.bashrc
+#     if ! [ -x "$(command -v go)" ]; then
+#         echo "Go installation failed please install go and try again"
+#         exit 1
+#     fi
+# fi
 
-cd server/scripts
-go list "github.com/schollz/progressbar" || go get -u -v "github.com/schollz/progressbar"
-make
-cd ../../
+# cd server/scripts
+# go list "github.com/schollz/progressbar" || go get -u -v "github.com/schollz/progressbar"
+# make
+# cd ../../
 
 
 echo -e "\n\n\n -------------------------------------"
