@@ -376,7 +376,7 @@ def progress():
 
 @app.route('/export/<string:filename>')
 def download_zipfile(filename: str):
-    return send_from_directory(TEMP_DIR, filename)
+    return send_from_directory(TEMP_DIR, filename, as_attachment=True)
 
 @app.route('/info/<string:filename>')
 def info_zipfile(filename: str):

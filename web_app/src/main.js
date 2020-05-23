@@ -98,15 +98,26 @@
 //     }
 // })();
 
-window.userId = null;
-
 (() => {
+
+    var pairs = window._data.pairs;
+
+    function readableFileSize(size) {
+        var units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+        var i = 0;
+        while (size >= 1024) {
+            size /= 1024;
+            ++i;
+        }
+        return size.toFixed(1) + ' ' + units[i];
+    }
+
     function update_progress(data) {
         let percent = (data.current * 100 / data.total);
         var elementid = pairs[data.taskid];
         // TODO here error means a running task progress is recieved by this client
         // create new nanobar
-        nanobars[elementid].go(percent);
+        window._data.nanobars[elementid].go(percent);
         // console.log(data, 'updateprogess');
         if (data.status == "done") {
             const filename = data.filename;
@@ -120,8 +131,8 @@ window.userId = null;
                 .then(x => x.json())
                 .then(f => {
                     var span = document.createElement('span');
-                    span.innerText = JSON.stringify(f);
-                    console.log(f)
+                    span.innerText = readableFileSize(f.size);
+                    console.log(f);
                     par.appendChild(span);
                 });
         }
@@ -141,7 +152,7 @@ window.userId = null;
     // event handler for userid.  On initial connection, the server
     // sends back a unique userid
     socket.on('userid', function (msg) {
-        window.userId = msg.userid;
+        window._data.userId = msg.userid;
     });
 
     // event handler for server sent celery status

@@ -1,12 +1,15 @@
 import os
 import subprocess
+import zipfile
 from pathlib import Path
 from time import time
+from timeit import default_timer as timer
 
+import requests
 from checksumdir import dirhash
+from tqdm import gui, tqdm
 
 from server.tasks import ProgressTask, celery, logger
-from timeit import default_timer as timer
 
 
 @celery.task(bind=True, base=ProgressTask)
@@ -22,7 +25,7 @@ def zip_files(
     start = timer()
     folder_hash = dirhash(dir_name)
     end = timer()
-    logger.info("took " + str(end - start) + " secs to compute folder hash") 
+    logger.info("took " + str(end - start) + " secs to compute folder hash")
     logger.info(folder_hash)
 
     outfile = Path(out_filepath)
@@ -34,7 +37,12 @@ def zip_files(
     self.configure(update_url)
 
     logger.info("Started Zipping")
-    progress = {'status': 'started', 'taskid': self.request.id, 'userid': user_id}
+    progress = {
+        'status': 'started',
+        'taskid': self.request.id,
+        'userid': user_id,
+        'current': 0
+    }
     self.progress = progress
 
     if outfile.is_file():
@@ -44,7 +52,6 @@ def zip_files(
         self.progress = progress
         return
 
-
     # shutil.make_archive(outfile.resolve(), 'zip', dir_name)
     # pwd will be server/..
     # TODO zipfile with tqdm can be used
@@ -53,8 +60,29 @@ def zip_files(
     # remove the checksumdir
     # use directory access time
     # Works for this because files are being added and deleted
-    out = subprocess.check_output(['server/scripts/ziptool', dir_name, str(outfile), user_id, update_url, self.request.id])
-    logger.info(out)
+
+    def zipdir(path, ziph):
+        # ziph is zipfile handle
+        curr = 0
+        total = 0
+        for root, dirs, files in tqdm(os.walk(path)):
+            for file in files:
+                total += 1
+        progress['total'] = total
+        for root, dirs, files in tqdm(os.walk(path)):
+            for file in files:
+                curr += 1
+                if curr % 10 == 0:
+                    progress['current'] = curr
+                    self.progress = progress
+                ziph.write(os.path.join(root, file))
+
+    with zipfile.ZipFile(str(outfile), 'w', zipfile.ZIP_DEFLATED) as zipf:
+        zipdir(dir_name, zipf)
+
+    # out = subprocess.check_output(
+    #     ['server/scripts/ziptool', dir_name, str(outfile), user_id, update_url, self.request.id])
+    # logger.info(out)
 
     progress['status'] = 'done'
     progress['filename'] = os.path.basename(outfile)
