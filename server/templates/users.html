@@ -49,7 +49,7 @@
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
                 <div
                     class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">Global Stats</h1>
+                    <h1 class="h2">Global User Stats</h1>
                     <div class="btn-toolbar mb-2 mb-md-0">
                         <div class="btn-group mr-2">
                             <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
@@ -62,7 +62,20 @@
                     </div>
                 </div>
 
-                <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h6 class="panel-title" id="#stats" style="height: 30px;">
+                            <a id="collapser" data-toggle="collapse" href="#collapse1" onclick="toggleText()">Hide
+                                Stats</a>
+                        </h6>
+                    </div>
+                    <div id="collapse1" class="panel-collapse collapse show">
+                        <div class="panel-body" style="height: auto;">
+                            <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
+                        </div>
+                        <!-- <div class="panel-footer">Panel Footer</div> -->
+                    </div>
+                </div>
 
                 <h2>Top List</h2>
                 <div class="table-responsive">
@@ -103,7 +116,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='dashboard.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='scrolltohash.js') }}"></script>
-    
+    <script>
+        var toggleText;
+        (() => {
+            var text = document.querySelector('#collapser');
+            var s = false;
+            toggleText = () => {
+                s = !s;
+                text.text = s ? "Expand Stats" : "Hide Stats";
+            }
+            document.querySelector('.panel-heading').click();
+        })();
+        //$('.collapse').collapse()
+    </script>
+
 </body>
 
 </html>
