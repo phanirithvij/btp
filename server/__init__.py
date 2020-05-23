@@ -1,6 +1,8 @@
 import datetime
+import logging
 import os
 import random
+import sys
 import time
 import uuid
 from pathlib import Path
@@ -20,6 +22,19 @@ from server.config import Config
 from server.db.schema.queries import FEMALE, MALE
 from server.db.user import *
 from server.tasks import celery
+
+LOG_FILENAME = 'logs/mylogs.log'
+
+# Set up a specific logger with our desired output level
+my_logger = logging.getLogger('MyLogger')
+my_logger.setLevel(logging.DEBUG)
+
+
+handler = logging.handlers.RotatingFileHandler(
+              LOG_FILENAME, maxBytes=1024*6, backupCount=5)
+
+my_logger.addHandler(handler)
+
 
 # current directory is server/
 # Set static folder to be ../web_app/src
@@ -44,6 +59,7 @@ def create_app():
 
 app: Flask = create_app()
 app.clients = {}
+app.running_tasks = {}
 
 # https://stackoverflow.com/a/53152394/8608146
 # app.config.from_object(__name__)
@@ -304,11 +320,18 @@ def download_file(filename):
         return jsonify({'status': 'ok'})
 
 
+# TODO in the app when logged out
+# 401 code is sent so this method is not called
+# Show failed message
 @app.route('/upload', methods=['POST'])
 @jwt_required
 def upload_file():
 
+    # exit(-1)
+    # user = (User(session['user'][0]).attach_DB(DB))
     print(session['user'])  # tuple (username, age, gender)
+    print("-"*(200))
+    sys.stdout.flush()
 
     if request.method == 'POST':
         # check if the post request has the file part
@@ -354,18 +377,35 @@ def random_corpa():
     )
 
 
-@app.route('/download', methods=['GET', 'POST'])
+@app.route('/exports', methods=['GET', 'POST'])
 # TODO add @jwt admin
 # @jwt_required
-def download_zip():
+def exports_page():
     if request.method == 'GET':
-        return render_template('download.html')
+        exportfiles = {}
+        for x in Path(TEMP_DIR).iterdir():
+            name = os.path.basename(x)
+            username = name.split('_')[0]
+            print(app.running_tasks)
+            if username not in app.running_tasks:
+                exportfiles[username] = {'file': name, 'size': os.stat(x).st_size}
+        users = DB.get_users()
+        for x in users:
+            dirname = (up_one / 'data' / x['username'])
+            audiofiles = []
+            if dirname.is_dir():
+                audiofiles = list(dirname.iterdir())
+                audiofiles = [ str(x) for x in audiofiles ]
+            x['count'] = len(audiofiles)
+            if x['username'] not in exportfiles.keys():
+                exportfiles[x['username']] = {'file': None, 'size': 0}
+        return render_template('exports.html', files=exportfiles, users=users)
     else:
-        # print(request.args)
-        # print(request.form)
+        print(request.args)
+        print(request.form)
         user_id = request.json['userid']
-        # print(request.json)
-        # print(url_for('progress', _external=True))
+        print(request.json)
+        print(url_for('progress', _external=True))
         # Using this on linux so /tmp is the best
         # place to store files
         try:
@@ -373,7 +413,8 @@ def download_zip():
         except Exception as e:
             print(str(e))
 
-        username = 'rhodio'
+        username = request.json['username']
+        # username = 'rhodio'
 
         task = batch.zip_files.delay(
             TEMP_DIR,

@@ -57,6 +57,10 @@ class Database:
         self.instance.commit()
 
     def get_users(self):
-        self._cursor.execute(GET_ALL_USERS)
+        try:
+            self._cursor.execute(GET_ALL_USERS)
+        except sqlite3.ProgrammingError as e:
+            self.__init_db()
+            self._cursor.execute(GET_ALL_USERS)
         _data = self._cursor.fetchall()
         return _data

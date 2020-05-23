@@ -9,6 +9,7 @@ from timeit import default_timer as timer
 import requests
 from tqdm import gui, tqdm
 
+import server
 from server.tasks import ProgressTask, celery, logger
 
 
@@ -33,6 +34,9 @@ def zip_files(
         update_url: str):
     # assigned id for this task
     # print(self.request.id)
+    with server.app.app_context():
+        server.app.running_tasks[username] = self.request.id
+
 
     folder_id = f"{username}_{dir_id(dir_name)}"
 
@@ -49,6 +53,7 @@ def zip_files(
         'status': 'started',
         'taskid': self.request.id,
         'userid': user_id,
+        'username': username,
         'current': 0
     }
     self.progress = progress
@@ -96,3 +101,7 @@ def zip_files(
     progress['status'] = 'done'
     progress['filename'] = os.path.basename(outfile)
     self.progress = progress
+
+    with server.app.app_context():
+        del sever.app.running_tasks[username]
+

@@ -3,7 +3,7 @@ window._data = {
     nanobars: {},
     userId: undefined,
     gIdCounter: 0,
-    progressData : {},
+    progressData: {},
     done: [],
     generateID: undefined,
 };
@@ -15,16 +15,20 @@ window._data = {
             (baseStr + window._data.gIdCounter++);
         var progress = document.createElement('div');
         progress.id = id;
-        document.querySelector('#progress').appendChild(progress);
+        // var parent = document.createElement('div');
+        // parent
+        console.log(document.querySelector(`#${baseStr}`));
+        document.querySelector(`#${baseStr}`).appendChild(progress);
         return id;
     }
     window._data.generateID = generateID;
 
-    var dl = document.querySelector('button');
-    dl.onclick = () => {
+    var dl = document.querySelectorAll('.exportBtn');
+    dl.forEach(f => f.onclick = (e) => {
         // TODO prevent spam
+        console.log(e.target);
         if (window._data.userId != null) {
-            var progressid = generateID('progress')
+            var progressid = generateID(`progress-${e.target.dataset.username}`);
             var nanobar = new Nanobar({
                 bg: '#44f',
                 target: document.getElementById(progressid),
@@ -32,7 +36,7 @@ window._data = {
 
             window._data.nanobars[progressid] = nanobar;
 
-            fetch('/download', {
+            fetch('/exports', {
                 method: 'POST',
                 headers: {
 
@@ -42,6 +46,7 @@ window._data = {
                 body: JSON.stringify({
                     'userid': window._data.userId,
                     'elementid': progressid,
+                    'username': e.target.dataset.username,
                 }),
             }).then(d => d.json()).then(d => {
                 console.log(d);
@@ -54,5 +59,5 @@ window._data = {
             // either server is not reachable or
             // function called too fast
         }
-    }
+    })
 })()

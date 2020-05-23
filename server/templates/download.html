@@ -1,11 +1,37 @@
 {% extends "common.html" %}
 {% block content %}
-<a href="/dashboard">Go to dashboard</a>
-<a id='start' href="/auth/login">Login</a>
-<a id='stop' href="/auth/new">Register</a>
-<button> Download stuff </button>
-<div id="progress"></div>
+<div>
+    <a href="/dashboard">Go to dashboard</a>
+    <a id='start' href="/auth/login">Login</a>
+    <a id='stop' href="/auth/new">Register</a>
+    <button> Download stuff </button>
+    <div id="progress"></div>
 
+    {% for x in files %}
+    <p>
+        <a href="{{ url_for('download_zipfile', filename=x.file) }}"> {{x.username}} </a>
+        <span class="filesize--"> {{x.size}} </span>
+    </p>
+    {% endfor %}
+
+    <script>
+        function readableFileSize(size) {
+            var units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+            var i = 0;
+            while (size >= 1024) {
+                size /= 1024;
+                ++i;
+            }
+            return size.toFixed(1) + ' ' + units[i];
+        }
+        (() => {
+            document.querySelectorAll('.filesize--').forEach((f) => {
+                f.innerHTML = readableFileSize(parseInt(f.innerHTML));
+            });
+        })();
+    </script>
+
+</div>
 <!-- <script src="//cdnjs.cloudflare.com/ajax/libs/nanobar/0.4.2/nanobar.min.js"></script> -->
 <script type="text/javascript" src="{{ url_for('static', filename='download.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='nanobar.min.js') }}"></script>

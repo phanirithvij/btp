@@ -12,7 +12,7 @@ MALE = 1
 FEMALE = 0
 
 GET_ALL_USERS = """\
-SELECT id, username FROM users;
+SELECT * FROM users;
 """
 
 INSERT_USER = """\

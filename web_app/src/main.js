@@ -1,22 +1,13 @@
 (() => {
 
-    function readableFileSize(size) {
-        var units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-        var i = 0;
-        while (size >= 1024) {
-            size /= 1024;
-            ++i;
-        }
-        return size.toFixed(1) + ' ' + units[i];
-    }
-
     function update_progress(data) {
         window._data.progressData = data;
         let percent = (data.current * 100 / data.total);
         var elementid = window._data.pairs[data.taskid];
         if (elementid == undefined) {
             // refreshed page create new progress bar
-            window._data.pairs[data.taskid] = window._data.generateID('progress');
+            console.log(data.username)
+            window._data.pairs[data.taskid] = window._data.generateID(`progress-${data.username}`);
             var elementid = window._data.pairs[data.taskid];
             var nanobar = new Nanobar({
                 bg: '#44f',
@@ -36,17 +27,19 @@
                 const par = el.parentElement;
                 const a = document.createElement('a');
                 a.href = `/export/${filename}`;
-                a.text = "Download file";
-                par.appendChild(a);
+                a.text = '\ndownload';
+                // a.text = filename.split('_')[0];
+                par.parentElement.appendChild(a);
                 fetch(`/info/${filename}`)
-                    .then(x => x.json())
-                    .then(f => {
-                        var span = document.createElement('span');
-                        span.innerText = readableFileSize(f.size);
-                        console.log(f);
-                        par.appendChild(span);
-                        window._data.done.push(data.taskid);
-                    });
+                .then(x => x.json())
+                .then(f => {
+                    var span = document.createElement('span');
+                    span.innerText = readableFileSize(f.size);
+                    console.log(f);
+                    par.parentElement.appendChild(span);
+                    window._data.done.push(data.taskid);
+                    par.remove();
+                });
             }
         } // console.log(data, 'updateprogess');
     }
