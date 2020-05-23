@@ -62,7 +62,22 @@
                     </div>
                 </div>
 
-                <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h6 class="panel-title" id="#stats">
+                            <a id="collapser" data-toggle="collapse" href="#collapse1" onclick="toggleText()">Hide
+                                Stats</a>
+                        </h6>
+                    </div>
+                    <div id="collapse1" class="panel-collapse collapse show">
+                        <div class="panel-body" style="height: auto;">
+                            <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
+                        </div>
+                        <!-- <div class="panel-footer">Panel Footer</div> -->
+                    </div>
+                </div>
+
+
 
                 <h2>Top List</h2>
                 <div class="table-responsive">
@@ -103,7 +118,23 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='dashboard.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='scrolltohash.js') }}"></script>
-    
+    <script>
+        var text = document.querySelector('#collapser');
+        var s = false;
+        var toggleText = () => {
+            s = !s;
+            text.text = s ? "Expand Stats" : "Hide Stats";
+        }
+        document.querySelector('.panel-heading').click();
+        //$('.collapse').collapse()
+    </script>
+
+    <style>
+        .collapse.in {
+            height: 100px !important;
+        }
+    </style>
+
 </body>
 
 </html>
