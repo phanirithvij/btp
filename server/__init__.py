@@ -6,8 +6,8 @@ import uuid
 from pathlib import Path
 
 from celery import Celery
-from flask import (Flask, current_app, jsonify, render_template, request,
-                   send_file, send_from_directory, session, url_for)
+from flask import (Flask, current_app, jsonify, redirect, render_template,
+                   request, send_file, send_from_directory, session, url_for)
 from flask_jwt_extended import (JWTManager, create_access_token,
                                 create_refresh_token, get_current_user,
                                 get_jwt_identity, jwt_refresh_token_required,
@@ -111,6 +111,16 @@ def index():
     return render_template('index.html')
 
 
+@app.route('/login')
+def login_alt():
+    return redirect('/auth/login')
+
+
+@app.route('/signup')
+def signup_alt():
+    return redirect('/auth/new')
+
+
 @app.route('/auth/login', methods=['POST', 'GET'])
 def login():
 
@@ -183,12 +193,25 @@ def all_files():
     return render_template("files.html", items=items)  # , as_attachment=True)
 
 
+@app.route('/logout')
+def logout():
+    return redirect('/')
+
+
 @app.route('/dashboard')
 def dashboard_home():
     users = []
     for i in range(108):
         users.append({'name': f"user{i}", 'count': (100 - i) * 10})
     return render_template('dashboard.html', users=users)
+
+
+@app.route('/users')
+def users_home():
+    users = []
+    for i in range(108):
+        users.append({'name': f"user{i}", 'count': (100 - i) * 10})
+    return render_template('users.html', users=users)
 
 
 @app.route('/auth/new', methods=['GET', 'POST'])
@@ -245,7 +268,7 @@ def new_user():
     else:
         # Register page from web app
         # return "Web UI Not Implemented", 404
-        return render_template('signup.html')
+        return render_template('auth/signup.html')
 
 
 @app.route('/refresh')
