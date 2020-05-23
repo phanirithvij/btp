@@ -115,6 +115,7 @@
         let percent = (data.current * 100 / data.total);
         var elementid = window._data.pairs[data.taskid];
         if (elementid == undefined) {
+            // refreshed page create new progress bar
             window._data.pairs[data.taskid] = window._data.generateID('progress');
             var elementid = window._data.pairs[data.taskid];
             var nanobar = new Nanobar({
@@ -123,7 +124,6 @@
             });
 
             window._data.nanobars[elementid] = nanobar;
-
         }
         // console.log(window._data.nanobars, window._data.pairs, data.taskid)
         // TODO here error means a running task progress is recieved by this client

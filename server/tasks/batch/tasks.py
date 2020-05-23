@@ -13,6 +13,9 @@ from server.tasks import ProgressTask, celery, logger
 
 
 def dir_id(dirpath: str) -> str:
+    """
+    Dir id will be different only if some file is added
+    """
     res = os.stat(dirpath)
     atime = res.st_atime
     mtime = res.st_mtime
@@ -25,12 +28,13 @@ def zip_files(
         self,
         out_filepath: str,
         dir_name: str,
+        username: str,
         user_id: str,
         update_url: str):
     # assigned id for this task
     # print(self.request.id)
 
-    folder_id = dir_id(dir_name)
+    folder_id = f"{username}_{dir_id(dir_name)}"
 
     outfile = Path(out_filepath)
     # if a dir is sent assign the out file a timestamp name

@@ -6,8 +6,8 @@ import uuid
 from pathlib import Path
 
 from celery import Celery
-from flask import (Flask, jsonify, render_template, request, send_file,
-                   send_from_directory, session, url_for, current_app)
+from flask import (Flask, current_app, jsonify, render_template, request,
+                   send_file, send_from_directory, session, url_for)
 from flask_jwt_extended import (JWTManager, create_access_token,
                                 create_refresh_token, get_current_user,
                                 get_jwt_identity, jwt_refresh_token_required,
@@ -185,7 +185,10 @@ def all_files():
 
 @app.route('/dashboard')
 def dashboard_home():
-    return render_template('dashboard.html')
+    users = []
+    for i in range(108):
+        users.append({'name': f"user{i}", 'count': (100 - i) * 10})
+    return render_template('dashboard.html', users=users)
 
 
 @app.route('/auth/new', methods=['GET', 'POST'])
@@ -329,6 +332,8 @@ def random_corpa():
 
 
 @app.route('/download', methods=['GET', 'POST'])
+# TODO add @jwt admin
+# @jwt_required
 def download_zip():
     if request.method == 'GET':
         return render_template('download.html')
@@ -336,7 +341,7 @@ def download_zip():
         # print(request.args)
         # print(request.form)
         user_id = request.json['userid']
-        print(request.json)
+        # print(request.json)
         # print(url_for('progress', _external=True))
         # Using this on linux so /tmp is the best
         # place to store files
@@ -345,10 +350,13 @@ def download_zip():
         except Exception as e:
             print(str(e))
 
+        username = 'rhodio'
+
         task = batch.zip_files.delay(
             TEMP_DIR,
-            str((up_one / 'data' / 'taskmaster').resolve()),
+            str((up_one / 'data' / username).resolve()),
             # str((up_one / 'data' / 'taskmaster').resolve()),
+            username,
             user_id,
             url_for('progress', _external=True),
         )
@@ -374,9 +382,16 @@ def progress():
     print(request.data)
     return 'ok'
 
+
 @app.route('/export/<string:filename>')
 def download_zipfile(filename: str):
-    return send_from_directory(TEMP_DIR, filename, as_attachment=True)
+    return send_from_directory(
+        TEMP_DIR,
+        filename,
+        as_attachment=True,
+        attachment_filename=filename.split("_")[0] + ".zip"
+    )
+
 
 @app.route('/info/<string:filename>')
 def info_zipfile(filename: str):
