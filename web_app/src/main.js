@@ -100,8 +100,6 @@
 
 (() => {
 
-    var pairs = window._data.pairs;
-
     function readableFileSize(size) {
         var units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
         var i = 0;
@@ -113,30 +111,47 @@
     }
 
     function update_progress(data) {
+        window._data.progressData = data;
         let percent = (data.current * 100 / data.total);
-        var elementid = pairs[data.taskid];
+        var elementid = window._data.pairs[data.taskid];
+        if (elementid == undefined) {
+            window._data.pairs[data.taskid] = window._data.generateID('progress');
+            var elementid = window._data.pairs[data.taskid];
+            var nanobar = new Nanobar({
+                bg: '#44f',
+                target: document.getElementById(elementid),
+            });
+
+            window._data.nanobars[elementid] = nanobar;
+
+        }
+        // console.log(window._data.nanobars, window._data.pairs, data.taskid)
         // TODO here error means a running task progress is recieved by this client
         // create new nanobar
-        window._data.nanobars[elementid].go(percent);
-        // console.log(data, 'updateprogess');
-        if (data.status == "done") {
-            const filename = data.filename;
-            const el = document.getElementById(elementid);
-            const par = el.parentElement;
-            const a = document.createElement('a');
-            a.href = `/export/${filename}`;
-            a.text = "Download file";
-            par.appendChild(a);
-            fetch(`/info/${filename}`)
-                .then(x => x.json())
-                .then(f => {
-                    var span = document.createElement('span');
-                    span.innerText = readableFileSize(f.size);
-                    console.log(f);
-                    par.appendChild(span);
-                });
-        }
+        if (elementid != undefined && !(elementid in window._data.done)) {
+            window._data.nanobars[elementid].go(percent);
+            if (data.status == "done") {
+                const filename = data.filename;
+                const el = document.getElementById(elementid);
+                const par = el.parentElement;
+                const a = document.createElement('a');
+                a.href = `/export/${filename}`;
+                a.text = "Download file";
+                par.appendChild(a);
+                fetch(`/info/${filename}`)
+                    .then(x => x.json())
+                    .then(f => {
+                        var span = document.createElement('span');
+                        span.innerText = readableFileSize(f.size);
+                        console.log(f);
+                        par.appendChild(span);
+                        window._data.done.push(data.taskid);
+                    });
+            }
+        } // console.log(data, 'updateprogess');
     }
+
+    window._data.update_progress = update_progress;
 
     var namespace = '/events'; // change to an empty string to use the global namespace
 

@@ -3,12 +3,12 @@ window._data = {
     nanobars: {},
     userId: undefined,
     gIdCounter: 0,
+    progressData : {},
+    done: [],
+    generateID: undefined,
 };
 
 (() => {
-    var userId = window._data.userId;
-    var nanobars = window._data.nanobars;
-    var pairs = window._data.pairs;
 
     function generateID(baseStr) {
         var id =
@@ -18,9 +18,11 @@ window._data = {
         document.querySelector('#progress').appendChild(progress);
         return id;
     }
+    window._data.generateID = generateID;
 
     var dl = document.querySelector('button');
     dl.onclick = () => {
+        // TODO prevent spam
         if (window._data.userId != null) {
             var progressid = generateID('progress')
             var nanobar = new Nanobar({
@@ -41,7 +43,11 @@ window._data = {
                     'userid': window._data.userId,
                     'elementid': progressid,
                 }),
-            }).then(d => d.json()).then(d => pairs[d.taskid] = progressid)
+            }).then(d => d.json()).then(d => {
+                console.log(d);
+                window._data.pairs[d.taskid] = progressid;
+                // window._data.update_progress(window._data.progressData);
+            })
         } else {
             // no userid assigned by server yet
             console.error('No user id assigned by server yet')

@@ -1,15 +1,23 @@
 import os
 import subprocess
 import zipfile
+import zlib
 from pathlib import Path
 from time import time
 from timeit import default_timer as timer
 
 import requests
-from checksumdir import dirhash
 from tqdm import gui, tqdm
 
 from server.tasks import ProgressTask, celery, logger
+
+
+def dir_id(dirpath: str) -> str:
+    res = os.stat(dirpath)
+    atime = res.st_atime
+    mtime = res.st_mtime
+    ctime = res.st_ctime
+    return zlib.adler32(f"{atime}{mtime}{ctime}".encode('utf8'))
 
 
 @celery.task(bind=True, base=ProgressTask)
@@ -22,18 +30,14 @@ def zip_files(
     # assigned id for this task
     # print(self.request.id)
 
-    start = timer()
-    folder_hash = dirhash(dir_name)
-    end = timer()
-    logger.info("took " + str(end - start) + " secs to compute folder hash")
-    logger.info(folder_hash)
+    folder_id = dir_id(dir_name)
 
     outfile = Path(out_filepath)
     # if a dir is sent assign the out file a timestamp name
     if outfile.is_dir():
         # TODO instead of timestamp get a unique id based on requested content
         # to prevent re zipping
-        outfile = outfile / f"{folder_hash}.zip"
+        outfile = outfile / f"{folder_id}.zip"
     self.configure(update_url)
 
     logger.info("Started Zipping")
@@ -65,10 +69,11 @@ def zip_files(
         # ziph is zipfile handle
         curr = 0
         total = 0
-        for root, dirs, files in tqdm(os.walk(path)):
+        for root, dirs, files in os.walk(path):
             for file in files:
                 total += 1
         progress['total'] = total
+        # TODO tqdm not showing
         for root, dirs, files in tqdm(os.walk(path)):
             for file in files:
                 curr += 1
