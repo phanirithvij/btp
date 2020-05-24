@@ -21,6 +21,7 @@ up_one = Path(__file__).parents[2]
 # print(up_one)
 folder = up_one / 'web_app' / 'src'
 
+
 @main.route('/')
 def index():
     return render_template('index.html')
@@ -202,9 +203,12 @@ def exports_page():
         )
         return jsonify({'taskid': task.id})
 
+
 socketio = None
 
 # INTERNAL route
+
+
 @main.route('/progress', methods=['POST'])
 def progress():
     # for now progress gets update progress of all celery tasks
@@ -276,7 +280,8 @@ def download_file(filename):
         # check if client has the ownership
         print("Delete", filename)
         try:
-            os.remove(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+            os.remove(os.path.join(
+                current_app.config['UPLOAD_FOLDER'], filename))
         except FileNotFoundError as e:
             return jsonify({'status': 'failed', 'msg': str(e)})
         return jsonify({'status': 'ok'})
