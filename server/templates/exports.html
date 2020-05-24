@@ -88,7 +88,7 @@
                                         class="exportBtn btn btn-sm btn-outline-secondary"> export </button>
                                     <div id="progress-{{user.username}}"></div>
                                     {% if file.file %}
-                                    <a href="{{ url_for('download_zipfile', filename=file.file) }}">
+                                    <a href="{{ url_for('main.download_zipfile', filename=file.file) }}">
                                         download </a>
                                     <span class="filesize--">
                                         {{file.size}}

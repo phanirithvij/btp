@@ -9,7 +9,7 @@
 
     {% for x in files %}
     <p>
-        <a href="{{ url_for('download_zipfile', filename=x.file) }}"> {{x.username}} </a>
+        <a href="{{ url_for('main.download_zipfile', filename=x.file) }}"> {{x.username}} </a>
         <span class="filesize--"> {{x.size}} </span>
     </p>
     {% endfor %}

@@ -7,6 +7,7 @@ from time import time
 from timeit import default_timer as timer
 
 import requests
+from flask_caching import Cache
 from tqdm import gui, tqdm
 
 import server
@@ -35,7 +36,8 @@ def zip_files(
     # assigned id for this task
     # print(self.request.id)
     with server.app.app_context():
-        server.app.running_tasks[username] = self.request.id
+        print(server.cache.get('pokepoke'))
+        # session['running_tasks'][username] = self.request.id
 
 
     folder_id = f"{username}_{dir_id(dir_name)}"
@@ -103,5 +105,5 @@ def zip_files(
     self.progress = progress
 
     with server.app.app_context():
-        del sever.app.running_tasks[username]
-
+        # del session['running_tasks'][username]
+        print(server.cache.delete('pokepoke'))
