@@ -35,8 +35,12 @@ def events_connect():
 def events_disconnect():
     existing = cache.get('clients')
     userid = session['userid']
-    leave_room(existing[userid], namespace='/events')
-    del existing[userid]
+    if userid in existing:
+        # else user id is gone
+        # during development this might happen
+        # TODO remove this if and check when this fails
+        leave_room(existing[userid], namespace='/events')
+        del existing[userid]
     cache.set('clients', existing)
     # del cache.get('clients')[userid]
     print('Client %s disconnected' % userid)

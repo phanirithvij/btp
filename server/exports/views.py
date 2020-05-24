@@ -25,7 +25,8 @@ up_one = Path(__file__).parents[2]
 folder = up_one / 'web_app' / 'src'
 
 
-@exports.route('/', methods=['GET', 'POST'])
+@exports.route('', strict_slashes=False, methods=['GET', 'POST'])
+# @exports.route('/', methods=['GET', 'POST'])
 # TODO add @jwt admin
 # @jwt_required
 def exports_page():

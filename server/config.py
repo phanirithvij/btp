@@ -21,5 +21,6 @@ class Config:
     SESSION_REDIS = redis.from_url("redis://localhost:6379/")
     CACHE_TYPE = "redis"
     CACHE_REDIS_URL = 'redis://localhost:6379/1'
+    # CACHE_DEFAULT_TIMEOUT = ""
     SECRET_KEY = r'<çDÒ\x88\r/Ò\x9dµ\x90k!a|RÈ\x96#ÇÔ^1à'
     TEMP_DIR = '/tmp/storage'

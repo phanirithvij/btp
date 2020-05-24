@@ -67,9 +67,13 @@
                     <table class="table table-striped table-sm">
                         <thead>
                             <tr>
-                                <th>user</th>
-                                <th>count</th>
-                                <th>export</th>
+                                <th style="width: 4%; padding-left: 2%;">
+                                    <input id="allsel" type="checkbox" />
+                                    select all
+                                </th>
+                                <th style="width: 10%;">user</th>
+                                <th style="width: 10%;">count</th>
+                                <th style="width: 20%;">export</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -77,6 +81,9 @@
                             <tr id="{{user.username}}">
                                 {% set file = files[user.username] %}
                                 <!-- files[user.username].file -->
+                                <td style="padding-left: 2%;">
+                                    <input class="mulsel-input" type="checkbox" />
+                                </td>
                                 <td>
                                     <a href="#{{user.username}}">{{user.username}}</a>
                                 </td>
@@ -85,8 +92,13 @@
                                 </td>
                                 <td>
                                     <button data-username="{{user.username}}"
-                                        class="exportBtn btn btn-sm btn-outline-secondary"> export </button>
-                                    <div id="progress-{{user.username}}"></div>
+                                        class="exportBtn btn btn-sm btn-outline-secondary"
+                                        {% if user.count == 0 %}
+                                            disabled
+                                            title="no files"
+                                        {% endif %}
+                                        > export </button>
+                                    <div id="progress-{{user.username}}" style="width: 56.5px; height: 4px;"></div>
                                     {% if file.file %}
                                     <a href="{{ url_for('exports.download_zipfile', filename=file.file) }}">
                                         download </a>
@@ -109,8 +121,27 @@
                                 }
                                 (() => {
                                     document.querySelectorAll('.filesize--').forEach((f) => {
+                                        // Disable export if have download links
                                         f.innerHTML = readableFileSize(parseInt(f.innerHTML));
+                                        var button = f.parentElement.querySelector('button')
+                                        button.disabled = true;
+                                        // TODO force export option
+                                        button.title = "delete existing one";
                                     });
+
+                                    const inpall = document.querySelector('#allsel');
+                                    var inputs = document.querySelectorAll('.mulsel-input');
+                                    inpall.onchange = () => {
+                                        if (inpall.checked) {
+                                            // TODO show controls
+
+                                        } else {
+                                            // Hide controls
+                                        }
+                                        inputs.forEach(i => {
+                                            i.checked = inpall.checked;
+                                        })
+                                    }
                                 })();
                             </script>
 

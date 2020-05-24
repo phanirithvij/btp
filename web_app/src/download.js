@@ -5,6 +5,7 @@ window._data = {
     gIdCounter: 0,
     progressData: {},
     done: [],
+    running: [],
     generateID: undefined,
 };
 
@@ -25,7 +26,14 @@ window._data = {
 
     var dl = document.querySelectorAll('.exportBtn');
     dl.forEach(f => f.onclick = (e) => {
-        // TODO prevent spam
+        // prevent spam
+        // console.log(window._data.running);
+        // console.log(window._data.running, e.target.dataset.username);
+        if (
+            window._data.running.includes(e.target.dataset.username)
+        ) {
+            return;
+        }
         console.log(e.target);
         if (window._data.userId != null) {
             var progressid = generateID(`progress-${e.target.dataset.username}`);
@@ -37,6 +45,7 @@ window._data = {
             window._data.nanobars[progressid] = nanobar;
 
             // trailing / is important
+            // flask redirects and request fails if sent to /exports
             fetch('/exports/', {
                 method: 'POST',
                 headers: {
@@ -52,10 +61,13 @@ window._data = {
             }).then(d => d.json()).then(d => {
                 console.log(d);
                 window._data.pairs[d.taskid] = progressid;
+                window._data.running.push(e.target.dataset.username);
                 // window._data.update_progress(window._data.progressData);
             })
         } else {
             // no userid assigned by server yet
+            // TODO show user to wait a few seconds
+            // or show the export options only after sever assigns an id
             console.error('No user id assigned by server yet')
             // either server is not reachable or
             // function called too fast

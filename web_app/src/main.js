@@ -7,6 +7,7 @@
         if (elementid == undefined) {
             // refreshed page create new progress bar
             console.log(data.username)
+            window._data.running.push(data.username);
             window._data.pairs[data.taskid] = window._data.generateID(`progress-${data.username}`);
             var elementid = window._data.pairs[data.taskid];
             var nanobar = new Nanobar({
@@ -21,13 +22,14 @@
         // create new nanobar
         if (elementid != undefined && !(elementid in window._data.done)) {
             window._data.nanobars[elementid].go(percent);
+            // console.log(data);
             if (data.status == "done") {
                 const filename = data.filename;
                 const el = document.getElementById(elementid);
                 const par = el.parentElement;
                 const a = document.createElement('a');
                 a.href = `/export/${filename}`;
-                a.text = '\ndownload';
+                a.text = '\ndownload ';
                 // a.text = filename.split('_')[0];
                 par.parentElement.appendChild(a);
                 fetch(`/exports/info/${filename}`)
@@ -38,7 +40,8 @@
                     console.log(f);
                     par.parentElement.appendChild(span);
                     window._data.done.push(data.taskid);
-                    par.remove();
+                    window._data.nanobars[elementid].go(0);
+                    // par.remove();
                 });
             }
         } // console.log(data, 'updateprogess');

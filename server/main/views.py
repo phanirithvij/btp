@@ -68,9 +68,13 @@ def dashboard_home():
 
     session['x'] = (0, 1, 2, 3)
     print(session['x'])
-    users = []
-    for i in range(108):
-        users.append({'name': f"user{i}", 'count': (100 - i) * 10})
+    users = DB.get_users()
+    for u in users:
+        # TODO get count
+        u['count'] = random.randint(10, 1000)
+    # users = []
+    # for i in range(108):
+    #     users.append({'name': f"user{i}", 'count': (100 - i) * 10})
     return render_template('dashboard.html', users=users)
 
 
@@ -98,9 +102,10 @@ def export_cache():
 
 @main.route('/users')
 def users_home():
-    users = []
-    for i in range(108):
-        users.append({'name': f"user{i}", 'count': (100 - i) * 10})
+    users = DB.get_users()
+    for u in users:
+        # TODO get count
+        u['count'] = random.randint(10, 1000)
     return render_template('users.html', users=users)
 
 # TODO in the app when logged out

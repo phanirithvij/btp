@@ -40,6 +40,9 @@ def pretask(task_id=None, task=None, *args, **kwargs):
     if 'zip_files' in str(type(task)):
         with server.app.app_context():
             running = server.cache.get('running_zip_tasks')
+            # cache cleared by flask
+            if running is None:
+                server.cache.set('running_zip_tasks', {})
             print('-----')
             # print(kwargs, type(kwargs))
             running[task_id] = kwargs['kwargs']
@@ -53,9 +56,15 @@ def postask(task_id=None, task=None, retval=None, state=None, *args, **kwargs):
     if 'zip_files' in str(type(task)):
         with server.app.app_context():
             running = server.cache.get('running_zip_tasks')
-            logger.info(running[task_id])
-            del running[task_id]
-            server.cache.set('running_zip_tasks', running)
+            # cache cleared by flask so status is lost
+            # If task takes too long to execute this happens
+            # TODO increase CACHE_DEFAULT_TIMEOUT ?
+            if running is None:
+                server.cache.set('running_zip_tasks', {})
+            else:
+                logger.info(running[task_id])
+                del running[task_id]
+                server.cache.set('running_zip_tasks', running)
 
 
 @task_failure.connect
@@ -125,6 +134,8 @@ def zip_files(
                 total += 1
         progress['total'] = total
         # TODO tqdm not showing
+        print("DIR is", path)
+        # os.chdir()
         for root, dirs, files in tqdm(os.walk(path)):
             for file in files:
                 curr += 1

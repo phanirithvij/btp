@@ -69,7 +69,9 @@
                                 Stats</a>
                         </h6>
                     </div>
-                    <div id="collapse1" class="panel-collapse collapse show">
+                    <div id="collapse1" class="panel-collapse collapse">
+                        <!-- Use show to show initially -->
+                        <!-- <div id="collapse1" class="panel-collapse collapse show"> -->
                         <div class="panel-body" style="height: auto;">
                             <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
                         </div>
@@ -89,9 +91,9 @@
                         </thead>
                         <tbody>
                             {% for user in users %}
-                            <tr id="{{user.name}}">
+                            <tr id="{{user.username}}">
                                 <td>
-                                    <a href="#{{user.name}}">{{user.name}}</a>
+                                    <a href="#{{user.username}}">{{user.username}}</a>
                                 </td>
                                 <td>
                                     {{user.count}}
@@ -125,6 +127,7 @@
                 s = !s;
                 text.text = s ? "Expand Stats" : "Hide Stats";
             }
+            toggleText();
             document.querySelector('.panel-heading').click();
         })();
         //$('.collapse').collapse()
