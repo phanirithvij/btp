@@ -8,16 +8,12 @@ alias: IIITHDBC APP
 
 **Server:**
 
-Install Python3 and the requirements
-
-```shell
-pip install -r server/requirements.txt
-```
+Install Python3 and redis
 
 To start the server
 
 ```shell
-python start_server.py
+./start-server.sh
 ```
 
 **App:**
@@ -68,6 +64,13 @@ Then install that apk in the android device.
    - On Windows `ipconfig.exe | grep IPv4` on linux `ifconfig`.
    - One of the ipv4 address corresponding to the connected wifi network will be the IP.
    - Change the `server` to `http:/{ipv4}:3000` and NO `/` at the end.
+
+
+To inspect redis db
+
+```
+snap run redis-desktop-manager.rdm
+```
 
 ## TODO
 

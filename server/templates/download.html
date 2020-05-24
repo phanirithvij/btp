@@ -2,8 +2,8 @@
 {% block content %}
 <div>
     <a href="/dashboard">Go to dashboard</a>
-    <a id='start' href="/auth/login">Login</a>
-    <a id='stop' href="/auth/new">Register</a>
+    <a id='start' href="{{ url_for('auth.login' }}">Login</a>
+    <a id='stop' href="{{ url_for('auth.new_user' }}">Register</a>
     <button> Download stuff </button>
     <div id="progress"></div>
 

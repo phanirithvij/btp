@@ -81,7 +81,6 @@ def login():
 
 @auth.route('/new', methods=['GET', 'POST'])
 def new_user():
-    # TODO register
     if request.method == 'POST':
 
         _username: str = request.form.get('username')

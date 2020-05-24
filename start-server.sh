@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# pip install virtualenv && virtualenv venv
-# virtualenv venv
+pip install virtualenv && virtualenv venv
 source venv/bin/activate
 pwd
 pip install -r server/requirements.txt

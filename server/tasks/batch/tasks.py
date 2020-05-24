@@ -7,8 +7,9 @@ from time import time
 from timeit import default_timer as timer
 
 import requests
-from flask_caching import Cache
-from tqdm import gui, tqdm
+from celery.signals import (celeryd_init, task_failure, task_postrun,
+                            task_prerun)
+from tqdm import tqdm
 
 import server
 from server.tasks import ProgressTask, celery, logger
@@ -25,27 +26,63 @@ def dir_id(dirpath: str) -> str:
     return zlib.adler32(f"{atime}{mtime}{ctime}".encode('utf8'))
 
 
+@celeryd_init.connect
+def init_signals(*args, **kwargs):
+    # TODO to do something after celery init
+    # do it here
+    with open('logs/init.log', 'w+') as l:
+        print('INIT '*100, file=l)
+
+
+@task_prerun.connect
+def pretask(task_id=None, task=None, *args, **kwargs):
+    # If the task is zip_files add it to running_zip_tasks
+    if 'zip_files' in str(type(task)):
+        with server.app.app_context():
+            running = server.cache.get('running_zip_tasks')
+            running[task_id] = kwargs
+            server.cache.set('running_zip_tasks', running)
+
+
+@task_postrun.connect
+def postask(task_id=None, task=None, retval=None, state=None, *args, **kwargs):
+    # If the task is zip_files remove it from running_zip_tasks
+    if 'zip_files' in str(type(task)):
+        with server.app.app_context():
+            running = server.cache.get('running_zip_tasks')
+            logger.info(running[task_id])
+            del running[task_id]
+            server.cache.set('running_zip_tasks', running)
+
+
+@task_failure.connect
+def failtask(task_id=None, exception=None, *args, **kwargs):
+    print('task failed')
+    print(task_id, exception, args, kwargs)
+
+
 @celery.task(bind=True, base=ProgressTask)
 def zip_files(
         self,
-        out_filepath: str,
-        dir_name: str,
-        username: str,
-        user_id: str,
-        update_url: str):
+        out_filepath: str = None,
+        dir_name: str = None,
+        username: str = None,
+        user_id: str = None,
+        update_url: str = None):
     # assigned id for this task
-    # print(self.request.id)
-    with server.app.app_context():
-        print(server.cache.get('pokepoke'))
-        # session['running_tasks'][username] = self.request.id
-
+    print(self.request.id)
+    print('__'*10)
+    # with server.app.app_context():
+    #     running = server.cache.get('running_zip_tasks')
+    #     running[self.request.id] = {'username': username, 'user_id': user_id}
+    #     server.cache.set('running_zip_tasks', running)
 
     folder_id = f"{username}_{dir_id(dir_name)}"
 
     outfile = Path(out_filepath)
     # if a dir is sent assign the out file a timestamp name
     if outfile.is_dir():
-        # TODO instead of timestamp get a unique id based on requested content
+        # instead of timestamp get a unique id based on requested content
         # to prevent re zipping
         outfile = outfile / f"{folder_id}.zip"
     self.configure(update_url)
@@ -103,7 +140,3 @@ def zip_files(
     progress['status'] = 'done'
     progress['filename'] = os.path.basename(outfile)
     self.progress = progress
-
-    with server.app.app_context():
-        # del session['running_tasks'][username]
-        print(server.cache.delete('pokepoke'))

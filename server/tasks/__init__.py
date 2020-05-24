@@ -1,4 +1,5 @@
 import json
+import sys
 
 import requests
 from celery import Celery, Task
@@ -51,7 +52,7 @@ class ProgressTask(Task):
 
         if self.update_url is not None:
             r = requests.post(self.update_url, json=self._progress)
-            logger.info('Sending updates for task '+ self._progress['taskid'])
+            logger.info('Sending updates for task ' + self._progress['taskid'])
             if r.status_code != 200:
                 logger.warn(msg=' '.join(
                     [f"Response for {self.update_url}",

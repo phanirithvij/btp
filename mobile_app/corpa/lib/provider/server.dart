@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:corpora/cache/manager.dart';
 import 'package:corpora/provider/authentication.dart';
 import 'package:path/path.dart';
-import 'package:async/async.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 
@@ -33,7 +32,7 @@ class ServerUtils {
   // https://stackoverflow.com/a/49645074/8608146
   static uploadFile(File file, AuthInfo authInfo) async {
     print("Started upload");
-    var stream = http.ByteStream(DelegatingStream.typed(file.openRead()));
+    var stream = http.ByteStream(file.openRead().cast());
     var length = await file.length();
 
     print("length $length");

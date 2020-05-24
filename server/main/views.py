@@ -1,3 +1,4 @@
+import json
 import os
 import random
 import sys
@@ -10,6 +11,7 @@ from flask_jwt_extended import jwt_required
 from werkzeug.utils import secure_filename
 
 import server.tasks.batch as batch
+from server import cache
 from server.db.user import *
 from server.main import main
 
@@ -22,6 +24,11 @@ up_one = Path(__file__).parents[2]
 folder = up_one / 'web_app' / 'src'
 
 
+@main.before_app_first_request
+def init_cache():
+    cache.set('running_zip_tasks', {})
+
+
 @main.route('/')
 def index():
     return render_template('index.html')
@@ -29,12 +36,12 @@ def index():
 
 @main.route('/login')
 def login_alt():
-    return redirect('/auth/login')
+    return redirect(url_for('auth.login'))
 
 
 @main.route('/signup')
 def signup_alt():
-    return redirect('/auth/new')
+    return redirect(url_for('auth.new_user'))
 
 
 # TODO
@@ -56,16 +63,14 @@ def all_files():
 
 @main.route('/logout')
 def logout():
-    cache.set('pokepoke', {'s': [1, 2, 3, 4, 4, 5], "sx": list(range(100))})
-    print(cache.__dir__(), cache.get('pokepoke'))
     return redirect('/')
 
 
 @main.route('/dashboard')
 def dashboard_home():
     # print('x' not in cache)
-    if 'running_tasks' not in session:
-        session['running_tasks'] = {}
+    running = cache.get('running_zip_tasks')
+    print(running)
 
     session['x'] = (0, 1, 2, 3)
     print(session['x'])
@@ -75,11 +80,25 @@ def dashboard_home():
     return render_template('dashboard.html', users=users)
 
 
+def is_jsonable(x):
+    try:
+        json.dumps(x)
+        return True
+    except (TypeError, OverflowError):
+        return False
+
+
 @main.route('/_cache')
 def export_cache():
+    k_prefix = cache.cache.key_prefix
+    keys = cache.cache._write_client.keys(k_prefix + '*')
+    keys = [k.decode('utf8') for k in keys]
+    keys = [k.replace(k_prefix, '') for k in keys]
+    values = cache.get_many(*keys)
     ret = {}
-    for k, v in cache.get_many('pokepoke'):
-        ret[k] = v
+    for k, v in zip(keys, values):
+        if is_jsonable(v):
+            ret[k] = v
     return jsonify(ret)
 
 
@@ -160,11 +179,18 @@ def exports_page():
             print(x)
             name = os.path.basename(x)
             username = name.split('_')[0]
-            if 'running_tasks' not in session:
-                session['running_tasks'] = {}
-            if username not in session['running_tasks']:
+            running = cache.get('running_zip_tasks')
+            print("running", running)
+            export_this = False
+            if running is not None:
+                if username not in list([x['username'] for x in running.values()]):
+                    export_this = True
+            else:
+                export_this = True
+            if export_this:
                 exportfiles[username] = {
                     'file': name, 'size': os.stat(x).st_size}
+
         users = DB.get_users()
         for x in users:
             dirname = (up_one / 'data' / x['username'])
@@ -194,12 +220,12 @@ def exports_page():
         # username = 'rhodio'
 
         task = batch.zip_files.delay(
-            TEMP_DIR,
-            str((up_one / 'data' / username).resolve()),
+            out_filepath=TEMP_DIR,
+            dir_name=str((up_one / 'data' / username).resolve()),
+            username=username,
+            user_id=user_id,
+            update_url=url_for('main.progress', _external=True),
             # str((up_one / 'data' / 'taskmaster').resolve()),
-            username,
-            user_id,
-            url_for('main.progress', _external=True),
         )
         return jsonify({'taskid': task.id})
 
