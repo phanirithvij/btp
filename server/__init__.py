@@ -1,4 +1,5 @@
 import logging
+import os
 import random
 import sys
 import time
@@ -8,9 +9,9 @@ from celery import Celery
 from flask import Flask, current_app, jsonify, redirect, session
 from flask_caching import Cache
 from flask_jwt_extended import JWTManager
-from flask_session import Session
 from flask_socketio import SocketIO
 
+from flask_session import Session
 from server.config import Config
 from server.db.schema.queries import FEMALE, MALE
 # from server.db.user import *
@@ -55,6 +56,9 @@ def create_app():
     from server.auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
 
+    from server.exports import exports as exports_blueprint
+    app.register_blueprint(exports_blueprint, url_prefix='/exports')
+
     from server.socket import socket as socket_blueprint
     app.register_blueprint(socket_blueprint)
 
@@ -62,7 +66,18 @@ def create_app():
 
 
 app: Flask = create_app()
-app.clients = {}
+app.url_map.strict_slashes = False
+
+def init_cache():
+    # print('INIT CACHE', '(('*100, '))'*100)
+    cache.set('running_zip_tasks', {})
+    cache.set('clients', {})
+    # Using this on linux so /tmp is the best place to store files
+    try:
+        os.makedirs(Config.TEMP_DIR)
+    except Exception as e:
+        print(str(e))
+init_cache()
 
 # https://stackoverflow.com/a/53152394/8608146
 # app.config.from_object(__name__)

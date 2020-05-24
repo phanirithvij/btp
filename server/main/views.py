@@ -15,18 +15,12 @@ from server import cache
 from server.db.user import *
 from server.main import main
 
-TEMP_DIR = '/tmp/storage'
 DB = Database("data/data.db")
 
 # here it should be parents[2]
 up_one = Path(__file__).parents[2]
 # print(up_one)
 folder = up_one / 'web_app' / 'src'
-
-
-@main.before_app_first_request
-def init_cache():
-    cache.set('running_zip_tasks', {})
 
 
 @main.route('/')
@@ -167,115 +161,6 @@ def random_corpa():
         "out{}.txt".format(random.randint(1, x))
     )
 
-
-@main.route('/exports', methods=['GET', 'POST'])
-# TODO add @jwt admin
-# @jwt_required
-def exports_page():
-    print('--'*100)
-    if request.method == 'GET':
-        exportfiles = {}
-        for x in Path(TEMP_DIR).iterdir():
-            print(x)
-            name = os.path.basename(x)
-            username = name.split('_')[0]
-            running = cache.get('running_zip_tasks')
-            print("running", running)
-            export_this = False
-            if running is not None:
-                if username not in list([x['username'] for x in running.values()]):
-                    export_this = True
-            else:
-                export_this = True
-            if export_this:
-                exportfiles[username] = {
-                    'file': name, 'size': os.stat(x).st_size}
-
-        users = DB.get_users()
-        for x in users:
-            dirname = (up_one / 'data' / x['username'])
-            audiofiles = []
-            if dirname.is_dir():
-                audiofiles = list(dirname.iterdir())
-                audiofiles = [str(x) for x in audiofiles]
-                print(audiofiles)
-            x['count'] = len(audiofiles)
-            if x['username'] not in exportfiles.keys():
-                exportfiles[x['username']] = {'file': None, 'size': 0}
-        return render_template('exports.html', files=exportfiles, users=users)
-    else:
-        print(request.args)
-        print(request.form)
-        user_id = request.json['userid']
-        print(request.json)
-        print(url_for('main.progress', _external=True))
-        # Using this on linux so /tmp is the best
-        # place to store files
-        try:
-            os.makedirs(TEMP_DIR)
-        except Exception as e:
-            print(str(e))
-
-        username = request.json['username']
-        # username = 'rhodio'
-
-        task = batch.zip_files.delay(
-            out_filepath=TEMP_DIR,
-            dir_name=str((up_one / 'data' / username).resolve()),
-            username=username,
-            user_id=user_id,
-            update_url=url_for('main.progress', _external=True),
-            # str((up_one / 'data' / 'taskmaster').resolve()),
-        )
-        return jsonify({'taskid': task.id})
-
-
-socketio = None
-
-# INTERNAL route
-
-
-@main.route('/progress', methods=['POST'])
-def progress():
-    # for now progress gets update progress of all celery tasks
-    # TODO need to forward this to any connected clients
-    data = request.json
-    print(data)
-    userid = data['userid']
-    # print(data)
-    room = current_app.clients.get(userid)
-    # print('room', room)
-    # if ns and data:
-    # must specify both namespace and room
-    # room is for this single user
-    global socketio
-    if socketio is None:
-        from server import socketio as socker
-        socketio = socker
-    socketio.emit('celerystatus', data,
-                  room=room, namespace='/events')
-    print(request.data)
-    return 'ok'
-
-
-@main.route('/export/<string:filename>')
-def download_zipfile(filename: str):
-    return send_from_directory(
-        TEMP_DIR,
-        filename,
-        as_attachment=True,
-        attachment_filename=filename.split("_")[0] + ".zip"
-    )
-
-
-@main.route('/info/<string:filename>')
-def info_zipfile(filename: str):
-    filepath = Path(TEMP_DIR) / filename
-    err = "No such file {} found".format(filename)
-    if filepath.is_file():
-        err = None
-    size = os.stat(filepath).st_size
-    return jsonify({"error": err, "size": size})
 
 
 @main.route('/skipped', methods=['POST'])

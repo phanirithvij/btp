@@ -30,7 +30,7 @@
                 a.text = '\ndownload';
                 // a.text = filename.split('_')[0];
                 par.parentElement.appendChild(a);
-                fetch(`/info/${filename}`)
+                fetch(`/exports/info/${filename}`)
                 .then(x => x.json())
                 .then(f => {
                     var span = document.createElement('span');

@@ -59,8 +59,10 @@
 </nav>
 
 <script>
-    (()=>{
+    (() => {
         var selected = location.pathname.slice(1);
+        console.log(selected);
+        selected = selected.replace('/', '');
         var id = `#a-${selected}`;
         document.querySelector(id).classList.add('active');
     })();

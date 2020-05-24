@@ -36,7 +36,8 @@ window._data = {
 
             window._data.nanobars[progressid] = nanobar;
 
-            fetch('/exports', {
+            // trailing / is important
+            fetch('/exports/', {
                 method: 'POST',
                 headers: {
 

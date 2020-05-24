@@ -40,7 +40,10 @@ def pretask(task_id=None, task=None, *args, **kwargs):
     if 'zip_files' in str(type(task)):
         with server.app.app_context():
             running = server.cache.get('running_zip_tasks')
-            running[task_id] = kwargs
+            print('-----')
+            # print(kwargs, type(kwargs))
+            running[task_id] = kwargs['kwargs']
+            logger.info(running[task_id])
             server.cache.set('running_zip_tasks', running)
 
 
