@@ -128,14 +128,16 @@ def dashb_stats(stype: str):
         daywise = [0 for x in range(7)]
         for root, dirs, files in os.walk(UserFileSystem.users_dir()):
             for file in files:
-                ctime = (os.stat(Path(root) / file).st_ctime)
-                ctimed = (datetime.datetime.fromtimestamp(ctime))
-                # https://stackoverflow.com/a/45266909/8608146
-                oneweekago = datetime.datetime.now() - datetime.timedelta(days=7)
-                # print(oneweekago)
-                if ctimed > oneweekago:
-                    daywise[ctimed.isoweekday()-1] += 1
+                if file != "data.db":
+                    ctime = (os.stat(Path(root) / file).st_ctime)
+                    ctimed = (datetime.datetime.fromtimestamp(ctime))
+                    # https://stackoverflow.com/a/45266909/8608146
+                    oneweekago = datetime.datetime.now() - datetime.timedelta(days=7)
+                    # print(file)
+                    if ctimed > oneweekago:
+                        daywise[ctimed.isoweekday()-1] += 1
 
+        print(daywise)
         stats = STATS_OBJECT.copy()
         stats['data']['datasets'][0]['data'] = daywise
         stats['data']['labels'] = list(calendar.day_name)
@@ -149,11 +151,12 @@ def dashb_stats(stype: str):
         daywise = [0 for x in range(dayscount[1])]
         for root, dirs, files in os.walk(UserFileSystem.users_dir()):
             for file in files:
-                ctime = (os.stat(Path(root) / file).st_ctime)
-                ctimed = (datetime.datetime.fromtimestamp(ctime))
-                # https://stackoverflow.com/a/45266909/8608146
-                if ctimed > curr.replace(day=1):
-                    daywise[ctimed.day-1] += 1
+                if file != "data.db":
+                    ctime = (os.stat(Path(root) / file).st_ctime)
+                    ctimed = (datetime.datetime.fromtimestamp(ctime))
+                    # https://stackoverflow.com/a/45266909/8608146
+                    if ctimed > curr.replace(day=1):
+                        daywise[ctimed.day-1] += 1
 
         stats = STATS_OBJECT.copy()
         stats['data']['datasets'][0]['data'] = daywise
@@ -166,10 +169,11 @@ def dashb_stats(stype: str):
         monthwise = [0 for x in range(12)]
         for root, dirs, files in os.walk(UserFileSystem.users_dir()):
             for file in files:
-                ctime = (os.stat(Path(root) / file).st_ctime)
-                ctimed = (datetime.datetime.fromtimestamp(ctime))
-                if ctimed > firstday_of_year:
-                    monthwise[ctimed.month-1] += 1
+                if file != "data.db":
+                    ctime = (os.stat(Path(root) / file).st_ctime)
+                    ctimed = (datetime.datetime.fromtimestamp(ctime))
+                    if ctimed > firstday_of_year:
+                        monthwise[ctimed.month-1] += 1
 
         stats = STATS_OBJECT.copy()
         stats['data']['datasets'][0]['data'] = monthwise
@@ -178,12 +182,13 @@ def dashb_stats(stype: str):
         monthwise = {}
         for root, dirs, files in os.walk(UserFileSystem.users_dir()):
             for file in files:
-                ctime = (os.stat(Path(root) / file).st_ctime)
-                ctimed = (datetime.datetime.fromtimestamp(ctime))
-                datestr = ctimed.date().strftime('%Y-%m-%d')
-                if datestr not in monthwise:
-                    monthwise[datestr] = 0
-                monthwise[datestr] += 1
+                if file != "data.db":
+                    ctime = (os.stat(Path(root) / file).st_ctime)
+                    ctimed = (datetime.datetime.fromtimestamp(ctime))
+                    datestr = ctimed.date().strftime('%Y-%m-%d')
+                    if datestr not in monthwise:
+                        monthwise[datestr] = 0
+                    monthwise[datestr] += 1
 
         # mock
         # monthwise['2020-05-19'] = 21
