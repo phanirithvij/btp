@@ -92,3 +92,4 @@ snap run redis-desktop-manager.rdm
     - [ ] Delete user and user's files
     - [ ] Download files by a user
     - [ ] Files Multi select download and delete
+  - [ ] Audio Player with dynamic audio src change in user.html
