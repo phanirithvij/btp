@@ -159,3 +159,4 @@ logs/
 .env
 ziptool
 *.zip
+dump.rdb
