@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 import zipfile
 import zlib
@@ -12,6 +13,8 @@ from celery.signals import (celeryd_init, task_failure, task_postrun,
 from tqdm import tqdm
 
 import server
+from server.config import Config
+from server.db import UserFileSystem
 from server.tasks import ProgressTask, celery, logger
 
 
@@ -24,6 +27,10 @@ def dir_id(dirpath: str) -> str:
     mtime = res.st_mtime
     ctime = res.st_ctime
     return zlib.adler32(f"{atime}{mtime}{ctime}".encode('utf8'))
+
+
+def dir_id_from_files(files=[]) -> str:
+    return zlib.adler32("_".join(files).encode('utf8'))
 
 
 @celeryd_init.connect
@@ -80,7 +87,9 @@ def zip_files(
         dir_name: str = None,
         username: str = None,
         user_id: str = None,
-        update_url: str = None):
+        update_url: str = None,
+        partial: bool = False,
+):
     # assigned id for this task
     print(self.request.id)
     print('__'*10)
@@ -90,6 +99,8 @@ def zip_files(
     #     server.cache.set('running_zip_tasks', running)
 
     folder_id = f"{username}_{dir_id(dir_name)}"
+    if partial:
+        folder_id = f"{username}_{dir_id(dir_name)}_p"
 
     outfile = Path(out_filepath)
     # if a dir is sent assign the out file a timestamp name
@@ -105,7 +116,8 @@ def zip_files(
         'taskid': self.request.id,
         'userid': user_id,
         'username': username,
-        'current': 0
+        'current': 0,
+        'type': 'export_task'
     }
     self.progress = progress
 
@@ -135,14 +147,22 @@ def zip_files(
         progress['total'] = total
         # TODO tqdm not showing
         print("DIR is", path)
-        # os.chdir()
+        prev = os.getcwd()
+        # print("DIR is", os.getcwd())
+        # print("DIR is", os.getcwd())
+        # print('PAR IS', Path(path).parent)
+        dirname_ = os.path.basename(path)
+        os.chdir(Path(path).parent)
         for root, dirs, files in tqdm(os.walk(path)):
             for file in files:
                 curr += 1
                 if curr % 10 == 0:
                     progress['current'] = curr
                     self.progress = progress
-                ziph.write(os.path.join(root, file))
+                # print(file, root)
+                ziph.write(os.path.join(root, file),
+                           arcname=Path(dirname_) / file)
+        os.chdir(prev)
 
     with zipfile.ZipFile(str(outfile), 'w', zipfile.ZIP_DEFLATED) as zipf:
         zipdir(dir_name, zipf)
@@ -154,3 +174,83 @@ def zip_files(
     progress['status'] = 'done'
     progress['filename'] = os.path.basename(outfile)
     self.progress = progress
+
+
+@celery.task(bind=True, base=ProgressTask)
+def combine_zips(
+        self,
+        out_filepath: str = None,
+        dir_names=[],
+        usernames=[],
+        user_id: str = None,
+        update_url: str = None):
+
+    pass
+
+
+@celery.task(bind=True, base=ProgressTask)
+def delete_zips(self, usernames=[], user_id: str = None, progress_url: str = None):
+    progress = {
+        'type': 'delete_zip_task',
+        'taskid': self.request.id,
+        'userid': user_id,
+        'status': 'started'
+    }
+    self.configure(progress_url)
+    self.progress = progress
+    if user_id is not None:
+        logger.warn(f"User {user_id} deleted {usernames}")
+    for user in usernames:
+        for fi in Path(Config.TEMP_DIR).iterdir():
+            if os.path.basename(fi).startswith(user):
+                print(f"Delete {fi}")
+                os.remove(fi)
+
+    progress['status'] = 'done'
+    self.progress = progress
+
+
+@celery.task(bind=True, base=ProgressTask)
+def zip_files_partial(
+        self,
+        files=[],
+        username: str = None,
+        user_id: str = None,
+        update_url: str = None):
+
+    userfs = UserFileSystem(username)
+
+    dirname = dir_id_from_files(files)
+    dirname = Path(Config.TEMP_DIR) / f"{dirname}"
+
+    if dirname.is_dir():
+        # already exists
+        self.configure(update_url)
+        progress = {'status': 'done', 'file': None, 'userid': user_id}
+        for f in Path(Config.TEMP_DIR).iterdir():
+            name = os.path.basename(f)
+            if len(str(name).split('_')) == 3:
+                if str(name).split('_')[0] == username:
+                    progress['file'] = name
+                    break
+        if progress['file'] is not None:
+            # found a partial zip
+            self.progress = progress
+            return
+
+    try:
+        os.makedirs(dirname)
+    except Exception as e:
+        print(e)
+
+    for file in files:
+        shutil.copy(userfs.user_dir() / file, dirname)
+
+    task = zip_files.delay(
+        out_filepath=Config.TEMP_DIR,
+        dir_name=f'{dirname}',
+        username=username,
+        user_id=user_id,
+        update_url=update_url,
+        partial=True,
+    )

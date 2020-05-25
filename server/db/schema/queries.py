@@ -4,7 +4,8 @@ CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(30) PRIMARY KEY NOT NULL,
     age INTEGER NOT NULL,
     gender BIT DEFAULT 1,
-    password VARCHAR(40) NOT NULL
+    password VARCHAR(40) NOT NULL,
+    datetime_ real NOT NULL 
 );
 """
 
@@ -12,11 +13,11 @@ MALE = 1
 FEMALE = 0
 
 GET_ALL_USERS = """\
-SELECT * FROM users;
+SELECT username, age, gender, date(datetime_) FROM users;
 """
 
 INSERT_USER = """\
-INSERT INTO users (username, age, gender, password) VALUES (?, ?, ?, ?);
+INSERT INTO users (username, age, gender, password, datetime_) VALUES (?, ?, ?, ?, julianday('now'));
 """
 
 # https://stackoverflow.com/a/2128593/8608146

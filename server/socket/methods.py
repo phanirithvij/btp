@@ -24,6 +24,9 @@ def events_connect():
     session['userid'] = userid
     # https://stackoverflow.com/questions/39423646/flask-socketio-emit-to-specific-user
     existing = cache.get('clients')
+    if existing is None:
+        existing = {}
+        cache.set('clients', existing)
     existing[userid] = request.sid
     cache.set('clients', existing)
     join_room(request.sid, namespace='/events')
@@ -34,6 +37,10 @@ def events_connect():
 @socketio.on('disconnect', namespace='/events')
 def events_disconnect():
     existing = cache.get('clients')
+    if existing is None:
+        existing = {}
+        cache.set('clients', existing)
+
     userid = session['userid']
     if userid in existing:
         # else user id is gone

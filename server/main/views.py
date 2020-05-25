@@ -1,3 +1,5 @@
+import calendar
+import datetime
 import json
 import os
 import random
@@ -12,6 +14,7 @@ from werkzeug.utils import secure_filename
 
 import server.tasks.batch as batch
 from server import cache
+from server.db import UserFileSystem
 from server.db.user import *
 from server.main import main
 
@@ -69,13 +72,11 @@ def dashboard_home():
     session['x'] = (0, 1, 2, 3)
     print(session['x'])
     users = DB.get_users()
-    for u in users:
-        # TODO get count
-        u['count'] = random.randint(10, 1000)
-    # users = []
-    # for i in range(108):
-    #     users.append({'name': f"user{i}", 'count': (100 - i) * 10})
-    return render_template('dashboard.html', users=users)
+    for x in users:
+        audiofiles = UserFileSystem(x['username']).get_audio_files()
+        x['count'] = len(audiofiles)
+    newlist = sorted(users, key=lambda k: k['count'], reverse=True)
+    return render_template('dashboard.html', users=newlist)
 
 
 def is_jsonable(x):
@@ -103,21 +104,40 @@ def export_cache():
 @main.route('/users')
 def users_home():
     users = DB.get_users()
-    for u in users:
-        # TODO get count
-        u['count'] = random.randint(10, 1000)
-    return render_template('users.html', users=users)
+    for x in users:
+        audiofiles = UserFileSystem(x['username']).get_audio_files()
+        x['count'] = len(audiofiles)
+    newlist = sorted(users, key=lambda k: k['count'], reverse=True)
+    return render_template('users.html', users=newlist)
 
-# TODO in the app when logged out
-# 401 code is sent so this method is not called
-# Show failed message
+
+@main.route('/user/<string:username>')
+def user_page(username: str):
+    userinfo = DB.get_user(username)
+    sens = UserFileSystem(username).get_sentences()
+    return render_template('user.html', user=userinfo, sentences=sens)
+
+
+@main.route('/search', methods=['POST'])
+def search():
+    print(request.json)
+
+    return jsonify({})
+
+
+@main.route('/userfile/<string:filename>')
+def user_file(filename: str):
+    username = filename.split('_')[0]
+    dirname = (up_one / 'data' / username)
+    return send_from_directory(str(dirname), filename)
 
 
 @main.route('/upload', methods=['POST'])
 @jwt_required
 def upload_file():
-
-    # exit(-1)
+    # TODO in the app when logged out
+    # 401 code is sent so this method is not called
+    # Show failed message
     # user = (User(session['user'][0]).attach_DB(DB))
     print(session['user'])  # tuple (username, age, gender)
     print("-"*(200))
@@ -154,8 +174,8 @@ def upload_file():
 @main.route('/data')
 @jwt_required
 def random_corpa():
-    print("Data bros")
-    print(session['user'])
+    # print("Data bros")
+    # print(session['user'])
     data_dir: Path = up_one / 'corpora' / 'split'
     x = 0
     for filename in data_dir.iterdir():
@@ -165,7 +185,6 @@ def random_corpa():
         str(data_dir),
         "out{}.txt".format(random.randint(1, x))
     )
-
 
 
 @main.route('/skipped', methods=['POST'])
@@ -204,3 +223,11 @@ def download_file(filename):
     elif request.method == 'PUT':
         # https://pythonise.com/series/learning-flask/flask-http-methods
         return jsonify({'status': 'ok'})
+
+
+# file upload
+ALLOWED_EXTENSIONS = set(['wav', 'mp3', 'ogg', 'webm', 'aac'])
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS

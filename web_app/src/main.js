@@ -1,6 +1,6 @@
 (() => {
 
-    function update_progress(data) {
+    function update__zipprogress(data) {
         window._data.progressData = data;
         let percent = (data.current * 100 / data.total);
         var elementid = window._data.pairs[data.taskid];
@@ -28,26 +28,27 @@
                 const el = document.getElementById(elementid);
                 const par = el.parentElement;
                 const a = document.createElement('a');
-                a.href = `/export/${filename}`;
+                a.href = `/exports/export/${filename}`;
                 a.text = '\ndownload ';
                 // a.text = filename.split('_')[0];
                 par.parentElement.appendChild(a);
                 fetch(`/exports/info/${filename}`)
-                .then(x => x.json())
-                .then(f => {
-                    var span = document.createElement('span');
-                    span.innerText = readableFileSize(f.size);
-                    console.log(f);
-                    par.parentElement.appendChild(span);
-                    window._data.done.push(data.taskid);
-                    window._data.nanobars[elementid].go(0);
-                    // par.remove();
-                });
+                    .then(x => x.json())
+                    .then(f => {
+                        var span = document.createElement('span');
+                        span.innerText = readableFileSize(f.size);
+                        console.log(f);
+                        par.parentElement.appendChild(span);
+                        window._data.done.push(data.taskid);
+                        // hide bar
+                        window._data.nanobars[elementid].go(0);
+                        toastr["success"](`export done for user [${data.username}]`, "Done")
+                    });
             }
         } // console.log(data, 'updateprogess');
     }
 
-    window._data.update_progress = update_progress;
+    window._data.update_progress = update__zipprogress;
 
     var namespace = '/events'; // change to an empty string to use the global namespace
 
@@ -62,13 +63,60 @@
 
     // event handler for userid.  On initial connection, the server
     // sends back a unique userid
-    socket.on('userid', function (msg) {
+    socket.on('userid', (msg) => {
         window._data.userId = msg.userid;
+        if (location.pathname == '/exports') {
+
+            const params = (new URLSearchParams(location.search));
+            for (var x of params) {
+                if (x[0] == 'username') {
+                    let div = document.querySelector(`#progress-${x[1]}`);
+                    console.log(
+                        div.parentElement.querySelector('button')
+                    );
+                    setTimeout(() => {
+                        div.parentElement.querySelector('button').click();
+                    }, 100);
+                }
+            }
+
+        }
     });
 
     // event handler for server sent celery status
     // the data is displayed in the "Received" section of the page
-    socket.on('celerystatus', update_progress);
+    socket.on('celerystatus', (x) => {
+        if (x.type == 'export_task') {
+            update__zipprogress(x);
+        } else
+        if (x.type == 'delete_zip_task') {
+            if (x.status == 'done') {
+                // console.log()
+                toastr.options = {
+                    "closeButton": true,
+                    "debug": false,
+                    "newestOnTop": true,
+                    "progressBar": true,
+                    "positionClass": "toast-top-right",
+                    "preventDuplicates": true,
+                    "onclick": null,
+                    "showDuration": "300",
+                    "hideDuration": "400",
+                    "timeOut": "3000",
+                    "extendedTimeOut": "1000",
+                    "showEasing": "swing",
+                    "hideEasing": "linear",
+                    "showMethod": "fadeIn",
+                    "hideMethod": "fadeOut"
+                }
+                toastr['success']("Deleted successfully");
+                setTimeout(() => {
+                    location.replace('/exports');
+                }, 2000)
+            }
+        }
+        console.log(x);
+    });
 
     // event handler for server sent general status
     // the data is displayed in the "Received" section of the page

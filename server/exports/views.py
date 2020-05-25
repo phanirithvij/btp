@@ -5,8 +5,8 @@ import sys
 import time
 from pathlib import Path
 
-from flask import (current_app, jsonify, redirect, render_template, request,
-                   send_from_directory, session, url_for)
+from flask import (jsonify, render_template, request, send_from_directory,
+                   url_for)
 from flask_jwt_extended import jwt_required
 from werkzeug.utils import secure_filename
 
@@ -14,6 +14,7 @@ import server.tasks.batch as batch
 from server import cache
 from server.config import Config
 from server.db.user import *
+from server.db import UserFileSystem
 from server.exports import exports
 from server.main import main
 
@@ -30,7 +31,7 @@ folder = up_one / 'web_app' / 'src'
 # TODO add @jwt admin
 # @jwt_required
 def exports_page():
-    print('--'*100)
+    # print('--'*100)
     if request.method == 'GET':
         exportfiles = {}
         for x in Path(Config.TEMP_DIR).iterdir():
@@ -39,24 +40,19 @@ def exports_page():
             username = name.split('_')[0]
             running = cache.get('running_zip_tasks')
             print("running", running)
-            export_this = False
+            ongoing_export = True
             if running is not None:
                 if username not in list([x['username'] for x in running.values()]):
-                    export_this = True
+                    ongoing_export = False
             else:
-                export_this = True
-            if export_this:
+                ongoing_export = False
+            if not ongoing_export:
                 exportfiles[username] = {
                     'file': name, 'size': os.stat(x).st_size}
 
         users = DB.get_users()
         for x in users:
-            dirname = (up_one / 'data' / x['username'])
-            audiofiles = []
-            if dirname.is_dir():
-                audiofiles = list(dirname.iterdir())
-                audiofiles = [str(x) for x in audiofiles]
-                # print(audiofiles)
+            audiofiles = UserFileSystem(x['username']).get_audio_files()
             x['count'] = len(audiofiles)
             if x['username'] not in exportfiles.keys():
                 exportfiles[x['username']] = {'file': None, 'size': 0}
@@ -70,7 +66,6 @@ def exports_page():
         print(url_for('exports.progress', _external=True))
 
         username = request.json['username']
-        # username = 'rhodio'
 
         task = batch.zip_files.delay(
             out_filepath=Config.TEMP_DIR,
@@ -78,29 +73,42 @@ def exports_page():
             username=username,
             user_id=user_id,
             update_url=url_for('exports.progress', _external=True),
-            # str((up_one / 'data' / 'taskmaster').resolve()),
         )
         return jsonify({'taskid': task.id})
 
 
+@exports.route('/partial', methods=['GET', 'POST'])
+def partial_export():
+    if request.method == "POST":
+        print(request.args)
+        print(request.form)
+        user_id = request.json['userid']
+        print(request.json)
+        print(url_for('exports.progress', _external=True))
+
+        username = request.json['username']
+
+        task = batch.zip_files_partial.delay(
+            files=request.json['files'],
+            username=username,
+            user_id=user_id,
+            update_url=url_for('exports.progress', _external=True),
+        )
+        return jsonify({'taskid': task.id})
+
+    return render_template('partial.html')
+
+
 socketio = None
 
+
 # INTERNAL route
-
-
-@exports.route('/progress', methods=['POST'])
+@exports.route('/_progress', methods=['POST'])
 def progress():
     # for now progress gets update progress of all celery tasks
-    # TODO need to forward this to any connected clients
+    # need to forward this to any connected clients
     data = request.json
-    print(data)
     userid = data['userid']
-    # print(data)
-    # room = cache.get('clients')[userid]
-    # print('room', room)
-    # if ns and data:
-    # must specify both namespace and room
-    # room is for this single user
     global socketio
     if socketio is None:
         from server import socketio as socker
@@ -130,3 +138,20 @@ def info_zipfile(filename: str):
         err = None
     size = os.stat(filepath).st_size
     return jsonify({"error": err, "size": size})
+
+
+@exports.route('/delete', methods=['POST'])
+def delete_exports():
+    print(request.args)
+    print(request.form)
+    user_id = request.json['userid']
+    print(request.json)
+
+    usernames = request.json['usernames']
+
+    task = batch.delete_zips.delay(
+        usernames=usernames,
+        user_id=user_id,
+        progress_url=url_for('exports.progress', _external=True)
+    )
+    return jsonify({'taskid': task.id})

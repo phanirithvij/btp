@@ -22,6 +22,7 @@ from werkzeug.utils import secure_filename
 from server.auth import auth
 from server.db.user import *
 
+DB = Database("data/data.db")
 
 @auth.route('/login', methods=['POST', 'GET'])
 def login():

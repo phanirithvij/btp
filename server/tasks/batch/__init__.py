@@ -1,1 +1,1 @@
-from server.tasks.batch.tasks import zip_files
+from server.tasks.batch.tasks import *

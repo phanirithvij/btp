@@ -85,13 +85,6 @@ init_cache()
 # app.config['SECRET_KEY'] = 'FTYFUH@E^@%R%^#!V#HUFEDGVQGV'
 
 
-# file upload
-ALLOWED_EXTENSIONS = set(['wav', 'mp3', 'ogg', 'webm', 'aac'])
-
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 # JWT methods
 
 

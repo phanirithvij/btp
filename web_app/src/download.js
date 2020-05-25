@@ -49,7 +49,6 @@ window._data = {
             fetch('/exports/', {
                 method: 'POST',
                 headers: {
-
                     'Accept': 'application/json, text/plain, */*',
                     'Content-Type': 'application/json',
                 },
@@ -62,6 +61,25 @@ window._data = {
                 console.log(d);
                 window._data.pairs[d.taskid] = progressid;
                 window._data.running.push(e.target.dataset.username);
+                toastr.options = {
+                    "closeButton": true,
+                    "debug": false,
+                    "newestOnTop": true,
+                    "progressBar": true,
+                    "positionClass": "toast-top-right",
+                    "preventDuplicates": true,
+                    "onclick": null,
+                    "showDuration": "300",
+                    "hideDuration": "400",
+                    "timeOut": "3000",
+                    "extendedTimeOut": "1000",
+                    "showEasing": "swing",
+                    "hideEasing": "linear",
+                    "showMethod": "fadeIn",
+                    "hideMethod": "fadeOut"
+                }
+                toastr["info"](`export started for user [${e.target.dataset.username}]`, "Info")
+
                 // window._data.update_progress(window._data.progressData);
             })
         } else {
@@ -69,6 +87,24 @@ window._data = {
             // TODO show user to wait a few seconds
             // or show the export options only after sever assigns an id
             console.error('No user id assigned by server yet')
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "newestOnTop": true,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "preventDuplicates": true,
+                "onclick": null,
+                "showDuration": "300",
+                "hideDuration": "400",
+                "timeOut": "3000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            }
+            toastr["warning"](`No user id assigned by server yet wait a few seconds`, "Warning")
             // either server is not reachable or
             // function called too fast
         }

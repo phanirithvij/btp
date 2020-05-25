@@ -64,6 +64,7 @@
         //console.log(selected);
         selected = selected.replace('/', '');
         var id = `#a-${selected}`;
-        document.querySelector(id).classList.add('active');
+        elem = document.querySelector(id);
+        (elem != null) && (elem != undefined) && elem.classList.add('active');
     })();
 </script>
