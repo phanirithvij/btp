@@ -127,8 +127,17 @@ def search():
 
 @main.route('/userfile/<string:filename>')
 def user_file(filename: str):
-    username = filename.split('_')[0]
-    dirname = (up_one / 'data' / username)
+    # filename is username_sid.wav
+    # username can be x_yayya_xx
+    username = "_".join(filename.split('_')[:-1])
+    dirname = (up_one / 'data')
+    for d in dirname.iterdir():
+        d = os.path.basename(d)
+        safeusername = secure_filename(str(d))
+        if safeusername == username:
+            print(safeusername)
+            dirname = (up_one / 'data' / d)
+            break
     return send_from_directory(str(dirname), filename)
 
 
