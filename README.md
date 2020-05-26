@@ -66,9 +66,10 @@ Then install that apk in the android device.
    - Change the `server` to `http:/{ipv4}:3000` and NO `/` at the end.
 
 
-To inspect redis db
+To inspect redis db (This is optional)
 
-```
+```shell
+# install snap and install redis-desktop-manager (size 400MB)
 snap run redis-desktop-manager.rdm
 ```
 
