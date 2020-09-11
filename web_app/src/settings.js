@@ -5,15 +5,15 @@ $(".dataset-gallery").flickity({
   groupCells: true,
 });
 
-(() => {
-  $("#minus").hide();
+window.onload = (x) => {
+  $(".minus").hide();
   $("#dragdrop").hide();
   var dropareaHidden = true;
   $(".plus_drop").click((e) => {
     if (dropareaHidden) {
       $("#dragdrop").show();
-      $("#plus").hide();
-      $("#minus").show();
+      $(".plus").hide();
+      $(".minus").show();
       dropareaHidden = !dropareaHidden;
     } else {
       $(".cancel-btn").click();
@@ -21,10 +21,15 @@ $(".dataset-gallery").flickity({
   });
   $(".cancel-btn").click((e) => {
     $("#dragdrop").hide();
-    $("#minus").hide();
-    $("#plus").show();
+    $(".minus").hide();
+    $(".plus").show();
     dropareaHidden = true;
   });
-})();
 
-$('.sel-box').hide();
+  $(".sel-box").hide();
+  $(".dataset-gallery").flickity("reposition");
+  console.log('done');
+};
+// setInterval(() => {
+//   $(".dataset-gallery").flickity("reposition");
+// }, 1000);
