@@ -160,3 +160,4 @@ logs/
 ziptool
 *.zip
 dump.rdb
+pyvenv/
