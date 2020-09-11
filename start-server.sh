@@ -1,11 +1,11 @@
 #!/bin/bash
 
-python -m venv venv
+# python -m venv venv
 source venv/bin/activate
 pwd
 echo -n "Using "
 which pip; pip -V
-pip install -r server/requirements.new.txt
+# pip install -r server/requirements.new.txt
 
 if ! [ -x "$(command -v redis-server)" ]; then
     echo 'Warning: redis is not installed or is not in the $PATH.' >&2

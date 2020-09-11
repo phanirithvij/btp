@@ -1,0 +1,134 @@
+body {
+  font-family: sans-serif;
+}
+a {
+  color: #369;
+}
+.note {
+  width: 500px;
+  margin: 50px auto;
+  font-size: 1.1em;
+  color: #333;
+  text-align: justify;
+}
+#drop-area {
+  border: 2px dashed #ccc;
+  border-radius: 20px;
+  /* margin: 50px auto; */
+  padding: 0.5rem 24px;
+  min-width: 20vw;
+}
+#drop-area.highlight {
+  border-color: purple;
+}
+
+.plus_drop {
+  border: 2px dashed #ccc;
+  border-radius: 20px;
+  padding: 2.5rem 3rem;
+}
+
+p {
+  margin-top: 0;
+}
+.my-form {
+  margin-bottom: 10px;
+}
+#gallery {
+  margin-top: 10px;
+}
+#gallery img {
+  width: 150px;
+  margin-bottom: 10px;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+.button {
+  display: inline-block;
+  padding: 20px;
+  background: #ccc;
+  cursor: pointer;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+.button:hover {
+  background: #ddd;
+}
+#fileElem {
+  display: none;
+}
+
+/* Dragdrop */
+#dragdrop {
+  /* background: -webkit-gradient(
+    linear,
+    left top,
+    right top,
+    from(#000),
+    to(#2a2a31)
+  ); */
+  /* background: linear-gradient(to right, #000, #2a2a31); */
+  color: #000;
+  font-family: "Lato", sans-serif;
+  min-height: 30vh;
+  padding-top: 4rem;
+}
+
+h2 {
+  margin: 50px 0;
+}
+
+section {
+  -webkit-box-flex: 1;
+  flex-grow: 1;
+}
+
+.file-msg {
+  line-height: 1.4;
+  /* white-space: break-spaces; */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+main {
+  /* display: flex;
+  flex-direction: column;
+  align-items: center; */
+}
+
+.file {
+  padding: 0.4rem;
+  border: 2px solid #00000017;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+}
+
+.check-box {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  height: 30px;
+  width: 30px;
+}
+
+.sel-box {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  cursor: pointer;
+}
+
+.carousel-cell {
+  margin-right: 20px;
+  overflow: hidden;
+  min-height: 10vh;
+  display: flex;
+  align-items: center;
+  border: 3px solid #00000070;
+  padding: 3rem 3rem;
+  border-radius: 0.8rem;
+}
+
+.dataset-gallery {
+  /* max-width: 30rem; */
+}

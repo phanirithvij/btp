@@ -78,6 +78,44 @@ def dashboard_home():
     newlist = sorted(users, key=lambda k: k['count'], reverse=True)
     return render_template('dashboard.html', users=newlist)
 
+@main.route('/settings', methods=['GET', 'POST'])
+def dashboard_settings():
+    if request.method == 'GET':
+        datasets = []
+        for file in (up_one / 'corpora' / 'uploads').iterdir():
+            if file.is_file():
+                datasets.append({'name': str(file.name), 'current': False})
+        datasets[0]['current'] = True
+
+        return render_template('settings.html', datasets=datasets)
+    else:
+        print(request.form)
+        if 'file' not in request.files:
+            # return redirect(request.url)
+            return jsonify({'status': 'failed', 'msg': 'No file uploaded try again'})
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'status': 'failed', 'msg': 'No file selected for uploading'})
+        if file and allowed_settings_file(file.filename):
+            filename = secure_filename(file.filename)
+            filepath = up_one / 'corpora' / 'uploads' / filename
+            try:
+                os.makedirs(filepath.parents[0])
+            except Exception as e:
+                print(e)
+
+            file.save(filepath)
+            size = os.stat(filepath).st_size
+            return jsonify({
+                'status': 'ok',
+                'msg': None, 'path': filename, 'size': size
+            })
+        else:
+            return jsonify({
+                'status': 'failed',
+                'msg': f'invalid file type {file.filename} ' + 'only ' + ", ".join(ALLOWED_SETTINGS_EXTENSIONS) + ' file types are allowed'
+                }), 403
+
 
 def is_jsonable(x):
     try:
@@ -131,6 +169,7 @@ def user_file(filename: str):
     # username can be x_yayya_xx
     username = "_".join(filename.split('_')[:-1])
     dirname = (up_one / 'data')
+    print("User name is ", username, secure_filename(username))
     for d in dirname.iterdir():
         d = os.path.basename(d)
         safeusername = secure_filename(str(d))
@@ -237,6 +276,11 @@ def download_file(filename):
 # file upload
 ALLOWED_EXTENSIONS = set(['wav', 'mp3', 'ogg', 'webm', 'aac'])
 
+# Settings dashboard file upload
+ALLOWED_SETTINGS_EXTENSIONS = set(['txt', 'csv'])
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def allowed_settings_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_SETTINGS_EXTENSIONS

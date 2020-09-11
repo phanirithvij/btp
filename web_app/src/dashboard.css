@@ -5,8 +5,6 @@ body {
 }
 
 .feather {
-  width: 16px;
-  height: 16px;
   vertical-align: text-bottom;
 }
 
@@ -28,16 +26,9 @@ body {
   position: relative;
   top: 0;
   height: calc(100vh - 48px);
-  padding-top: .5rem;
+  padding-top: 2.5rem;
   overflow-x: hidden;
   overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
-}
-
-@supports ((position: -webkit-sticky) or (position: sticky)) {
-  .sidebar-sticky {
-    position: -webkit-sticky;
-    position: sticky;
-  }
 }
 
 .sidebar .nav-link {
@@ -70,12 +61,6 @@ body {
 
 [role="main"] {
   padding-top: 133px; /* Space for fixed navbar */
-}
-
-@media (min-width: 768px) {
-  [role="main"] {
-    padding-top: 48px; /* Space for fixed navbar */
-  }
 }
 
 /*

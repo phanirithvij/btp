@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <!-- <meta name="viewport" content="width=device-width, initial-scale=<a href=" #1, sh">1, sh</a>rink-to-fit=no"> -->
+  <meta name="viewport" content="width=device-width, initial-scale=1 shrink-to-fit=no" />
+  <meta name="description" content="" />
+  <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors" />
+  <meta name="generator" content="Jekyll v3.8.6" />
+  <title>Corpora Dashboard · IIIT</title>
+
+  <!-- Bootstrap core CSS -->
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    crossorigin="anonymous" />
+  <!-- Favicons -->
+  <meta name="theme-color" content="#563d7c" />
+
+  <style>
+    .bd-placeholder-img {
+      font-size: 1.125rem;
+      text-anchor: middle;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    @media (min-width: 768px) {
+      .bd-placeholder-img-lg {
+        font-size: 3.5rem;
+      }
+    }
+  </style>
+  <!-- Custom styles for this template -->
+  <!-- <link href="/static/dashboard.css" rel="stylesheet"> -->
+  <link href="{{ url_for('static', filename='dashboard.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='settings.css') }}" rel="stylesheet" />
+  <link href="https://unpkg.com/flickity@2/dist/flickity.min.css" rel="stylesheet" />
+</head>
+
+<body>
+  {% include '_topnav.html' %}
+
+  <div class="container-fluid">
+    <div class="row">
+      {% include '_sidenav.html' %}
+
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+        <h3 style="text-align: center">Manage the Corpora Datasets</h3>
+        <div class="dataset-gallery">
+          {% for ds in datasets %}
+          <div id="file-{{ds.name}}" class="carousel-cell">
+            {% if ds.current %}
+            <span data-feather="check" class="check-box"></span>
+            {% endif %}
+            <a href="#">
+              {{ ds.name }}
+            </a>
+            <span data-feather="square" class="sel-box" data-index="{{ds}}"></span>
+          </div>
+          {% endfor %}
+          <div class="plus_drop">
+            <a class="btn">
+              <span data-feather="plus-square" id="plus"></span>
+              <span data-feather="minus-square" id="minus"></span>
+            </a>
+          </div>
+        </div>
+        <div id="dragdrop">
+          <div id="drop-area">
+            <form class="my-form">
+              <span data-feather="file-plus" id="plus"></span>
+              <span>Upload multiple files</span>
+              <br />
+              <div style="margin-bottom: 1rem;"></div>
+              <input type="file" id="fileElem" multiple accept="image/*" onchange="handleFiles(this.files)" />
+              <label class="btn btn-info" for="fileElem">Select files</label>
+              <label class="btn btn-outline-danger cancel-btn">cancel</label>
+            </form>
+            <progress hidden id="progress-bar" max="100" value="0"></progress>
+            <div id="gallery"></div>
+          </div>
+        </div>
+        <div class="file-msg"></div>
+      </main>
+    </div>
+  </div>
+  <!-- Latest compiled and minified JavaScript -->
+  <script type="text/javascript" src="{{ url_for('static', filename='jquery-3.5.1.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='flickity.pkgd.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='settings.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='dragdrop.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='popper.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='feather.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='nanobar.min.js') }}"></script>
+  <script>
+    (function () {
+      "use strict";
+
+      feather.replace();
+    })();
+  </script>
+</body>
+
+</html>
