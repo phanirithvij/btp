@@ -11,14 +11,14 @@ a {
   color: #333;
   text-align: justify;
 }
-#drop-area {
+.drop-area {
   border: 2px dashed #ccc;
   border-radius: 20px;
   /* margin: 50px auto; */
   padding: 0.5rem 24px;
   min-width: 20vw;
 }
-#drop-area.highlight {
+.drop-area.highlight {
   border-color: purple;
 }
 
@@ -34,15 +34,7 @@ p {
 .my-form {
   margin-bottom: 10px;
 }
-#gallery {
-  margin-top: 10px;
-}
-#gallery img {
-  width: 150px;
-  margin-bottom: 10px;
-  margin-right: 10px;
-  vertical-align: middle;
-}
+
 .button {
   display: inline-block;
   padding: 20px;
@@ -54,12 +46,13 @@ p {
 .button:hover {
   background: #ddd;
 }
-#fileElem {
+
+.fileElem {
   display: none;
 }
 
 /* Dragdrop */
-#dragdrop {
+.dragdrop {
   /* background: -webkit-gradient(
     linear,
     left top,
@@ -88,6 +81,7 @@ section {
   /* white-space: break-spaces; */
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-bottom: 5vh;
 }
 
 main {
@@ -129,7 +123,7 @@ main {
   border-radius: 0.8rem;
 }
 
-.dataset-gallery {
+.dataset-gallery.margin-bott {
   /* max-width: 30rem; */
   margin-bottom: 120px;
 }

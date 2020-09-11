@@ -48,15 +48,20 @@
 
       <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
         <h3 style="text-align: center">Manage the Corpora Datasets</h3>
+        <script>
+          var numCollections = parseInt("{{collections | length}}");
+          var types = "{{types}}";
+          types = types.split(',');
+        </script>
         {% for coll in collections %}
-        <div class="dataset-gallery gallery-{{loop.index}}">
-          <div class="plus_drop" style="margin-right: 20px;">
+        <div class="dataset-gallery margin-bott gallery-{{coll.type}}">
+          <div class="plus_drop plus_drop-{{coll.type}}" style="margin-right: 20px;">
             <a class="btn">
-              <span data-feather="plus-square" class="plus"></span>
-              <span data-feather="minus-square" class="minus"></span>
+              <span data-feather="plus" class="plus plus-{{coll.type}}"></span>
+              <span data-feather="minus-square" class="minus minus-{{coll.type}}"></span>
             </a>
           </div>
-          {% for ds in coll %}
+          {% for ds in coll.dset %}
           <div id="file-{{ds.name}}" class="carousel-cell">
             {% if ds.current %}
             <span data-feather="check" class="check-box"></span>
@@ -64,32 +69,33 @@
             <a href="#">
               {{ ds.name }}
             </a>
-            <span data-feather="square" class="sel-box" data-index="{{loop.index}}"></span>
+            <span data-feather="square" class="sel-box" data-type="{{coll.type}}" data-index="{{loop.index0}}"></span>
           </div>
           {% endfor %}
-          <div class="plus_drop">
+          <div class="plus_drop plus_drop-{{coll.type}}">
             <a class="btn">
-              <span data-feather="plus-square" class="plus"></span>
-              <span data-feather="minus-square" class="minus"></span>
+              <span data-feather="plus" class="plus plus-{{coll.type}}"></span>
+              <span data-feather="minus-square" class="minus minus-{{coll.type}}"></span>
             </a>
           </div>
         </div>
-        <div id="dragdrop">
-          <div id="drop-area">
+        <div class="dragdrop dragdrop-{{coll.type}}">
+          <div class="drop-area">
             <form class="my-form">
               <span data-feather="file-plus" id="plus"></span>
               <span>Upload multiple files</span>
               <br />
               <div style="margin-bottom: 1rem;"></div>
-              <input type="file" id="fileElem" multiple accept="image/*" onchange="handleFiles(this.files)" />
-              <label class="btn btn-info" for="fileElem">Select files</label>
-              <label class="btn btn-outline-danger cancel-btn">cancel</label>
+              <input type="file" class="fileElem" id="fileElem-{{coll.type}}" multiple accept="*/*"
+                onchange="handleFileMap['{{coll.type}}'](this.files)" />
+              <label class="btn btn-info" for="fileElem-{{coll.type}}">Select files</label>
+              <label class="btn btn-outline-danger cancel-btn cancel-btn-{{coll.type}}">cancel</label>
             </form>
             <progress hidden id="progress-bar" max="100" value="0"></progress>
             <div id="gallery"></div>
           </div>
         </div>
-        <div class="file-msg"></div>
+        <div class="file-msg file-msg-{{coll.type}}"></div>
         {% endfor %}
       </main>
     </div>

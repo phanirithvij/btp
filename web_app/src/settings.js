@@ -1,34 +1,39 @@
 $(".dataset-gallery").flickity({
   // options
-  // cellAlign: "left",
+  cellAlign: "left",
   contain: true,
   groupCells: true,
 });
 
 window.onload = (x) => {
   $(".minus").hide();
-  $("#dragdrop").hide();
-  var dropareaHidden = true;
-  $(".plus_drop").click((e) => {
-    if (dropareaHidden) {
-      $("#dragdrop").show();
-      $(".plus").hide();
-      $(".minus").show();
-      dropareaHidden = !dropareaHidden;
-    } else {
-      $(".cancel-btn").click();
-    }
-  });
-  $(".cancel-btn").click((e) => {
-    $("#dragdrop").hide();
-    $(".minus").hide();
-    $(".plus").show();
-    dropareaHidden = true;
+  $(".dragdrop").hide();
+  var dropAreaMap = {};
+  types.forEach((type) => {
+    dropAreaMap[type] = true;
+    $(`.plus_drop-${type}`).click((e) => {
+      if (dropAreaMap[type]) {
+        $(`.dragdrop-${type}`).show();
+        $(`.plus-${type}`).hide();
+        $(`.minus-${type}`).show();
+        dropAreaMap[type] = false;
+        $(`.gallery-${type}`).toggleClass("margin-bott");
+      } else {
+        $(`.cancel-btn-${type}`).click();
+      }
+    });
+    $(`.cancel-btn-${type}`).click((e) => {
+      $(`.dragdrop-${type}`).hide();
+      $(`.minus-${type}`).hide();
+      $(`.plus-${type}`).show();
+      dropAreaMap[type] = true;
+      $(`.gallery-${type}`).toggleClass("margin-bott");
+    });
   });
 
   $(".sel-box").hide();
   $(".dataset-gallery").flickity("reposition");
-  console.log('done');
+  console.log("done");
 };
 // setInterval(() => {
 //   $(".dataset-gallery").flickity("reposition");
