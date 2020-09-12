@@ -127,3 +127,10 @@ main {
   /* max-width: 30rem; */
   margin-bottom: 120px;
 }
+
+.add-category{
+  padding-bottom: 10vh;
+}
+.del-category{
+  padding-bottom: 10vh;
+}

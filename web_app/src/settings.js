@@ -5,11 +5,16 @@ $(".dataset-gallery").flickity({
   groupCells: true,
 });
 
+$('.lang-code').each(function () {
+  $(this).text($(this).text().replace('mix-', 'Mixed ').split('-').join(', '));
+});
+
 window.onload = (x) => {
   $(".minus").hide();
   $(".dragdrop").hide();
   var dropAreaMap = {};
   types.forEach((type) => {
+    console.log(type);
     dropAreaMap[type] = true;
     $(`.plus_drop-${type}`).click((e) => {
       if (dropAreaMap[type]) {

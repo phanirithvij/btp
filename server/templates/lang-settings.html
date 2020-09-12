@@ -37,6 +37,8 @@
   <link href="{{ url_for('static', filename='dashboard.css') }}" rel="stylesheet" />
   <link href="{{ url_for('static', filename='settings.css') }}" rel="stylesheet" />
   <link href="{{ url_for('static', filename='flickity.min.css') }}" rel="stylesheet" />
+  <script src="https://unpkg.com/@popperjs/core@2"></script>
+  <script src="https://unpkg.com/tippy.js@6"></script>
 </head>
 
 <body>
@@ -47,91 +49,90 @@
       {% include '_sidenav.html' %}
 
       <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
-        <h3 style="text-align: center">Manage the Corpora Datasets</h3>
+        <h3 style="text-align: center">
+          Manage the <span class="lang-code"> {{langcode}} </span>
+          Corpora Datasets
+        </h3>
         <script>
-          var numCollections = parseInt("{{collections | length}}");
-          var types = "{{types}}";
-          types = types.split(',');
+          var numCollections = 1;
+          var types = "{{langcode}}";
+          types = types.split(",");
         </script>
-        <div class="add-category">
-          <button class="btn btn-info" id="add-btn">
-            <span data-feather="plus">
-            </span>
-            Add
+        <div class="del-category">
+          <button class="btn btn-danger" id="del-btn">
+            <span data-feather="minus"> </span>
+            Delete
           </button>
         </div>
-        {% for coll in collections %}
-        <a href="/manage/{{coll.type}}">
-          <h4 class="lang-code"> {{ coll.type }} </h4>
-        </a>
-        <div class="dataset-gallery margin-bott gallery-{{coll.type}}">
-          <div class="plus_drop plus_drop-{{coll.type}}" style="margin-right: 20px;">
+        <div class="dataset-gallery margin-bott gallery-{{langcode}}">
+          <div class="plus_drop plus_drop-{{langcode}}" style="margin-right: 20px">
             <a class="btn">
-              <span data-feather="plus" class="plus plus-{{coll.type}}"></span>
-              <span data-feather="minus-square" class="minus minus-{{coll.type}}"></span>
+              <span data-feather="plus" class="plus plus-{{langcode}}"></span>
+              <span data-feather="minus-square" class="minus minus-{{langcode}}"></span>
             </a>
           </div>
-          {% for ds in coll.dset %}
+          {% for ds in datasets %}
           <div id="file-{{ds.name}}" class="carousel-cell">
             {% if ds.current %}
             <span data-feather="check" class="check-box"></span>
             {% endif %}
-            <a href="#">
-              {{ ds.name }}
-            </a>
-            <span data-feather="square" class="sel-box" data-type="{{coll.type}}" data-index="{{loop.index0}}"></span>
+            <a href="#"> {{ ds.name }} </a>
+            <span data-feather="square" class="sel-box" data-type="{{langcode}}" data-index="{{loop.index0}}"></span>
           </div>
           {% endfor %}
-          <div class="plus_drop plus_drop-{{coll.type}}">
+          <div class="plus_drop plus_drop-{{langcode}}">
             <a class="btn">
-              <span data-feather="plus" class="plus plus-{{coll.type}}"></span>
-              <span data-feather="minus-square" class="minus minus-{{coll.type}}"></span>
+              <span data-feather="plus" class="plus plus-{{langcode}}"></span>
+              <span data-feather="minus-square" class="minus minus-{{langcode}}"></span>
             </a>
           </div>
         </div>
-        <div class="dragdrop dragdrop-{{coll.type}}">
+        <div class="dragdrop dragdrop-{{langcode}}">
           <div class="drop-area">
             <form class="my-form">
               <span data-feather="file-plus" id="plus"></span>
               <span>Upload multiple files</span>
               <br />
-              <div style="margin-bottom: 1rem;"></div>
-              <input type="file" class="fileElem" id="fileElem-{{coll.type}}" multiple accept="*/*"
-                onchange="handleFileMap['{{coll.type}}'](this.files)" />
-              <label class="btn btn-info" for="fileElem-{{coll.type}}">Select files</label>
-              <label class="btn btn-outline-danger cancel-btn cancel-btn-{{coll.type}}">cancel</label>
+              <div style="margin-bottom: 1rem"></div>
+              <input type="file" class="fileElem" id="fileElem-{{langcode}}" multiple accept="*/*"
+                onchange="handleFileMap['{{langcode}}'](this.files)" />
+              <label class="btn btn-info" for="fileElem-{{langcode}}">Select files</label>
+              <label class="btn btn-outline-danger cancel-btn cancel-btn-{{langcode}}">cancel</label>
             </form>
             <progress hidden id="progress-bar" max="100" value="0"></progress>
             <div id="gallery"></div>
           </div>
         </div>
-        <div class="file-msg file-msg-{{coll.type}}"></div>
-        {% endfor %}
+        <div class="file-msg file-msg-{{langcode}}"></div>
       </main>
     </div>
   </div>
   <!-- Latest compiled and minified JavaScript -->
   <script type="text/javascript" src="{{ url_for('static', filename='jquery-3.5.1.min.js') }}"></script>
   <script type="text/javascript" src="{{ url_for('static', filename='flickity.pkgd.min.js') }}"></script>
-  <script type="text/javascript" src="{{ url_for('static', filename='settings.js') }}"></script>
-  <script type="text/javascript" src="{{ url_for('static', filename='dragdrop.js') }}"></script>
   <!-- <script type="text/javascript" src="{{ url_for('static', filename='popper.min.js') }}"></script> -->
+  <script type="text/javascript" src="{{ url_for('static', filename='popper2.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='tippy-bundle.umd.min.js') }}"></script>
   <script type="text/javascript" src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
   <script type="text/javascript" src="{{ url_for('static', filename='feather.min.js') }}"></script>
   <script type="text/javascript" src="{{ url_for('static', filename='nanobar.min.js') }}"></script>
-  <script type="text/javascript" src="{{ url_for('static', filename='popper2.min.js') }}"></script>
-  <script type="text/javascript" src="{{ url_for('static', filename='tippy-bundle.umd.min.js') }}"></script>
   <script>
     (function () {
       "use strict";
 
       feather.replace();
     })();
-    tippy('#add-btn', {
+    tippy('#del-btn', {
       placement: 'right',
-      content: 'Add a new language Category',
+      content: `
+        Remove this language Category
+        <b class="lang-code"> {{ langcode }} </b>
+      `,
+      allowHTML: true,
     });
   </script>
+  <script type="text/javascript" src="{{ url_for('static', filename='settings.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='dragdrop.js') }}"></script>
 </body>
 
 </html>

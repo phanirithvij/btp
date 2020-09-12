@@ -69,14 +69,13 @@ app: Flask = create_app()
 app.url_map.strict_slashes = False
 
 def init_cache():
-    # print('INIT CACHE', '(('*100, '))'*100)
     cache.set('running_zip_tasks', {})
     cache.set('clients', {})
     # Using this on linux so /tmp is the best place to store files
     try:
         os.makedirs(Config.TEMP_DIR)
-    except Exception as e:
-        print(str(e))
+    except Exception:
+        pass
 init_cache()
 
 # https://stackoverflow.com/a/53152394/8608146

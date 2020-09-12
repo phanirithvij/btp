@@ -78,27 +78,38 @@ def dashboard_home():
     newlist = sorted(users, key=lambda k: k['count'], reverse=True)
     return render_template('dashboard.html', users=newlist)
 
-@main.route('/settings', methods=['GET', 'POST'])
+
+@main.route('/manage', methods=['GET', 'POST'])
 def dashboard_settings():
     if request.method == 'GET':
-        datasets = []
-        for file in (up_one / 'corpora' / 'uploads').iterdir():
-            if file.is_file():
-                datasets.append({'name': str(file.name), 'current': False})
-        datasets[0]['current'] = True
+        dataset_types = ['eng', 'hin', 'tel', 'mix-hin-tel']
+        collections = []
+        for dt in dataset_types:
+            datasets = []
+            for file in (up_one / 'corpora' / 'uploads' / dt).iterdir():
+                if file.is_file():
+                    datasets.append({'name': str(file.name), 'current': False})
+            datasets[0]['current'] = True
+            collections.append({'dset': datasets, 'type': dt})
 
-        return render_template('settings.html', datasets=datasets)
+        return render_template('settings.html', collections=collections, types=",".join(dataset_types))
     else:
-        print(request.form)
+        langcode = (request.form['langcode'])
+        if not langcode:
+            return jsonify({
+                'status': 'failed',
+                'msg': 'no langcode was specified'
+            }), 403
         if 'file' not in request.files:
             # return redirect(request.url)
-            return jsonify({'status': 'failed', 'msg': 'No file uploaded try again'})
+            return jsonify({'status': 'failed', 'msg': 'No file uploaded try again'}), 404
         file = request.files['file']
         if file.filename == '':
-            return jsonify({'status': 'failed', 'msg': 'No file selected for uploading'})
+            return jsonify({'status': 'failed', 'msg': 'No file selected for uploading'}), 404
         if file and allowed_settings_file(file.filename):
             filename = secure_filename(file.filename)
-            filepath = up_one / 'corpora' / 'uploads' / filename
+            filepath = up_one / 'corpora' / 'uploads' / langcode / filename
+
             try:
                 os.makedirs(filepath.parents[0])
             except Exception as e:
@@ -114,7 +125,48 @@ def dashboard_settings():
             return jsonify({
                 'status': 'failed',
                 'msg': f'invalid file type {file.filename} ' + 'only ' + ", ".join(ALLOWED_SETTINGS_EXTENSIONS) + ' file types are allowed'
-                }), 403
+            }), 403
+
+
+@main.route('/manage/<string:langcat>', methods=['GET', 'POST'])
+def dashboard_settings_lang(langcat: str):
+    # TODO check if a valid lang category
+    if request.method == 'GET':
+        datasets = []
+        for file in (up_one / 'corpora' / 'uploads' / langcat).iterdir():
+            if file.is_file():
+                datasets.append({'name': str(file.name), 'current': False})
+        datasets[0]['current'] = True
+
+        return render_template('lang-settings.html', datasets=datasets, langcode=langcat)
+    else:
+        langcode = langcat
+        if 'file' not in request.files:
+            # return redirect(request.url)
+            return jsonify({'status': 'failed', 'msg': 'No file uploaded try again'}), 404
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'status': 'failed', 'msg': 'No file selected for uploading'}), 404
+        if file and allowed_settings_file(file.filename):
+            filename = secure_filename(file.filename)
+            filepath = up_one / 'corpora' / 'uploads' / langcode / filename
+
+            try:
+                os.makedirs(filepath.parents[0])
+            except Exception as e:
+                print(e)
+
+            file.save(filepath)
+            size = os.stat(filepath).st_size
+            return jsonify({
+                'status': 'ok',
+                'msg': None, 'path': filename, 'size': size
+            })
+        else:
+            return jsonify({
+                'status': 'failed',
+                'msg': f'invalid file type {file.filename} ' + 'only ' + ", ".join(ALLOWED_SETTINGS_EXTENSIONS) + ' file types are allowed'
+            }), 403
 
 
 def is_jsonable(x):
@@ -125,8 +177,40 @@ def is_jsonable(x):
         return False
 
 
-@main.route('/_cache')
+@main.route('/_cache/clear')
+def clear_cache():
+    cache.clear()
+    return jsonify(read_cache())
+
+
+# TODO cahce experimentaion
+# Use cache to cache file results (?)
+@main.route('/_cache', methods=['GET', 'POST'])
 def export_cache():
+    if request.method == 'GET':
+        return jsonify(read_cache())
+    else:
+        try:
+            print('try')
+            session['x']
+        except:
+            print('except')
+            session['x'] = {}
+        cache.set('time', datetime.datetime.now())
+        cache.set(f'time-{random.randint(1, 100000)}', datetime.datetime.now())
+        cache_dat = read_cache()
+        ret = {}
+        print(session['x'], cache_dat)
+        if (len(session['x'].keys()) > len(cache_dat.keys())):
+            ret['changes'] = {'x': session['x'], 'new': cache_dat}
+
+        session['x'] = cache_dat
+        ret['cache'] = cache_dat
+        ret['x'] = session['x']
+        return jsonify(ret)
+
+
+def read_cache():
     k_prefix = cache.cache.key_prefix
     keys = cache.cache._write_client.keys(k_prefix + '*')
     keys = [k.decode('utf8') for k in keys]
@@ -136,7 +220,9 @@ def export_cache():
     for k, v in zip(keys, values):
         if is_jsonable(v):
             ret[k] = v
-    return jsonify(ret)
+        else:
+            ret[k] = str(v)
+    return ret
 
 
 @main.route('/users')
@@ -222,7 +308,6 @@ def upload_file():
 @main.route('/data')
 @jwt_required
 def random_corpa():
-    # print("Data bros")
     # print(session['user'])
     data_dir: Path = up_one / 'corpora' / 'split'
     x = 0
@@ -279,8 +364,10 @@ ALLOWED_EXTENSIONS = set(['wav', 'mp3', 'ogg', 'webm', 'aac'])
 # Settings dashboard file upload
 ALLOWED_SETTINGS_EXTENSIONS = set(['txt', 'csv'])
 
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 def allowed_settings_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_SETTINGS_EXTENSIONS
