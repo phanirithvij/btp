@@ -59,6 +59,31 @@
             </span>
             Add
           </button>
+          <button class="btn btn-outline-info" id="save-cat-btn">
+            Save
+          </button>
+          <button class="btn btn-outline-danger" id="cancel-btn">
+            <span data-feather="minus">
+            </span>
+            Cancel
+          </button>
+          <div class="add-form form-group container">
+            <h2>
+              Add form
+            </h2>
+            <label for="langname">Language name</label>
+            <input type="text" id="langname" class="form-control" name="langname"
+              placeholder="eg: Mixed English Hindi" />
+            <label for="type">Type of the language:</label>
+            <select name="type" id="select-type" class="form-control" onchange="selectchange(this)">
+              <option value="mixed">Mixed</option>
+              <option value="single">Single</option>
+            </select>
+            <label for="langs">Comma seperated ids:</label>
+            <input type="text" id="langs" name="langs" class="form-control"
+              placeholder="eg: eng, hin for Mixed English Hindi" />
+          </div>
+          <div class="error"></div>
         </div>
         {% for coll in collections %}
         <a href="/manage/{{coll.type}}">
@@ -81,13 +106,14 @@
             </a>
             <span data-feather="square" class="sel-box" data-type="{{coll.type}}" data-index="{{loop.index0}}"></span>
           </div>
-          {% endfor %}
+          {% endfor %} {% if coll.dset|length > 9 %}
           <div class="plus_drop plus_drop-{{coll.type}}">
             <a class="btn">
               <span data-feather="plus" class="plus plus-{{coll.type}}"></span>
               <span data-feather="minus-square" class="minus minus-{{coll.type}}"></span>
             </a>
           </div>
+          {% endif %}
         </div>
         <div class="dragdrop dragdrop-{{coll.type}}">
           <div class="drop-area">
@@ -113,8 +139,6 @@
   <!-- Latest compiled and minified JavaScript -->
   <script type="text/javascript" src="{{ url_for('static', filename='jquery-3.5.1.min.js') }}"></script>
   <script type="text/javascript" src="{{ url_for('static', filename='flickity.pkgd.min.js') }}"></script>
-  <script type="text/javascript" src="{{ url_for('static', filename='settings.js') }}"></script>
-  <script type="text/javascript" src="{{ url_for('static', filename='dragdrop.js') }}"></script>
   <!-- <script type="text/javascript" src="{{ url_for('static', filename='popper.min.js') }}"></script> -->
   <script type="text/javascript" src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
   <script type="text/javascript" src="{{ url_for('static', filename='feather.min.js') }}"></script>
@@ -127,11 +151,86 @@
 
       feather.replace();
     })();
+
+    $('.add-form').hide();
+    $('#cancel-btn').hide();
+    $('#save-cat-btn').hide();
+
+    $('#cancel-btn').click(function () {
+      $('.add-form').hide();
+      $('#add-btn').show();
+      $('#cancel-btn').hide();
+      $('#save-cat-btn').hide();
+      $('.error').hide();
+    })
+
+    $('#add-btn').click(function () {
+      $('#cancel-btn').show();
+      $('#save-cat-btn').show();
+      $('.add-form').show();
+      $('#add-btn').hide();
+    })
+
+    $('.error').hide();
+
+    $('#save-cat-btn').click(function () {
+      fetch('/manage/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          langs: document.querySelector('#langs').value,
+          langname: document.querySelector('#langname').value,
+          type: document.querySelector('#select-type').value,
+        }),
+      }).then(x => x.json()).then(x => {
+        console.log(x);
+        if (x.success) {
+         // window.location.reload();
+        } else {
+          $('.error').show();
+          $('.error').text("Error: " + x.error);  
+        }
+      }
+      ).catch((x) => {
+        $('.error').show();
+        $('.error').text(x);
+      })
+    });
+
+    tippy('.check-box', {
+      placement: 'left',
+      content: 'Currently selected public dataset for this category',
+    });
+
     tippy('#add-btn', {
       placement: 'right',
       content: 'Add a new language Category',
     });
+
+    let values = ['mixed', 'single'];
+    let placeholders = {
+      'mixed': {
+        'langname': 'eg. Mixed English Hindi',
+        'langs': 'eg. eng, hin'
+      },
+      'single': {
+        'langname': 'eg. English',
+        'langs': 'eg. eng'
+      },
+    }
+    function selectchange(x) {
+      document.querySelector('#langs').placeholder = placeholders[x.value]['langs'];
+      document.querySelector('#langname').placeholder =
+        placeholders[x.value]['langname'];
+    }
+    document.querySelector('#langs').placeholder = placeholders[document.querySelector('#select-type').value]['langs'];
+    document.querySelector('#langname').placeholder =
+      placeholders[document.querySelector('#select-type').value]['langname'];
   </script>
+  <script type="text/javascript" src="{{ url_for('static', filename='settings.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='dragdrop.js') }}"></script>
 </body>
 
 </html>

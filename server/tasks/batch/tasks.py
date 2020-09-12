@@ -254,3 +254,12 @@ def zip_files_partial(
         update_url=update_url,
         partial=True,
     )
+
+
+@celery.task(bind=True, base=ProgressTask)
+def split_corpora(
+    self,
+    file_path: str,
+    split_path: str
+):
+    pass

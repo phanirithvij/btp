@@ -3,6 +3,7 @@ import datetime
 import json
 import os
 import random
+import shutil
 import sys
 import time
 from pathlib import Path
@@ -78,67 +79,203 @@ def dashboard_home():
     newlist = sorted(users, key=lambda k: k['count'], reverse=True)
     return render_template('dashboard.html', users=newlist)
 
+@main.route('/manage/del', methods=['DELETE'])
+def dashboard_settings_del_lang():
+    langname = request.json['langcode']
+    print(f"Warning: {langname} is scheduled for a deletion")
+    dirpath = up_one / 'corpora' / 'uploads' / langname
+    dest = up_one / 'corpora' / 'trash'
+    try:
+        os.makedirs(dest)
+    except Exception as e:
+        print(e)
+    shutil.move(str(dirpath), str(dest))
+    return jsonify({'success': True, 'error': None})
+
+
+@main.route('/manage/add', methods=['POST'])
+def dashboard_settings_add_lang():
+    langname = request.json['langname']
+    langs = request.json['langs']
+    langtype = request.json['type']
+    if not langname or not langs:
+        return jsonify({'success': False, 'error': 'Values cannot be empty please try again'}), 403
+
+    langs = [x.strip() for x in langs.split(',')]
+    if len(langs) < 1:
+        return jsonify({'success': False, 'error': 'Select single if need to have only one language, or a comma is missing please try again'}), 403
+
+    # TODO do something with the langname
+
+    dirname = "-".join(['mix', *langs])
+    dirpath = up_one / 'corpora' / 'uploads' / dirname
+    try:
+        os.makedirs(dirpath)
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 403
+    print(langname, langs, dirname)
+    return jsonify({'success': True})
+
+
+@main.route('/manage/upload', methods=['POST'])
+def dashboard_settings_upload():
+    langcode = (request.form['langcode'])
+    if not langcode:
+        return jsonify({
+            'status': 'failed',
+            'msg': 'no langcode was specified'
+        }), 403
+    if 'file' not in request.files:
+        # return redirect(request.url)
+        return jsonify({'status': 'failed', 'msg': 'No file uploaded try again'}), 404
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'status': 'failed', 'msg': 'No file selected for uploading'}), 404
+    if file and allowed_settings_file(file.filename):
+        filename = secure_filename(file.filename)
+        filepath = up_one / 'corpora' / 'uploads' / langcode / filename
+
+        try:
+            os.makedirs(filepath.parents[0])
+        except Exception as e:
+            print(e)
+
+        file.save(filepath)
+        size = os.stat(filepath).st_size
+        # TODO shedule celery task to split new uploaded dataset
+
+        print(filepath.absolute(), type(filepath.absolute()))
+
+        task = batch.split_corpora.delay(
+            file_path=str(filepath.absolute()),
+            split_path=f'split-{langcode}'
+        )
+        return jsonify({
+            'status': 'ok',
+            'msg': None,
+            'path': filename,
+            'size': size,
+            'taskid': task.id
+        })
+    else:
+        return jsonify({
+            'status': 'failed',
+            'msg': f'invalid file type {file.filename} ' + 'only ' + ", ".join(ALLOWED_SETTINGS_EXTENSIONS) + ' file types are allowed'
+        }), 403
+
 
 @main.route('/manage', methods=['GET', 'POST'])
 def dashboard_settings():
     if request.method == 'GET':
-        dataset_types = ['eng', 'hin', 'tel', 'mix-hin-tel']
+        dataset_types = []
+        # dataset_types = ['eng', 'hin', 'tel', 'mix-hin-tel']
+        for dire in (up_one / 'corpora' / 'uploads').iterdir():
+            if dire.is_dir():
+                dataset_types.append(dire.name)
+
         collections = []
+        # TODO store in cache
+        config_data = {}
+        with open('config.json', 'r') as config:
+            config_data = json.load(config)
+
+        print(config_data)
+
         for dt in dataset_types:
             datasets = []
+            selected_index = 0
+            index = 0
             for file in (up_one / 'corpora' / 'uploads' / dt).iterdir():
                 if file.is_file():
-                    datasets.append({'name': str(file.name), 'current': False})
-            datasets[0]['current'] = True
+                    new_file = file.stat().st_ctime
+                    selected = False
+                    if dt in config_data['categories'] and config_data['categories'][dt]:
+                        current = config_data['categories'][dt]['current']
+                        if current:
+                            current = current.strip()
+                            if current == str(file.name):
+                                selected = True
+                                selected_index = index
+                    datasets.append(
+                        {
+                            'name': str(file.name),
+                            'current': selected,
+                            'new': new_file
+                        })
+                    index += 1
+
             collections.append({'dset': datasets, 'type': dt})
 
         return render_template('settings.html', collections=collections, types=",".join(dataset_types))
     else:
-        langcode = (request.form['langcode'])
-        if not langcode:
+        try:
+            selected = request.json['selected']
+            langcode = request.json['langcode']
+        except:
             return jsonify({
-                'status': 'failed',
-                'msg': 'no langcode was specified'
+                'success': False,
+                'error': 'One of selected and langcode was not provided'
             }), 403
-        if 'file' not in request.files:
-            # return redirect(request.url)
-            return jsonify({'status': 'failed', 'msg': 'No file uploaded try again'}), 404
-        file = request.files['file']
-        if file.filename == '':
-            return jsonify({'status': 'failed', 'msg': 'No file selected for uploading'}), 404
-        if file and allowed_settings_file(file.filename):
-            filename = secure_filename(file.filename)
-            filepath = up_one / 'corpora' / 'uploads' / langcode / filename
+        config_data = {}
+        with open('config.json', 'r') as config:
+            config_data = json.load(config)
 
-            try:
-                os.makedirs(filepath.parents[0])
-            except Exception as e:
-                print(e)
+        if 'categories' not in config_data:
+            config_data['categories'] = {}
 
-            file.save(filepath)
-            size = os.stat(filepath).st_size
-            return jsonify({
-                'status': 'ok',
-                'msg': None, 'path': filename, 'size': size
-            })
-        else:
-            return jsonify({
-                'status': 'failed',
-                'msg': f'invalid file type {file.filename} ' + 'only ' + ", ".join(ALLOWED_SETTINGS_EXTENSIONS) + ' file types are allowed'
-            }), 403
+        for k in config_data['categories'].keys():
+            config_data['categories'][k]['current'] = None
+
+        config_data['categories'][langcode] = {
+            'current': selected
+        }
+
+        with open('config.json', 'w+') as config:
+            json.dump(config_data, config)
+
+        print(config_data, selected, langcode)
+
+        return jsonify({'success': True})
 
 
 @main.route('/manage/<string:langcat>', methods=['GET', 'POST'])
 def dashboard_settings_lang(langcat: str):
     # TODO check if a valid lang category
     if request.method == 'GET':
+        config_data = {}
+        with open('config.json', 'r') as config:
+            config_data = json.load(config)
+
         datasets = []
+        default_index = None
+        selected_index = default_index
+        index = 0
         for file in (up_one / 'corpora' / 'uploads' / langcat).iterdir():
             if file.is_file():
-                datasets.append({'name': str(file.name), 'current': False})
-        datasets[0]['current'] = True
+                selected = False
+                if langcat in config_data['categories'] and config_data['categories'][langcat]:
+                    current = config_data['categories'][langcat]['current']
+                    if current:
+                        current = current.strip()
+                        if current == str(file.name):
+                            selected = True
+                            selected_index = index
+                index += 1
+                datasets.append({'name': str(file.name), 'current': selected})
 
-        return render_template('lang-settings.html', datasets=datasets, langcode=langcat)
+        selected = None
+        if len(datasets) > 0 and selected_index is not None:
+            selected = datasets[selected_index]
+            selected['index'] = selected_index
+
+        print(datasets)
+        print(selected)
+        return render_template(
+            'lang-settings.html',
+            datasets=datasets,
+            langcode=langcat,
+            selected=selected
+        )
     else:
         langcode = langcat
         if 'file' not in request.files:

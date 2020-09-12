@@ -103,6 +103,27 @@ main {
   right: 12px;
   height: 30px;
   width: 30px;
+  cursor: pointer;
+}
+
+#save {
+  margin-right: 18px;
+}
+
+.add-form{
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: center;
+}
+
+.dset-sel-box {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  height: 30px;
+  width: 30px;
+  cursor: pointer;
 }
 
 .sel-box {
@@ -128,9 +149,23 @@ main {
   margin-bottom: 120px;
 }
 
-.add-category{
-  padding-bottom: 10vh;
+.add-category {
+  padding-bottom: 6vh;
 }
-.del-category{
-  padding-bottom: 10vh;
+.del-category {
+  padding-bottom: 6vh;
+}
+
+.remove-icon {
+  cursor: pointer;
+}
+.remove-all-icon {
+  cursor: pointer;
+}
+
+.update-public-db {
+  padding-bottom: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }

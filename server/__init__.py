@@ -78,6 +78,14 @@ def init_cache():
         pass
 init_cache()
 
+def init_config():
+    with open('config.json', 'a+') as config:
+        config.seek(0)
+        if not config.read(1):
+            config.write('{ }')
+
+init_config()
+
 # https://stackoverflow.com/a/53152394/8608146
 # app.config.from_object(__name__)
 # random key

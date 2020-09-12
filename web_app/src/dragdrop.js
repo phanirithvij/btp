@@ -45,8 +45,10 @@ dropAreas.forEach((dropArea, i) => {
   let files = [];
 
   function initializeProgress(numFiles) {
+    // clear any previous progress bars
+    progressBars = [];
     for (let index = 0; index < numFiles; index++) {
-      let pbar = document.querySelector(`#pb-file-${index}-${types[i]}`)
+      let pbar = document.querySelector(`#pb-file-${index}-${types[i]}`);
       progressBars.push(pbar);
     }
     window.pbars = progressBars;
@@ -56,20 +58,24 @@ dropAreas.forEach((dropArea, i) => {
       uploadProgress.push(0);
       progressBars[oindex].value = 0;
     }
-
   }
+
+  let doneMap = [];
 
   function updateProgress(fileNumber, percent) {
     uploadProgress[fileNumber] = percent;
     let total =
-      uploadProgress.reduce((tot, curr) => tot + curr, 0) /
-      uploadProgress.length;
+      uploadProgress.reduce((tot, curr) => tot + curr, 0);
     console.debug("update", fileNumber, percent, total);
     // progressBar.value = total;
     progressBars[fileNumber].value = percent;
+    if (percent == 100) {
+      doneMap.push('done')
+    }
+    console.log(total, doneMap);
 
-    if (total == 100) {
-      console.log("Done Uploading")
+    if (doneMap.length == 2 * files.length) {
+      window.location.reload();
     }
   }
 
@@ -80,6 +86,19 @@ dropAreas.forEach((dropArea, i) => {
     <div style="margin-bottom: 2.3rem;margin-top: 2rem;">
       <h4>Selected files</h4>
     </div>
+    ${files.length > 0 ? `
+    <div class="file row">
+      <div class="col-4"></div>
+      <div class="col-3"></div>
+      <div class="col-4"></div>
+      <div class="col-1">
+        <span data-feather="x-square" class="remove-all-icon"></span>
+      </div>
+    </div>
+    `: `
+    No files selected
+    `}
+
     ${files
         .map(
           (x, fileindex) =>
@@ -94,27 +113,51 @@ dropAreas.forEach((dropArea, i) => {
                 value="0">
               </progress>
             </div>
-            <span
+            <div
               class="col-1 remove-icon"
-              data-feather="x-square"
-            ></span>
+              data-file="${fileindex}"
+            >
+              <span
+                data-feather="x-square"
+              ></span>
+            </div>
           </div>
           `
         )
         .join("\n")}
-      <div class="upload-btn-wrapper">
-          <button class="btn btn-primary upload-btn upload-btn-${types[i]}"> Upload </button>
-      </div>
+      
+      ${files.length > 0 ? `<div class="upload-btn-wrapper">
+          <button class="btn btn-primary upload-btn upload-btn-${
+        types[i]
+        }"> Upload </button> ${files.length} files
+      </div>`: ''}
       `;
 
-    $('.upload-btn').click(function () {
-      files.forEach(uploadFile)
-    })
     feather.replace();
+
+    $(".remove-all-icon").click(function () {
+      files = [];
+      handleFiles([]);
+    });
+
+    $(".remove-icon").click(function () {
+      let fileindex = parseInt($(this).data().file);
+      files.splice(fileindex, 1);
+      handleFiles([]);
+    });
+
+    tippy('.remove-all-icon', {
+      placement: 'left',
+      content: 'Remove all the following files from the upload queue',
+    });
+
+    $(".upload-btn").click(function () {
+      files.forEach(uploadFile);
+    });
     $(".progressbar").css("visibility", "hidden");
     initializeProgress(files.length);
 
-    document.querySelectorAll('.filesize--').forEach((f) => {
+    document.querySelectorAll(".filesize--").forEach((f) => {
       f.innerHTML = readableFileSize(parseInt(f.innerHTML));
     });
 
@@ -131,9 +174,11 @@ dropAreas.forEach((dropArea, i) => {
     //     document.getElementById('gallery').appendChild(img)
     //   }
   }
+
   handleFileMap[types[i]] = handleFiles;
+
   function uploadFile(file, fileindex) {
-    var url = "";
+    var url = "/manage/upload";
     var xhr = new XMLHttpRequest();
     var formData = new FormData();
     xhr.open("POST", url, true);
@@ -161,11 +206,11 @@ dropAreas.forEach((dropArea, i) => {
 });
 
 function readableFileSize(size) {
-  var units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  var units = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
   var i = 0;
   while (size >= 1024) {
     size /= 1024;
     ++i;
   }
-  return size.toFixed(1) + ' ' + units[i];
+  return size.toFixed(1) + " " + units[i];
 }
