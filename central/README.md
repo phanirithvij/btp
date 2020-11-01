@@ -1,5 +1,7 @@
 # Central Server
 
+For technical and implementation details read [./README.tech.md](./README.tech.md)
+
 > This is a Work In Progress (WIP) and there will definitely be breaking, business logic changes
 
 This is the code for the central organization meta managing server which is required or optional based on the decision that's yet to be made at the [initial specification](https://docs.google.com/document/d/1KT_sxSCRaaK5xkVE1t0xDTUzlPYNQJAJXs4B3K5YDkM/view)
