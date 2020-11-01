@@ -17,11 +17,14 @@ import (
 // RegisterEndPoints Registers all the /api endpoints
 func RegisterEndPoints(router *gin.Engine) *gin.RouterGroup {
 	// log.SetFlags(log.Llongfile | log.Ltime)
+	log.Println("HERE")
 	pkger.Include("/server/templates/")
+	log.Println("HERE 2")
 	home := router.Group("/home")
 	{
 		// router.LoadHTMLGlob("templates/*")
 		tmpl, err := loadTemplate()
+		log.Println("After load")
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -42,6 +45,7 @@ func RegisterEndPoints(router *gin.Engine) *gin.RouterGroup {
 func loadTemplate() (*template.Template, error) {
 	t := template.New("")
 	var gblErr error
+	log.Println("Load template")
 	gblErr = pkger.Walk("/server/templates/", func(path string, info os.FileInfo, err error) error {
 		log.Println(path, err)
 		if info.IsDir() || !strings.HasSuffix(path, ".html") {
