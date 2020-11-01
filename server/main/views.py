@@ -79,6 +79,7 @@ def dashboard_home():
     newlist = sorted(users, key=lambda k: k['count'], reverse=True)
     return render_template('dashboard.html', users=newlist)
 
+
 @main.route('/manage/del', methods=['DELETE'])
 def dashboard_settings_del_lang():
     langname = request.json['langcode']
@@ -89,7 +90,10 @@ def dashboard_settings_del_lang():
         os.makedirs(dest)
     except Exception as e:
         print(e)
-    shutil.move(str(dirpath), str(dest))
+    try:
+        shutil.move(str(dirpath), str(dest))
+    except:
+        shutil.move(str(dirpath), str(dest) + str(random.randint(100, 2832989)))
     return jsonify({'success': True, 'error': None})
 
 
@@ -102,18 +106,23 @@ def dashboard_settings_add_lang():
         return jsonify({'success': False, 'error': 'Values cannot be empty please try again'}), 403
 
     langs = [x.strip() for x in langs.split(',')]
-    if len(langs) < 1:
+    if len(langs) < 1 and langtype == 'mixed':
         return jsonify({'success': False, 'error': 'Select single if need to have only one language, or a comma is missing please try again'}), 403
 
     # TODO do something with the langname
 
-    dirname = "-".join(['mix', *langs])
+    dirname = langs[0]
+    if len(langs) > 1:
+        dirname = "-".join(['mix', *langs])
+
     dirpath = up_one / 'corpora' / 'uploads' / dirname
+
     try:
         os.makedirs(dirpath)
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 403
     print(langname, langs, dirname)
+
     return jsonify({'success': True})
 
 
@@ -223,8 +232,8 @@ def dashboard_settings():
         if 'categories' not in config_data:
             config_data['categories'] = {}
 
-        for k in config_data['categories'].keys():
-            config_data['categories'][k]['current'] = None
+        # for k in config_data['categories'].keys():
+        #     config_data['categories'][k]['current'] = None
 
         config_data['categories'][langcode] = {
             'current': selected
