@@ -12,14 +12,14 @@ import (
 func Serve(port int) {
 	router := gin.Default()
 
-	v1g := router.Group("/api/v1")
+	v1gp := router.Group("/api/v1")
 	{
-		v1g.GET("/read", v1.ReadEndpoint)
+		v1gp.GET("/read", v1.ReadEndpoint)
 	}
 
-	v2g := router.Group("/api/v2")
+	v2gp := router.Group("/api/v2")
 	{
-		v2g.GET("/read", v2.ReadEndpoint)
+		v2gp.GET("/read", v2.ReadEndpoint)
 	}
 
 	router.Run(":" + strconv.Itoa(port))
