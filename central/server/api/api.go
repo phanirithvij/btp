@@ -17,19 +17,19 @@ func RegisterEndPoints(router *gin.Engine) *gin.RouterGroup {
 		v1gp := apiG.Group("/v1")
 		{
 			v1gp.GET("/read", v1.Read)
-			v1gp.POST("/read", v1.Read)
-			v1gp.DELETE("/read", v1.Read)
-			v1gp.PATCH("/read", v1.Read)
-			v1gp.PUT("/read", v1.Read)
+			// v1gp.POST("/read", v1.Read)
+			// v1gp.DELETE("/read", v1.Read)
+			// v1gp.PATCH("/read", v1.Read)
+			// v1gp.PUT("/read", v1.Read)
 			versions = append(versions, "v1")
 		}
 		v2gp := apiG.Group("/v2")
 		{
 			v2gp.GET("/read", v2.Read)
-			v2gp.POST("/read", v2.Read)
-			v2gp.DELETE("/read", v2.Read)
-			v2gp.PATCH("/read", v2.Read)
-			v2gp.PUT("/read", v2.Read)
+			// v2gp.POST("/read", v2.Read)
+			// v2gp.DELETE("/read", v2.Read)
+			// v2gp.PATCH("/read", v2.Read)
+			// v2gp.PUT("/read", v2.Read)
 			versions = append(versions, "v2")
 		}
 		apiG.GET("/versions", func(c *gin.Context) {
