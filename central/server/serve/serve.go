@@ -4,8 +4,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	v1 "github.com/phanirithvij/btp/central/server/serve/api/v1"
-	v2 "github.com/phanirithvij/btp/central/server/serve/api/v2"
+	v1 "github.com/phanirithvij/btp/central/server/api/v1"
+	v2 "github.com/phanirithvij/btp/central/server/api/v2"
 )
 
 // Serve A function which serves the server
