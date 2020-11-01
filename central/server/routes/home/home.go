@@ -46,6 +46,11 @@ func loadTemplate() (*template.Template, error) {
 	t := template.New("")
 	var gblErr error
 	log.Println("Load template")
+	dd, err := pkger.Stat("/server/templates/")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Println(dd)
 	gblErr = pkger.Walk("/server/templates/", func(path string, info os.FileInfo, err error) error {
 		log.Println(path, err)
 		if info.IsDir() || !strings.HasSuffix(path, ".html") {
