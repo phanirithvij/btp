@@ -1,0 +1,3 @@
+[submodule "central_server"]
+	path = central_server
+	url = https://github.com/phanirithvij/central_server
