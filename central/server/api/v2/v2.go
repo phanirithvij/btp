@@ -11,8 +11,8 @@ type VersionInfo struct {
 	Version string `json:"version"`
 }
 
-// ReadEndpoint the read endpoint for api.v2
-func ReadEndpoint(c *gin.Context) {
+// Read the read endpoint for api.v2
+func Read(c *gin.Context) {
 	resp := VersionInfo{Version: "v2"}
 	// breaking response format change
 	c.JSON(http.StatusOK, resp)

@@ -8,3 +8,7 @@ We plan on implementing it in golang but golang might be a tough choice as it ma
     - [Example](https://github.com/Jigar3/gRPC_101/blob/master/server/server.go)
 
 Will add in details as I implement the features.
+
+The server uses [cobra](https://github.com/spf13/cobra/) cli tool for command generation
+
+Bash completions also work
