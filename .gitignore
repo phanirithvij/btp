@@ -162,4 +162,4 @@ ziptool
 dump.rdb
 pyvenv/
 *.mp4
-*.pdf
+assets/
