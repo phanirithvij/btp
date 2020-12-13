@@ -12,4 +12,4 @@ if __name__ == '__main__':
     app.config['UPLOAD_FOLDER'] = os.path.join(up_one, 'data')
     print(app.config['UPLOAD_FOLDER'], app.static_folder, app.static_url_path)
     app.debug = True
-    run_app(app=app, host='0.0.0.0', port=3000, debug=True)
+    run_app(app=app, host='0.0.0.0', port=8080, debug=True)

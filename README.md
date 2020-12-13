@@ -1,5 +1,3 @@
-# btp
-Btp
 # Corpora collector
 
 alias: IIITHDBC APP
@@ -51,6 +49,10 @@ flutter build apk --target-platform android-arm,android-arm64,android-x64 --spli
 
 Then install that apk in the android device.
 
+```
+flutter install
+```
+
 ## IMPORTANT
 
 1. If the app is being tested locally, the android device and the pc SHOULD be connected to same wifi.
@@ -86,15 +88,8 @@ snap run redis-desktop-manager.rdm
     - [ ] One admin account
       - [ ] Admin credentials are stored in code
       - [ ] Only those with the access to the code can view the admin password.
-    - [ ] Multipe admin accounts by requesting the main admin (via email)
-      - [ ] Different levels of permissions
-        - [ ] View
-        - [ ] Edit
-        - [ ] Delete
-    - [ ] Manage Admins page
-      - [ ] Modify permissions
   - [ ] Batch functions
     - [ ] Delete user and user's files
-    - [ ] Download files by a user
-    - [ ] Files Multi select download and delete
-  - [ ] Audio Player with dynamic audio src change in user.html
+    - [x] Download files by a user
+    - [x] Files Multi select download and delete
+- [ ] Filebrowser integration
