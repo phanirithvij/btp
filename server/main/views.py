@@ -32,6 +32,11 @@ def index():
     return render_template('index.html')
 
 
+@main.route('/home')
+def public_home():
+    return render_template('home.html')
+
+
 @main.route('/login')
 def login_alt():
     return redirect(url_for('auth.login'))

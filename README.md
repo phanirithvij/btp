@@ -13,11 +13,7 @@ Install Python3 and redis
 To start the server
 
 ```shell
-# On ubuntu
 ./start-server.sh
-
-# On manjaro with KDE
-./kde-start-server.sh
 ```
 
 On other linux systems check the command for launching a terminal and see if it can take arguments
