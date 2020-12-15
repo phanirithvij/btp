@@ -3,7 +3,8 @@ import 'package:corpora/screens/register.dart';
 import 'package:flutter/material.dart';
 
 class SwitchScreenButton extends StatelessWidget {
-  const SwitchScreenButton({Key key, this.login = true}) : super(key: key);
+  final String serverURL;
+  const SwitchScreenButton({Key key, this.login = true, @required this.serverURL}) : super(key: key);
 
   final login;
 
@@ -24,7 +25,7 @@ class SwitchScreenButton extends StatelessWidget {
           // Navigator.of(context).pushReplacement(newRoute)
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
-              builder: (context) => login ? SignupPage() : LoginPage(),
+              builder: (context) => login ? SignupPage(serverURL: serverURL) : LoginPage(serverURL: serverURL),
             ),
           );
         },

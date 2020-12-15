@@ -62,14 +62,14 @@ flutter install
    In line 21 it now says
 
    ```dart
-   static final String server = "http://192.168.43.159:3000";
+   static final String server = "http://192.168.43.159:8080";
    ```
 
    - Need to change it to your local address.
    - You can find your local address
    - On Windows `ipconfig.exe | grep IPv4` on linux `ifconfig`.
    - One of the ipv4 address corresponding to the connected wifi network will be the IP.
-   - Change the `server` to `http:/{ipv4}:3000` and NO `/` at the end.
+   - Change the `server` to `http:/{ipv4}:8080` and NO `/` at the end.
 
 
 To inspect redis db (This is optional)

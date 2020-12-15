@@ -67,12 +67,15 @@ def exports_page():
 
         username = request.json['username']
 
-        task = batch.zip_files.delay(
-            out_filepath=Config.TEMP_DIR,
-            dir_name=str((up_one / 'data' / username).resolve()),
-            username=username,
-            user_id=user_id,
-            update_url=url_for('exports.progress', _external=True),
+        task = batch.zip_files.apply_async(
+            kwargs={
+                "out_filepath":Config.TEMP_DIR,
+                "dir_name":str((up_one / 'data' / username).resolve()),
+                "username":username,
+                "user_id":user_id,
+                "update_url":url_for('exports.progress', _external=True),
+            },
+            queue="main_queue"
         )
         return jsonify({'taskid': task.id})
 
@@ -88,11 +91,14 @@ def partial_export():
 
         username = request.json['username']
 
-        task = batch.zip_files_partial.delay(
-            files=request.json['files'],
-            username=username,
-            user_id=user_id,
-            update_url=url_for('exports.progress', _external=True),
+        task = batch.zip_files_partial.apply_async(
+            kwargs={
+                "files":request.json['files'],
+                "username":username,
+                "user_id":user_id,
+                "update_url":url_for('exports.progress', _external=True),
+            },
+            queue="main_queue",
         )
         return jsonify({'taskid': task.id})
 
@@ -149,9 +155,12 @@ def delete_exports():
 
     usernames = request.json['usernames']
 
-    task = batch.delete_zips.delay(
-        usernames=usernames,
-        user_id=user_id,
-        progress_url=url_for('exports.progress', _external=True)
+    task = batch.delete_zips.apply_async(
+        kwargs={
+            "usernames":usernames,
+            "user_id":user_id,
+            "progress_url":url_for('exports.progress', _external=True)
+        },
+        queue="main_queue"
     )
     return jsonify({'taskid': task.id})

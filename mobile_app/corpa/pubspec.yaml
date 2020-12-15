@@ -16,6 +16,7 @@ dependencies:
   permission_handler: ^5.0.0+hotfix.4
   device_preview:
   audioplayer: ^0.8.1
+  flutter_sound: ^6.4.7+1
   flutter:
     sdk: flutter
 

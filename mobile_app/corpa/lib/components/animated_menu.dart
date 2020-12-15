@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:corpora/provider/authentication.dart';
-import 'package:corpora/screens/login.dart';
+import 'package:corpora/screens/public.dart';
 import 'package:flutter/material.dart';
 
 class AnimatedMenu extends StatefulWidget {
@@ -120,7 +120,7 @@ class _MovingMenuState extends State<MovingMenu> {
                       widget.store.logout();
                       // redirect to login screen
                       Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (_) => LoginPage()),
+                        MaterialPageRoute(builder: (_) => PublicServersHome()),
                       );
                     }),
                 IconButton(

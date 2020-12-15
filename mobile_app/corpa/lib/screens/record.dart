@@ -8,7 +8,7 @@ import 'package:corpora/themes/utils.dart';
 import 'package:flutter/material.dart';
 
 import 'package:corpora/provider/authentication.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart' as provider;
 
 class RecordPageProviderWrapper extends StatelessWidget {
   const RecordPageProviderWrapper({Key key, @required this.info})
@@ -19,10 +19,10 @@ class RecordPageProviderWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GlobalOrientationHandler(
-      child: ChangeNotifierProvider(
+      child: provider.ChangeNotifierProvider(
         create: (_) => RecorderStore(),
-        child:
-            Consumer<RecorderStore>(builder: (_, __, ___) => RecordPage(info)),
+        child: provider.Consumer<RecorderStore>(
+            builder: (_, __, ___) => RecordPage(info)),
       ),
     );
   }
@@ -51,13 +51,14 @@ class _RecordPageState extends State<RecordPage> {
   }
 
   Future<void> _asyncInitState() async {
-    Provider.of<RecorderStore>(context, listen: false).userInfo =
+    provider.Provider.of<RecorderStore>(context, listen: false).userInfo =
         widget.authInfo;
     // This order is important
-    Provider.of<RecorderStore>(context, listen: false)
+    provider.Provider.of<RecorderStore>(context, listen: false)
         .fetchGlobalPointer()
         .whenComplete(() {
-      Provider.of<RecorderStore>(context, listen: false).populateSentences();
+      provider.Provider.of<RecorderStore>(context, listen: false)
+          .populateSentences();
     });
   }
 
@@ -67,7 +68,7 @@ class _RecordPageState extends State<RecordPage> {
   }
 
   Widget get _controls {
-    switch (Provider.of<RecorderStore>(context, listen: false).state) {
+    switch (provider.Provider.of<RecorderStore>(context, listen: false).state) {
       case RecordingState.Unknown:
         return SkipCurrent();
         break;
@@ -96,23 +97,23 @@ class _RecordPageState extends State<RecordPage> {
         //     IconButton(
         //       icon: Icon(Icons.folder_open),
         //       onPressed:
-        //           Provider.of<RecorderStore>(context, listen: false).openRec,
+        //           provider.Provider.of<RecorderStore>(context, listen: false).openRec,
         //     ),
         //   ],
         // ),
       ),
-      floatingActionButton: Consumer<RecorderStore>(
+      floatingActionButton: provider.Consumer<RecorderStore>(
         builder: (_, __, ___) => FloatingActionButton(
-          onPressed: Provider.of<RecorderStore>(context, listen: false)
+          onPressed: provider.Provider.of<RecorderStore>(context, listen: false)
               .handleRecording,
           child: Icon(
-            (Provider.of<RecorderStore>(context).state ==
+            (provider.Provider.of<RecorderStore>(context).state ==
                     RecordingState.Started)
                 ? Icons.stop
                 : Icons.fiber_manual_record,
             size: 27,
           ),
-          tooltip: (Provider.of<RecorderStore>(context).state ==
+          tooltip: (provider.Provider.of<RecorderStore>(context).state ==
                   RecordingState.Started)
               ? 'Stop Recording'
               : 'Start Recording',
@@ -138,7 +139,7 @@ class _RecordPageState extends State<RecordPage> {
             ),
           ),
           CustomAppBar(),
-          Provider.of<RecorderStore>(context).promptsSentence(context)
+          provider.Provider.of<RecorderStore>(context).promptsSentence(context)
         ],
       ),
     );
@@ -155,9 +156,10 @@ class Utterance extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: (Provider.of<RecorderStore>(context).currentSentence != null)
+        child: (provider.Provider.of<RecorderStore>(context).currentSentence !=
+                null)
             ? Text(
-                Provider.of<RecorderStore>(context).currentSentence,
+                provider.Provider.of<RecorderStore>(context).currentSentence,
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               )

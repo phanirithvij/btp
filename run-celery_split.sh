@@ -10,4 +10,4 @@ source venv/bin/activate
 # -- python server/scripts/celery.py
 
 echo "[INFO] Celery running in PRODUCTION mode"
-python server/scripts/celery.py
+python server/scripts/celery_split.py

@@ -1,6 +1,127 @@
-{% extends "common.html" %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
 
-Home for visitors
+<head>
+  <meta charset="utf-8" />
+  <!-- <meta name="viewport" content="width=device-width, initial-scale=<a href=" #1, sh">1, sh</a>rink-to-fit=no"> -->
+  <meta name="viewport" content="width=device-width, initial-scale=1 shrink-to-fit=no" />
+  <meta name="description" content="" />
+  <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors" />
+  <meta name="generator" content="Jekyll v3.8.6" />
+  <title>Organization Corpora Dashboard</title>
 
-{% endblock %}
+  <!-- Bootstrap core CSS -->
+  <!-- Latest compiled and minified CSS -->
+  <link href="{{ url_for('static', filename='bootstrap.min.css') }}" rel="stylesheet" />
+  <!-- Favicons -->
+  <meta name="theme-color" content="#563d7c" />
+
+  <style>
+    .bd-placeholder-img {
+      font-size: 1.125rem;
+      text-anchor: middle;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    @media (min-width: 768px) {
+      .bd-placeholder-img-lg {
+        font-size: 3.5rem;
+      }
+    }
+  </style>
+  <!-- Custom styles for this template -->
+  <!-- <link href="/static/dashboard.css" rel="stylesheet"> -->
+  <link href="{{ url_for('static', filename='dashboard.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='settings.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='flickity.min.css') }}" rel="stylesheet" />
+  <style>
+    .centerflex{
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 78px;
+    }
+    .mautomain{
+        margin: auto;
+    }
+    .address {
+        width: 200px;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <main role="main" class="col-md-9 col-lg-10 px-4 mautomain">
+        {% if self_info %}
+        <div class="container centerflex">
+            <h3> About us </h3>
+            <div class="card" style="width: 18rem;">
+                <div class="card-body">
+                    <h5 class="card-title">{{ self_info['name'] }}</h5>
+                    <p class="card-text">
+                        {{ self_info['description'] }}
+                    </p>
+                    <p style="margin:0">
+                        Based on {{self_info['address']}}
+                    </p>
+                    <p style="margin:0">
+                        Reach out via: {{self_info['emails'][0]['email']}}
+                    </p>
+                    <a href="mailto:{{self_info['emails'][0]['email']}}" class="btn btn-primary">Email us</a>
+                    <a href="https://maps.google.com/?q={{self_info['location'][0]}},{{self_info['location'][1]}}"
+                        title="{{self_info['address']}}"
+                        class="btn address"
+                        target="blank">
+                       <img width="28" src="{{ url_for('static', filename='geo-alt.svg') }}" alt="maps-icon"/>
+                       {{self_info['address']}}
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <h3 style="text-align: center">The available Corpora Datasets</h3>
+        <script>
+          var numCollections = parseInt("{{collections | length}}");
+          var types = "{{types}}";
+          types = types.split(',');
+        </script>
+        {% for coll in collections %}
+        <h4 class="lang-code"> {{ coll.type }} </h4>
+        <div class="dataset-gallery margin-bott gallery-{{coll.type}}">
+          {% for ds in coll.dset %}
+          <div id="file-{{ds.name}}" class="carousel-cell">
+            <a href="#">
+              {{ ds.name }}
+            </a>
+            <span data-feather="square" class="sel-box" data-type="{{coll.type}}" data-index="{{loop.index0}}"></span>
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </main>
+    </div>
+  </div>
+  <!-- Latest compiled and minified JavaScript -->
+  <script type="text/javascript" src="{{ url_for('static', filename='jquery-3.5.1.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='flickity.pkgd.min.js') }}"></script>
+  <!-- <script type="text/javascript" src="{{ url_for('static', filename='popper.min.js') }}"></script> -->
+  <script type="text/javascript" src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='feather.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='nanobar.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='popper2.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='tippy-bundle.umd.min.js') }}"></script>
+  <!-- MAIN SCRIPT logic -->
+  <script type="text/javascript" src="{{ url_for('static', filename='manage.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='settings.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='dragdrop.js') }}"></script>
+</body>
+
+</html>

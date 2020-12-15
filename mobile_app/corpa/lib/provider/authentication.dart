@@ -56,6 +56,7 @@ class AuthInfo {
   String apiToken;
   String refreshToken;
   String cookies;
+  ServerDetails serverDetails;
 
   AuthInfo();
 
@@ -98,17 +99,19 @@ class AuthInfo {
     print("Save Login Info");
     SharedPreferences prefs = await SharedPreferences.getInstance();
     // String name = (prefs.getString('name') ?? "");
-    await prefs.setBool('loggedin', true);
-    if (name != null) await prefs.setString('name', name);
-    if (userId != null) await prefs.setString('userId', userId);
-    if (apiToken != null) await prefs.setString('apiToken', apiToken);
+    final prefix = serverDetails.server;
+    await prefs.setBool('$prefix-loggedin', true);
+    if (name != null) await prefs.setString('$prefix-name', name);
+    if (userId != null) await prefs.setString('$prefix-userId', userId);
+    if (apiToken != null) await prefs.setString('$prefix-apiToken', apiToken);
     if (refreshToken != null)
-      await prefs.setString('refreshToken', refreshToken);
-    if (cookies != null) await prefs.setString('cookies', cookies);
+      await prefs.setString('$prefix-refreshToken', refreshToken);
+    if (cookies != null) await prefs.setString('$prefix-cookies', cookies);
   }
 }
 
 class AuthStore extends ChangeNotifier {
+  ServerDetails serverDetails;
   // Store username, pass, dob, etc..
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
@@ -124,7 +127,7 @@ class AuthStore extends ChangeNotifier {
 
   /// fecth from shared_preferences
   String get apiToken {
-    return _prefs.getString('apiToken');
+    return _prefs.getString('${serverDetails.server}-apiToken');
   }
 
   void storeDate(DateTime date) {
@@ -144,13 +147,13 @@ class AuthStore extends ChangeNotifier {
 
     AuthInfo info = AuthInfo();
     if (_validate(type)) {
-      var reqUrl = ServerDetails.authUrl;
-      print("Sent request to ${ServerDetails.authUrl}");
+      var reqUrl = serverDetails.authUrl;
+      print("Sent request to ${serverDetails.authUrl}");
 
       http.Response _response;
       if (type == AuthType.Login) {
         // https://stackoverflow.com/a/55000232/8608146
-        reqUrl = ServerDetails.loginUrl;
+        reqUrl = serverDetails.loginUrl;
         _response = await http.post(
           reqUrl,
           headers: {HttpHeaders.contentTypeHeader: "application/json"},
@@ -161,7 +164,7 @@ class AuthStore extends ChangeNotifier {
         );
       } else {
         // date of birth
-        reqUrl = ServerDetails.registerUrl;
+        reqUrl = serverDetails.registerUrl;
         _response = await http.post(reqUrl, body: {
           "username": username,
           "password": password,
@@ -252,7 +255,7 @@ class AuthStore extends ChangeNotifier {
 
   Future<bool> get isLoggedin async {
     SharedPreferences prefs = await _getPrefs;
-    bool loggedin = prefs.getBool('loggedin') ?? false;
+    bool loggedin = prefs.getBool('${serverDetails.server}-loggedin') ?? false;
     return loggedin;
   }
 
@@ -261,11 +264,12 @@ class AuthStore extends ChangeNotifier {
     if (loggedin || await isLoggedin) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       // String name = (prefs.getString('name') ?? "");
-      String name = prefs.getString('name');
-      String userId = prefs.getString('userId');
-      String apiToken = prefs.getString('apiToken');
-      String refreshToken = prefs.getString('refreshToken');
-      String cookies = prefs.getString('cookies');
+      String name = prefs.getString('${serverDetails.server}-name');
+      String userId = prefs.getString('${serverDetails.server}-userId');
+      String apiToken = prefs.getString('${serverDetails.server}-apiToken');
+      String refreshToken =
+          prefs.getString('${serverDetails.server}-refreshToken');
+      String cookies = prefs.getString('${serverDetails.server}-cookies');
       return info
         ..name = name
         ..userId = userId

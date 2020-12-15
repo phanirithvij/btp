@@ -1,9 +1,10 @@
 import 'package:corpora/components/global.dart';
 import 'package:corpora/screens/register.dart';
 import 'package:flutter/gestures.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart' as provider;
 import 'package:flutter/material.dart';
 
+import 'package:corpora/provider/server.dart';
 import 'package:corpora/provider/authentication.dart';
 import 'package:corpora/themes/utils.dart';
 
@@ -13,6 +14,8 @@ import 'package:corpora/components/submit_btn.dart';
 import 'package:corpora/components/switch_screen_button.dart';
 
 class LoginPage extends StatefulWidget {
+  final String serverURL;
+  LoginPage({Key key, @required this.serverURL}) : super(key: key);
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -21,8 +24,9 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return GlobalOrientationHandler(
-      child: ChangeNotifierProvider(
-        create: (_) => AuthStore(),
+      child: provider.ChangeNotifierProvider(
+        create: (_) => AuthStore()
+          ..serverDetails = (ServerDetails()..server = widget.serverURL),
         child: Scaffold(
           body: GestureDetector(
             onTap: () {
@@ -54,7 +58,7 @@ class _LoginPageState extends State<LoginPage> {
                               Orientation.portrait)
                           ? Padding(padding: EdgeInsets.only(top: 50))
                           : Padding(padding: EdgeInsets.only(top: 20)),
-                      _Buttons(),
+                      _Buttons(serverURL: widget.serverURL),
                       buildRichText(context),
                       Padding(padding: EdgeInsets.only(top: 50)),
                     ],
@@ -84,7 +88,8 @@ class _LoginPageState extends State<LoginPage> {
                     ..onTap = () {
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
-                          builder: (context) => SignupPage(),
+                          builder: (context) =>
+                              SignupPage(serverURL: widget.serverURL),
                         ),
                       );
                     },
@@ -96,13 +101,24 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-class _Buttons extends StatelessWidget {
-  _Buttons({Key key}) : super(key: key);
+class _Buttons extends StatefulWidget {
+  final String serverURL;
+  _Buttons({Key key, @required this.serverURL}) : super(key: key);
 
-  final _children = <Widget>[
-    SwitchScreenButton(login: true),
-    SubmitButton(AuthType.Login),
-  ];
+  @override
+  __ButtonsState createState() => __ButtonsState();
+}
+
+class __ButtonsState extends State<_Buttons> {
+  List<Widget> _children;
+  @override
+  void initState() {
+    super.initState();
+    _children = <Widget>[
+      SwitchScreenButton(login: true, serverURL: widget.serverURL),
+      SubmitButton(AuthType.Login),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -130,8 +146,10 @@ class _FormFields extends StatelessWidget {
     return Container(
       child: Column(
         children: <Widget>[
-          Consumer<AuthStore>(builder: (_, __, ___) => InputUsername()),
-          Consumer<AuthStore>(builder: (_, __, ___) => PasswordField()),
+          provider.Consumer<AuthStore>(
+              builder: (_, __, ___) => InputUsername()),
+          provider.Consumer<AuthStore>(
+              builder: (_, __, ___) => PasswordField()),
         ],
       ),
     );

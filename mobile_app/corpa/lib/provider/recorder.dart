@@ -78,7 +78,7 @@ class RecorderStore with ChangeNotifier {
 
   void saveState(String pointer) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('pointer', pointer);
+    prefs.setString('$pointer', pointer);
   }
 
   /// The global pointer is fecthed from shared_preferences

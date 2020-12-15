@@ -72,6 +72,8 @@ class _SubmitButtonState extends State<SubmitButton> {
     print("Start login");
     AuthInfo info = await Provider.of<AuthStore>(context, listen: false)
         .tryAuth(type: widget.type);
+    info.serverDetails =
+        Provider.of<AuthStore>(context, listen: false).serverDetails;
 
     return info;
   }

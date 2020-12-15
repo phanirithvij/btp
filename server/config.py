@@ -22,5 +22,16 @@ class Config:
     CACHE_TYPE = "redis"
     CACHE_REDIS_URL = 'redis://localhost:6379/1'
     CACHE_DEFAULT_TIMEOUT = 3
+    # TODO os.environ get
     SECRET_KEY = r'<çDÒ\x88\r/Ò\x9dµ\x90k!a|RÈ\x96#ÇÔ^1à'
     TEMP_DIR = '/tmp/storage'
+    CENTRAL_SERVER_URL = "http://localhost:9090"
+    CENTRAL_SERVER_INFO_URL = CENTRAL_SERVER_URL + "/api/v1/orgs/info"
+    CENTRAL_SERVER_TOKEN_URL = CENTRAL_SERVER_URL + "/api/v1/orgs/token"
+    CENTRAL_SERVER_PING_URL = CENTRAL_SERVER_URL + "/api/v1/orgs/ping"
+    SESSION_DUMP_FILE = ".session.dump.bin"
+    USE_CENTRAL_SERVER = True
+    # TODO os.environ get
+    CENTRAL_SERVER_EMAIL = "main@sample.org"
+    CENTRAL_SERVER_PASSWORD = "sample"
+    FLASK_DEBUG = False

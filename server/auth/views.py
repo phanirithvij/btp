@@ -87,9 +87,9 @@ def new_user():
         _username: str = request.form.get('username')
         _password: str = request.form.get('password')
 
-        # TDO create safe username for the user
+        # TODO create safe username for the user
         # and save the given username as name
-        
+        # remove emojis and such 
 
         # TODO remove this field from the form after we done with forntend
         # Or make this only feild only valid when accessed via email.

@@ -10,49 +10,61 @@ import 'package:corpora/components/switch_screen_button.dart';
 import 'package:corpora/components/submit_btn.dart';
 import 'package:corpora/components/input_passwd.dart';
 
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart' as provider;
 import 'package:corpora/provider/authentication.dart';
+import 'package:corpora/provider/server.dart';
 
 class SignupPage extends StatefulWidget {
+  final String serverURL;
+  SignupPage({Key key, this.serverURL}) : super(key: key);
   @override
   _SignupPageState createState() => _SignupPageState();
 }
 
 class _SignupPageState extends State<SignupPage> {
-  static final _signup = Center(
+  final _signup = Center(
       child: Text(
     "Sign Up",
     style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
   ));
-  static final _formFields = _FormFields();
-  static final _buttons = _Buttons();
+  final _formFields = _FormFields();
+  _Buttons _buttons;
 
-  final _columnChildren = <Widget>[
-    // Some space only when in portrait mode
-    Padding(padding: EdgeInsets.only(top: 70)),
-    _signup,
-    _formFields,
-    // Less space when not in portrait mode
-    Padding(padding: EdgeInsets.only(top: 50)),
-    _buttons,
-  ];
-  final _rowChildren = <Widget>[
-    Expanded(flex: 1, child: _signup),
-    Expanded(
-      child: _formFields,
-      flex: 4,
-    ),
-    Expanded(
-      child: _buttons,
-      flex: 1,
-    ),
-  ];
+  List<Widget> _columnChildren;
+  List<Widget> _rowChildren;
+
+  @override
+  void initState() {
+    super.initState();
+    _buttons = _Buttons(serverURL: widget.serverURL);
+    _columnChildren = <Widget>[
+      // Some space only when in portrait mode
+      Padding(padding: EdgeInsets.only(top: 70)),
+      _signup,
+      _formFields,
+      // Less space when not in portrait mode
+      Padding(padding: EdgeInsets.only(top: 50)),
+      _buttons,
+    ];
+    _rowChildren = <Widget>[
+      Expanded(flex: 1, child: _signup),
+      Expanded(
+        child: _formFields,
+        flex: 4,
+      ),
+      Expanded(
+        child: _buttons,
+        flex: 1,
+      ),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
     return GlobalOrientationHandler(
-      child: ChangeNotifierProvider(
-        create: (_) => AuthStore(),
+      child: provider.ChangeNotifierProvider(
+        create: (_) => AuthStore()
+          ..serverDetails = (ServerDetails()..server = widget.serverURL),
         child: Scaffold(
           body: GestureDetector(
             onTap: () {
@@ -92,13 +104,25 @@ class _SignupPageState extends State<SignupPage> {
   }
 }
 
-class _Buttons extends StatelessWidget {
-  _Buttons({Key key}) : super(key: key);
+class _Buttons extends StatefulWidget {
+  final String serverURL;
+  _Buttons({Key key, @required this.serverURL}) : super(key: key);
 
-  final _children = <Widget>[
-    SwitchScreenButton(login: false),
-    SubmitButton(AuthType.Register),
-  ];
+  @override
+  __ButtonsState createState() => __ButtonsState();
+}
+
+class __ButtonsState extends State<_Buttons> {
+  List<Widget> _children;
+
+  @override
+  void initState() {
+    super.initState();
+    _children = <Widget>[
+      SwitchScreenButton(login: false, serverURL: widget.serverURL),
+      SubmitButton(AuthType.Register),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -125,10 +149,10 @@ class _FormFields extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        Consumer<AuthStore>(builder: (_, __, ___) => InputUsername()),
-        Consumer<AuthStore>(builder: (_, __, ___) => PasswordField()),
-        Consumer<AuthStore>(builder: (_, __, ___) => DatePicker()),
-        Consumer<AuthStore>(builder: (_, __, ___) => InputGender()),
+        provider.Consumer<AuthStore>(builder: (_, __, ___) => InputUsername()),
+        provider.Consumer<AuthStore>(builder: (_, __, ___) => PasswordField()),
+        provider.Consumer<AuthStore>(builder: (_, __, ___) => DatePicker()),
+        provider.Consumer<AuthStore>(builder: (_, __, ___) => InputGender()),
       ],
     );
   }

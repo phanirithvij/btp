@@ -163,3 +163,4 @@ dump.rdb
 pyvenv/
 *.mp4
 assets/
+.session.dump.bin

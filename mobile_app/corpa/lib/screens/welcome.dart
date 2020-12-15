@@ -1,4 +1,5 @@
 import 'package:corpora/screens/login.dart';
+import 'package:corpora/screens/public.dart';
 import 'package:corpora/screens/register.dart';
 import 'package:corpora/themes/utils.dart';
 import 'package:flutter/material.dart';
@@ -67,7 +68,23 @@ class _WelcomePageState extends State<WelcomePage> {
                 ),
               ),
               Padding(padding: EdgeInsets.only(top: 50)),
-              buildButtonBar(context),
+              _permissionsGranted
+                  ? RaisedButton(
+                      child: Text("Next"),
+                      onPressed: () {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (context) => PublicServersHome(),
+                          ),
+                        );
+                      },
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(200)),
+                      ),
+                      color: Colors.green.shade700,
+                    )
+                  : Container(),
+              // buildButtonBar(context),
             ],
           ),
         ),

@@ -1,13 +1,9 @@
 import os
 import shutil
-import subprocess
 import zipfile
 import zlib
 from pathlib import Path
-from time import time
-from timeit import default_timer as timer
 
-import requests
 from celery.signals import (celeryd_init, task_failure, task_postrun,
                             task_prerun)
 from tqdm import tqdm
@@ -51,7 +47,7 @@ def pretask(task_id=None, task=None, *args, **kwargs):
             if running is None:
                 server.cache.set('running_zip_tasks', {})
             print('-----')
-            # print(kwargs, type(kwargs))
+            print(kwargs, type(kwargs))
             running[task_id] = kwargs['kwargs']
             logger.info(running[task_id])
             server.cache.set('running_zip_tasks', running)
@@ -246,20 +242,14 @@ def zip_files_partial(
     for file in files:
         shutil.copy(userfs.user_dir() / file, dirname)
 
-    task = zip_files.delay(
-        out_filepath=Config.TEMP_DIR,
-        dir_name=f'{dirname}',
-        username=username,
-        user_id=user_id,
-        update_url=update_url,
-        partial=True,
+    task = zip_files.apply_async(
+        kwargs={
+            "out_filepath": Config.TEMP_DIR,
+            "dir_name": f'{dirname}',
+            "username": username,
+            "user_id": user_id,
+            "update_url": update_url,
+            "partial": True,
+        },
+        queue="main_queue",
     )
-
-
-@celery.task(bind=True, base=ProgressTask)
-def split_corpora(
-    self,
-    file_path: str,
-    split_path: str
-):
-    pass

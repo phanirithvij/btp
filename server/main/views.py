@@ -1,8 +1,11 @@
+from server.db.schema.sentences import GET_ALL_SENTENCES_BY_DATASET, GET_RANDOM_CORPA_AFTER, GET_STARTING_INDEX_SENTENCES_BY_DATASET, GET_TOTAL_CORPA_LEN_FORDB
+from server.main.utils import get_session
 import calendar
 import datetime
 import json
 import os
 import random
+from server.config import Config
 import shutil
 import sys
 import time
@@ -13,13 +16,14 @@ from flask import (current_app, jsonify, redirect, render_template, request,
 from flask_jwt_extended import jwt_required
 from werkzeug.utils import secure_filename
 
-import server.tasks.batch as batch
+import server.tasks_split.save as save
 from server import cache
 from server.db import UserFileSystem
 from server.db.user import *
 from server.main import main
 
 DB = Database("data/data.db")
+SENTENCEDB = Database("data/sentences.db")
 
 # here it should be parents[2]
 up_one = Path(__file__).parents[2]
@@ -32,9 +36,76 @@ def index():
     return render_template('index.html')
 
 
+def get_self_info():
+    # get cookie by sending username & pass
+    # TODO add a register server page
+    # then redirect to the central server register page
+    # save those here
+    try:
+        session = get_session()
+        r = session.get(Config.CENTRAL_SERVER_INFO_URL)
+        return r.json()
+    except Exception:
+        pass
+    return {}
+
+
 @main.route('/home')
 def public_home():
-    return render_template('home.html')
+    # TODO get request to the central server and get our own info
+    # TODO self public info
+    self_info = get_self_info()
+
+    dataset_types = []
+    # dataset_types = ['eng', 'hin', 'tel', 'mix-hin-tel']
+    for dire in (up_one / 'corpora' / 'uploads').iterdir():
+        if dire.is_dir():
+            dataset_types.append(dire.name)
+
+    collections = []
+    # TODO store in cache
+    config_data = {}
+    with open('config.json', 'r') as config:
+        config_data = json.load(config)
+
+    print(config_data)
+
+    for dt in dataset_types:
+        datasets = []
+        selected_index = 0
+        index = 0
+        for file in (up_one / 'corpora' / 'uploads' / dt).iterdir():
+            if file.is_file():
+                new_file = file.stat().st_ctime
+                selected = False
+                if dt in config_data['categories'] and config_data['categories'][dt]:
+                    current = config_data['categories'][dt]['current']
+                    if current:
+                        current = current.strip()
+                        if current == str(file.name):
+                            selected = True
+                            selected_index = index
+                datasets.append(
+                    {
+                        'name': str(file.name),
+                        'current': selected,
+                        'new': new_file
+                    })
+                index += 1
+
+        collections.append({'dset': datasets, 'type': dt})
+
+    # TODO show languages and datasets
+    # TODO login on server startup and keep session, use the same session on every request
+    print(self_info)
+
+    # return render_template('home.html', collections=collections, types=",".join(dataset_types))
+    return render_template('home.html', collections=collections, types=",".join(dataset_types), self_info=self_info)
+
+
+@main.route('/central')
+def central_home():
+    return render_template("central.html")
 
 
 @main.route('/login')
@@ -98,7 +169,8 @@ def dashboard_settings_del_lang():
     try:
         shutil.move(str(dirpath), str(dest))
     except:
-        shutil.move(str(dirpath), str(dest) + str(random.randint(100, 2832989)))
+        shutil.move(str(dirpath), str(dest) +
+                    str(random.randint(100, 2832989)))
     return jsonify({'success': True, 'error': None})
 
 
@@ -151,8 +223,8 @@ def dashboard_settings_upload():
 
         try:
             os.makedirs(filepath.parents[0])
-        except Exception as e:
-            print(e)
+        except Exception:
+            pass
 
         file.save(filepath)
         size = os.stat(filepath).st_size
@@ -160,9 +232,14 @@ def dashboard_settings_upload():
 
         print(filepath.absolute(), type(filepath.absolute()))
 
-        task = batch.split_corpora.delay(
-            file_path=str(filepath.absolute()),
-            split_path=f'split-{langcode}'
+        task = save.split_corpora.apply_async(
+            kwargs={
+                "file_path": str(filepath.absolute()),
+                "split_path": f'split-{langcode}',
+                "langcode": langcode,
+                "filename": filename,
+            },
+            queue="split_queue",
         )
         return jsonify({
             'status': 'ok',
@@ -456,19 +533,62 @@ def upload_file():
             return jsonify({'status': 'failed', 'msg': f'invalid file type {file.filename}'})
 
 
-@main.route('/data')
-@jwt_required
-def random_corpa():
-    # print(session['user'])
-    data_dir: Path = up_one / 'corpora' / 'split'
-    x = 0
-    for filename in data_dir.iterdir():
-        if filename.is_file():
-            x += 1
-    return send_from_directory(
-        str(data_dir),
-        "out{}.txt".format(random.randint(1, x))
-    )
+# TODO @jwt_required
+@main.route('/data/<string:langcat>/<string:dbname>')
+def random_corpa(langcat: str, dbname: str):
+    results = SENTENCEDB.execute(GET_TOTAL_CORPA_LEN_FORDB, (langcat, dbname))
+    count = results[0]['COUNT(*)']
+    start_x = SENTENCEDB.execute(
+        GET_STARTING_INDEX_SENTENCES_BY_DATASET, (langcat, dbname))
+    start_idx = start_x[0]['id']
+    start_x = random.randint(1, count) + start_idx
+    results = SENTENCEDB.execute(
+        GET_RANDOM_CORPA_AFTER, (langcat, dbname, start_x, 100))
+    return jsonify(results)
+
+
+@main.route('/data/list')
+def public_list():
+    dataset_types = []
+    # dataset_types = ['eng', 'hin', 'tel', 'mix-hin-tel']
+    for dire in (up_one / 'corpora' / 'uploads').iterdir():
+        if dire.is_dir():
+            dataset_types.append(dire.name)
+
+    collections = []
+    # TODO store in cache
+    config_data = {}
+    with open('config.json', 'r') as config:
+        config_data = json.load(config)
+
+    print(config_data)
+
+    for dt in dataset_types:
+        datasets = []
+        selected_index = 0
+        index = 0
+        for file in (up_one / 'corpora' / 'uploads' / dt).iterdir():
+            if file.is_file():
+                new_file = file.stat().st_ctime
+                selected = False
+                if dt in config_data['categories'] and config_data['categories'][dt]:
+                    current = config_data['categories'][dt]['current']
+                    if current:
+                        current = current.strip()
+                        if current == str(file.name):
+                            selected = True
+                            selected_index = index
+                datasets.append(
+                    {
+                        'name': str(file.name),
+                        'current': selected,
+                        'new': new_file
+                    })
+                index += 1
+
+        collections.append({'dset': datasets, 'type': dt})
+
+    return jsonify(collections=collections, dataset_types=dataset_types)
 
 
 @main.route('/skipped', methods=['POST'])
@@ -517,8 +637,8 @@ ALLOWED_SETTINGS_EXTENSIONS = set(['txt', 'csv'])
 
 
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return '.' in filename and filename.rsplit('.', 1)[-1].lower() in ALLOWED_EXTENSIONS
 
 
 def allowed_settings_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_SETTINGS_EXTENSIONS
+    return '.' in filename and filename.rsplit('.', 1)[-1].lower() in ALLOWED_SETTINGS_EXTENSIONS

@@ -10,7 +10,7 @@ from datetime import datetime
 from pathlib import Path
 from shutil import copyfile
 
-logfile = 'logs/latest.log'
+logfile = 'logs/latest-split.log'
 
 LOG_FILES_LIMIT = 10
 
@@ -45,8 +45,9 @@ with open(logfile, 'w'):
 
 # https://stackoverflow.com/a/26021940/8608146
 # need to point to the celery object
+# 
 command_args = [
-    'celery', '-E', '-A', 'server.tasks.celery', 'worker', '--loglevel=info', '-f', logfile, '-Q', 'main_queue'
+    'celery', '-E', '-A', 'server.tasks_split.celery', 'worker', '--loglevel=info', '--concurrency=1', '-f', logfile, '-Q', 'split_queue'
 ]
 proc = subprocess.Popen(command_args, shell=False)
 

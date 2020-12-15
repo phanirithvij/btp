@@ -15,17 +15,127 @@ import 'package:shared_preferences/shared_preferences.dart';
 // Not for this project but useful for me when building the plex like app
 // This server info should be fetched from the network device discovery
 
+// {
+//   id: 1
+//   address: Hyderabad
+//   alias: sample
+//   description: Sample Description
+//   emails: [
+//     {
+//       private: false
+//       email: public@sample.org
+//       id: 2
+//       main: false
+//     }
+//   ]
+//   location: null
+//   name: Sample Organization
+//   private: false
+//   privateLoc: null
+//   server: http://localhost:8080
+//   serverAlias: SampleDBX1
+//   serverID: 1
+// }
+
+class ServerObj {
+  int id;
+  String address;
+  String alias;
+  String name;
+  String description;
+  List<Email> emails;
+  String serverAlias;
+  int serverID;
+  String server;
+  bool private;
+  bool privateLoc;
+  List<double> location;
+  ServerObj();
+
+  factory ServerObj.fromJson(Map<String, dynamic> json) {
+    return ServerObj()
+      ..id = json['id']
+      ..name = json['name']
+      ..description = json['description']
+      ..alias = json['alias']
+      ..server = json['server']
+      ..emails = (json['emails'] as List).map((e) => Email.fromJson(e)).toList()
+      ..serverAlias = json['serverAlias']
+      ..private = json['private']
+      ..privateLoc = json['privateLoc']
+      ..location = json['location']
+      ..address = json['address']
+      ..serverID = json['serverID'];
+  }
+}
+
+class Email {
+  String email;
+  bool private;
+  int id;
+  bool main;
+
+  Email();
+
+  factory Email.fromJson(Map<String, dynamic> json) {
+    return Email()
+      ..email = json['email']
+      ..id = json['id']
+      ..main = json['main']
+      ..private = json['private'];
+  }
+}
+
 /// Server details configured to my machine for now
 class ServerDetails {
-  static final String server = "http://192.168.43.159:3000";
-  static final String fileUploadUrl = server + "/upload";
-  static final String fileDownloadUrl = server + "/files";
-  static final String corporaUrl = server + "/data";
-  static final String authUrl = server + "/auth";
-  static final String refreshTokenUrl = server + "/refresh";
-  static final String loginUrl = authUrl + "/login";
-  static final String registerUrl = authUrl + "/new";
-  static final String skipUrl = server + "/skipped";
+  String _server;
+  set server(String s) {
+    this._server = s;
+  }
+
+  String get server {
+    return _server;
+  }
+
+  String get centralServer {
+    return "http://192.168.0.102:9090";
+  }
+
+  String get centralServerPublicList {
+    return centralServer + '/api/v1/home/public';
+  }
+
+  String get fileUploadUrl {
+    return server + "/upload";
+  }
+
+  String get fileDownloadUrl {
+    return server + "/files";
+  }
+
+  String get corporaUrl {
+    return server + "/data";
+  }
+
+  String get authUrl {
+    return server + "/auth";
+  }
+
+  String get refreshTokenUrl {
+    return server + "/refresh";
+  }
+
+  String get loginUrl {
+    return authUrl + "/login";
+  }
+
+  String get registerUrl {
+    return authUrl + "/new";
+  }
+
+  String get skipUrl {
+    return server + "/skipped";
+  }
 }
 
 class ServerUtils {
@@ -37,7 +147,7 @@ class ServerUtils {
 
     print("length $length");
 
-    var uri = Uri.parse(ServerDetails.fileUploadUrl);
+    var uri = Uri.parse(authInfo.serverDetails.fileUploadUrl);
 
     var request = http.MultipartRequest("POST", uri);
     var multipartFile = http.MultipartFile('file', stream, length,
@@ -63,7 +173,7 @@ class ServerUtils {
   // TODO refreshtoken method
   static Future<String> refreshToken(AuthInfo info) async {
     final _response = await http.get(
-      ServerDetails.refreshTokenUrl,
+      info.serverDetails.refreshTokenUrl,
       headers: {
         HttpHeaders.authorizationHeader: "Bearer ${info.refreshToken}",
         HttpHeaders.cookieHeader: info.cookies,
@@ -76,11 +186,24 @@ class ServerUtils {
     return "_newtoken";
   }
 
+  static Future<List<ServerObj>> getPublicServers() async {
+    final _response = await http.get(
+      // no need to worry about .server here central server is different
+      ServerDetails().centralServerPublicList,
+    );
+
+    final jsonx = json.decode(_response.body);
+    final sObjs = (jsonx as List).map((x) => ServerObj.fromJson(x)).toList();
+    print(sObjs);
+
+    return sObjs;
+  }
+
   static Future<List<String>> getSentences(
       AuthInfo info, String pointer, bool refresh) async {
     print('start cahce data');
     final _response = await CustomCacheManager().getSingleFile(
-      ServerDetails.corporaUrl,
+      info.serverDetails.corporaUrl,
       headers: {
         HttpHeaders.authorizationHeader: "Bearer ${info.apiToken}",
         HttpHeaders.cookieHeader: info.cookies,
@@ -128,7 +251,7 @@ class ServerUtils {
     if (!_success) print("Failed to set tempbuffer in saved preferences");
 
     final _response = await http.post(
-      ServerDetails.skipUrl,
+      info.serverDetails.skipUrl,
       headers: {
         HttpHeaders.authorizationHeader: "Bearer ${info.apiToken}",
         HttpHeaders.cookieHeader: info.cookies,

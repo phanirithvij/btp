@@ -196,6 +196,12 @@ dropAreas.forEach((dropArea, i) => {
         updateProgress(fileindex, 100); // <- Add this
       } else if (xhr.readyState == 4 && xhr.status != 200) {
         // Error. Inform the user
+        console.error(xhr.responseText);
+        $(`.error-${types[i]}`).show();
+        if (xhr.responseText.startsWith('{')) {
+          $(`.error-${types[i]}`).text(JSON.parse(xhr.responseText).msg);
+        } else
+          $(`.error-${types[i]}`).text(xhr.responseText);
       }
     });
 

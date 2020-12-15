@@ -8,6 +8,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from server.config import Config
 from server.db.schema.adminq import CREATE_ADMIN_TABLE, CREATE_ROLES_TABLE
+from server.db.schema.sentences import CREATE_SENTENCES_TABLE
 from server.db.schema.queries import *
 
 
