@@ -14,6 +14,7 @@ which pip; pip -V
 
 if [ $new_inst == true ]; then
     echo "Installing python requirements"
+    pip install wheel
     pip install -r server/requirements.latest.txt
 fi
 
